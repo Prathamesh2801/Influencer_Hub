@@ -3,11 +3,12 @@ import { fetchAllReels } from "../../api/SuperAdmin/FetchAllReels";
 import { getComments, addComment } from "../../api/Reel Section/CommentAPI";
 import { updateVideoScore } from "../../api/Reel Section/ScoreAPI";
 import { EyeIcon, PlayIcon } from "@heroicons/react/24/solid";
-import {  CheckIcon, DownloadIcon, XIcon } from "lucide-react";
+import { CheckIcon, DownloadIcon, XIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UpdateVideoStatus } from "../../api/Reel Section/VideoStaus";
-import {ArrowUpTrayIcon} from "@heroicons/react/24/outline";
+import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
+import RepostModal from "./RepostModal";
 
 // Video Card Component
 function VideoCard({ video, onClick }) {
@@ -125,6 +126,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState("");
   const [submittingScore, setSubmittingScore] = useState(false);
+  const [isRepostModalOpen, setIsRepostModalOpen] = useState(false);
   const userRole = localStorage.getItem("Role");
   const canComment = ["Admin", "Client", "Creator"].includes(userRole);
 
@@ -347,6 +349,17 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         videoStatusText = "Unknown";
     }
   }
+
+  const handleRepostSuccess = (repostedData) => {
+    setIsRepostModalOpen(false);
+    // toast.success("Video reposted successfully");
+
+    // Update the video list with new data
+    if (typeof onStatusUpdate === "function") {
+      onStatusUpdate(video.Video_ID, 0); // Reset status to pending
+    }
+    onClose();
+  };
 
   if (!isOpen || !video) return null;
 
@@ -721,6 +734,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                   <button
                     className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
                     disabled={loading}
+                    onClick={() => setIsRepostModalOpen(true)}
                   >
                     <ArrowUpTrayIcon className="h-5 w-5" />
                     <span>Repost the video</span>
@@ -741,6 +755,12 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
           </div>
         </div>
       </div>
+      <RepostModal
+        video={video}
+        isOpen={isRepostModalOpen}
+        onClose={() => setIsRepostModalOpen(false)}
+        onSuccess={handleRepostSuccess}
+      />
     </div>
   );
 }
