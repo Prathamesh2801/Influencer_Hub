@@ -21,7 +21,7 @@ import {
   getAllCredentials,
   updatePassword,
 } from "../../api/SuperAdmin/Credentials";
-import { WrenchScrewdriverIcon, TrashIcon, PencilIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { WrenchScrewdriverIcon, TrashIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import ConfirmModal from "../helper/ConfirmModal";
 import EditPasswordModal from "../helper/EditPasswordModal";
 import toast from "react-hot-toast";
@@ -181,7 +181,7 @@ export default function CredentialRecords() {
                 setSelectedUser(username);
                 setShowEditModal(true);
               }}
-              className="text-blue-600 hover:text-red-800 transition-colors"
+              className="text-blue-600 hover:text-blue-800 transition-colors"
               title="Change Password"
             >
               <PencilSquareIcon className="w-5 h-5" />

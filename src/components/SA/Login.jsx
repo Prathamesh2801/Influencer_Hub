@@ -17,6 +17,7 @@ export default function Login() {
       toast.success(response.data.Message || "Login successful!");
       console.log("Login successful:", response);
       localStorage.setItem("token", response.data.Token);
+      localStorage.setItem("Role", response.data.Role);
       navigate("/dashboard");
       setUsername("");
       setPassword("");
