@@ -1,19 +1,13 @@
 import { useEffect, useState, useMemo } from "react";
 import { fetchAllReels } from "../../api/SuperAdmin/FetchAllReels";
-import {
-  EyeIcon,
-  PlayIcon,
-} from "@heroicons/react/24/solid";
-import {
-  Check,
-  CheckIcon,
-  DownloadIcon,
-
-  XIcon,
-} from "lucide-react";
+import { getComments, addComment } from "../../api/Reel Section/CommentAPI";
+import { updateVideoScore } from "../../api/Reel Section/ScoreAPI";
+import { EyeIcon, PlayIcon } from "@heroicons/react/24/solid";
+import {  CheckIcon, DownloadIcon, XIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UpdateVideoStatus } from "../../api/Reel Section/VideoStaus";
+import {ArrowUpTrayIcon} from "@heroicons/react/24/outline";
 
 // Video Card Component
 function VideoCard({ video, onClick }) {
@@ -130,8 +124,73 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState("");
+  const [submittingScore, setSubmittingScore] = useState(false);
   const userRole = localStorage.getItem("Role");
   const canComment = ["Admin", "Client", "Creator"].includes(userRole);
+
+  // Fetch comments when modal opens
+  useEffect(() => {
+    if (video && isOpen) {
+      fetchComments();
+    }
+  }, [video, isOpen]);
+
+  const fetchComments = async () => {
+    try {
+      const response = await getComments(video.Video_ID);
+      if (response.data?.Status) {
+        setComments(
+          response.data.Data.map((comment) => ({
+            id: comment.SR_NO,
+            text: comment.Message,
+            user: comment.Created_BY,
+            role:
+              comment.Created_BY === video.Username
+                ? "Creator"
+                : comment.Created_BY === video.Coordinator_username
+                ? "Coordinator"
+                : "Admin",
+            timestamp: comment.Created_AT,
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      toast.error("Failed to load comments");
+    }
+  };
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!comment.trim()) return;
+
+    try {
+      const response = await addComment(video.Video_ID, comment.trim());
+
+      if (response.data?.Status) {
+        // Add the new comment to the list
+        const newComment = {
+          id: Date.now(),
+          text: comment,
+          user: localStorage.getItem("username") || "User",
+          role: userRole,
+          timestamp: new Date().toISOString(),
+        };
+
+        setComments([newComment, ...comments]);
+        setComment("");
+
+        toast.success("Comment added successfully");
+        // Refresh comments to get the latest
+        fetchComments();
+      } else {
+        toast.error(response.data?.Message || "Failed to add comment");
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      toast.error("Failed to add comment");
+    }
+  };
 
   const handleStatusUpdate = async (newStatus) => {
     if (loading) return;
@@ -140,7 +199,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
       0: "Video marked as pending",
       1: "Video moved to review",
       2: "Video approved successfully",
-      3: "Video rejected"
+      3: "Video rejected",
     };
 
     try {
@@ -149,17 +208,20 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
 
       if (response?.data?.Status) {
         // Show success toast
-        toast.success(statusMessages[newStatus] || "Status updated successfully", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true
-        });
+        toast.success(
+          statusMessages[newStatus] || "Status updated successfully",
+          {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
 
         // Update parent component
-        if (typeof onStatusUpdate === 'function') {
+        if (typeof onStatusUpdate === "function") {
           onStatusUpdate(video.Video_ID, newStatus);
         }
 
@@ -167,32 +229,86 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         onClose();
       } else {
         // Show error toast
-        toast.error(response?.data?.Message || "Failed to update video status", {
+        toast.error(
+          response?.data?.Message || "Failed to update video status",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      // Show error toast
+      toast.error(
+        error.response?.data?.Message || "Failed to connect to server",
+        {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
-          draggable: true
-        });
-      }
-    } catch (error) {
-      console.error("Error updating status:", error);
-      // Show error toast
-      toast.error(error.response?.data?.Message || "Failed to connect to server", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true
-      });
+          draggable: true,
+        }
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  if (!isOpen || !video) return null;
+  const handleScoreSubmit = async () => {
+    if (!score || submittingScore) return;
+
+    try {
+      setSubmittingScore(true);
+      const response = await updateVideoScore(video.Video_ID, score);
+
+      if (response?.data?.Status) {
+        toast.success("Score updated successfully", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+
+        // Update the local video object with new score
+        video.Score = score;
+
+        // Update parent component if callback exists
+        if (typeof onStatusUpdate === "function") {
+          onStatusUpdate(video.Video_ID, video.Status, score);
+        }
+        setScore("");
+      } else {
+        toast.error(response?.data?.Message || "Failed to update score", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating score:", error);
+      toast.error("Failed to update score", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } finally {
+      setSubmittingScore(false);
+    }
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -205,44 +321,34 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
     });
   };
 
-  const handleCommentSubmit = (e) => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-
-    // Add the new comment to the list
-    const newComment = {
-      id: Date.now(),
-      text: comment,
-      user: localStorage.getItem("username") || "User",
-      role: userRole,
-      timestamp: new Date().toISOString(),
-    };
-
-    setComments([newComment, ...comments]);
-    setComment("");
-    // TODO: Send comment to backend API
-  };
-
+  // Define status colors and text before rendering
   let videoStatusBadgeColor;
   let videoStatusText;
-  switch (video.Status) {
-    case 0:
-      videoStatusBadgeColor = "bg-yellow-100 text-yellow-800";
-      videoStatusText = "Pending";
-      break;
-    case 1:
-      videoStatusBadgeColor = "bg-blue-100 text-blue-800";
-      videoStatusText = "Review";
-      break;
-    case 2:
-      videoStatusBadgeColor = "bg-green-100 text-green-800";
-      videoStatusText = "Approved";
-      break;
-    case 3:
-      videoStatusBadgeColor = "bg-red-100 text-red-800";
-      videoStatusText = "Rejected";
-      break;
+  if (video) {
+    switch (video.Status) {
+      case 0:
+        videoStatusBadgeColor = "bg-yellow-100 text-yellow-800";
+        videoStatusText = "Pending";
+        break;
+      case 1:
+        videoStatusBadgeColor = "bg-blue-100 text-blue-800";
+        videoStatusText = "Review";
+        break;
+      case 2:
+        videoStatusBadgeColor = "bg-green-100 text-green-800";
+        videoStatusText = "Approved";
+        break;
+      case 3:
+        videoStatusBadgeColor = "bg-red-100 text-red-800";
+        videoStatusText = "Rejected";
+        break;
+      default:
+        videoStatusBadgeColor = "bg-gray-100 text-gray-800";
+        videoStatusText = "Unknown";
+    }
   }
+
+  if (!isOpen || !video) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -354,9 +460,9 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                             <div>
                               <p className="text-sm font-medium text-gray-900">
                                 {comment.user}
-                                <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600">
+                                {/* <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600">
                                   {comment.role}
-                                </span>
+                                </span> */}
                               </p>
                               <p className="mt-1 text-sm text-gray-700">
                                 {comment.text}
@@ -529,9 +635,38 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                               }
                             }}
                           />
-                        </div>
-                        <button className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700  space-x-2">
-                          Sumbit
+                        </div>{" "}
+                        <button
+                          onClick={handleScoreSubmit}
+                          disabled={!score || submittingScore}
+                          className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+                        >
+                          {submittingScore ? (
+                            <>
+                              <svg
+                                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                />
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                />
+                              </svg>
+                              <span>Updating...</span>
+                            </>
+                          ) : (
+                            <span>Submit Score</span>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -582,6 +717,15 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                     </button>
                   </>
                 )}
+                {userRole === "Creator" && (
+                  <button
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                    disabled={loading}
+                  >
+                    <ArrowUpTrayIcon className="h-5 w-5" />
+                    <span>Repost the video</span>
+                  </button>
+                )}
 
                 {/* Download button visible to all roles */}
                 <button
@@ -613,6 +757,7 @@ function FilterSection({
     <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Search Input */}
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Search Creator
@@ -836,6 +981,21 @@ export default function ReelsSection() {
     setCurrentPage(newPage);
   };
 
+  const handleVideoUpdate = (videoId, newStatus, newScore = null) => {
+    setVideos((prevVideos) =>
+      prevVideos.map((video) => {
+        if (video.Video_ID === videoId) {
+          return {
+            ...video,
+            Status: newStatus !== undefined ? newStatus : video.Status,
+            Score: newScore !== null ? newScore : video.Score,
+          };
+        }
+        return video;
+      })
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -895,7 +1055,6 @@ export default function ReelsSection() {
           </div>
         </div>
       </div>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
@@ -1085,21 +1244,13 @@ export default function ReelsSection() {
             </div>
           </>
         )}
-      </div>      {/* Video Detail Modal */}
+      </div>{" "}
+      {/* Video Detail Modal */}
       <VideoDetailModal
         video={selectedVideo}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onStatusUpdate={(videoId, newStatus) => {
-          // Update the video status in the local state
-          setVideos(prevVideos => 
-            prevVideos.map(video => 
-              video.Video_ID === videoId 
-                ? { ...video, Status: newStatus }
-                : video
-            )
-          );
-        }}
+        onStatusUpdate={handleVideoUpdate}
       />
     </div>
   );
