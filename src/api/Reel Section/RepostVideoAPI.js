@@ -1,12 +1,14 @@
 import axios from "axios";
 import { API_URL } from "../../../config";
 
-export async function repostVideo(videoId, videoFile) {
+export async function repostVideo(videoId = null, videoFile) {
   try {
     const formData = new FormData();
-    formData.append("Video_ID", videoId);
+    if (videoId !== null && videoId !== 'new') {
+      formData.append("Video_ID", videoId);
+    }
     formData.append("video", videoFile);
-    
+
     const response = await axios.post(
       `${API_URL}/Nykaa/User/videos.php`,
       formData,

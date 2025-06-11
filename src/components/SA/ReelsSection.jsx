@@ -773,104 +773,118 @@ function FilterSection({
   totalVideos,
   filteredCount,
   role,
+  onUploadClick
 }) {
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* Search Input */}
-        {role !== "Creator" && (
+      <div className="flex justify-between items-center mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 flex-1">
+          {/* Search Input */}
+          {role !== "Creator" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Search Creator
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Search by username..."
+                value={filters.searchQuery}
+                onChange={(e) =>
+                  setFilters({ ...filters, searchQuery: e.target.value })
+                }
+              />
+            </div>
+          )}
+          
+          {/* Status Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search Creator
-            </label>
-            <input
-              type="text"
-              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Search by username..."
-              value={filters.searchQuery}
-              onChange={(e) =>
-                setFilters({ ...filters, searchQuery: e.target.value })
-              }
-            />
-          </div>
-        )}
-
-        {/* Status Filter */}
-        {/* {role !== "Client" && ( */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
-          <select
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          >
-            <option value="all">All Status</option>
-            {role !== "Client" && <option value="0">Pending</option>}
-            <option value="1">Review</option>
-            <option value="2">Approved</option>
-            <option value="3">Rejected</option>
-          </select>
-        </div>
-        {/* )} */}
-
-        {/* Coordinator Filter */}
-        {role !== "Creator" && role !== "Co-ordinator" && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Coordinator
+              Status
             </label>
             <select
               className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-              value={filters.coordinator}
-              onChange={(e) =>
-                setFilters({ ...filters, coordinator: e.target.value })
-              }
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
             >
-              {coordinators.map((coord) => (
-                <option key={coord} value={coord}>
-                  {coord === "all" ? "All Coordinators" : coord}
-                </option>
-              ))}
+              <option value="all">All Status</option>
+              {role !== "Client" && <option value="0">Pending</option>}
+              <option value="1">Review</option>
+              <option value="2">Approved</option>
+              <option value="3">Rejected</option>
             </select>
           </div>
+
+          {/* Coordinator Filter */}
+          {role !== "Creator" && role !== "Co-ordinator" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Coordinator
+              </label>
+              <select
+                className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                value={filters.coordinator}
+                onChange={(e) =>
+                  setFilters({ ...filters, coordinator: e.target.value })
+                }
+              >
+                {coordinators.map((coord) => (
+                  <option key={coord} value={coord}>
+                    {coord === "all" ? "All Coordinators" : coord}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Date Range Filters */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Start Date
+            </label>
+            <input
+              type="date"
+              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              value={filters.dateRange.start}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  dateRange: { ...filters.dateRange, start: e.target.value },
+                })
+              }
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              End Date
+            </label>
+            <input
+              type="date"
+              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              value={filters.dateRange.end}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  dateRange: { ...filters.dateRange, end: e.target.value },
+                })
+              }
+            />
+          </div>
+        </div>
+
+        {/* Upload Button for Creator */}
+        {role === "Creator" && (
+          <div className="ml-4 flex-shrink-0">
+            <button
+              onClick={onUploadClick}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <ArrowUpTrayIcon className="h-5 w-5" />
+              <span>Upload Video</span>
+            </button>
+          </div>
         )}
-
-        {/* Date Range Filter */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Start Date
-          </label>
-          <input
-            type="date"
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-            value={filters.dateRange.start}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                dateRange: { ...filters.dateRange, start: e.target.value },
-              })
-            }
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            End Date
-          </label>
-          <input
-            type="date"
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-            value={filters.dateRange.end}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                dateRange: { ...filters.dateRange, end: e.target.value },
-              })
-            }
-          />
-        </div>
       </div>
 
       {/* Results Summary */}
@@ -1091,6 +1105,7 @@ export default function ReelsSection() {
           totalVideos={videos.length}
           filteredCount={filteredVideos.length}
           role={localStorage.getItem("Role")}
+          onUploadClick={() => console.log("Upload button clicked")}
         />
 
         {/* Video Grid */}
