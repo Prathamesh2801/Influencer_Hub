@@ -772,28 +772,31 @@ function FilterSection({
   coordinators,
   totalVideos,
   filteredCount,
+  role,
 }) {
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Search Input */}
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Search Creator
-          </label>
-          <input
-            type="text"
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Search by username..."
-            value={filters.searchQuery}
-            onChange={(e) =>
-              setFilters({ ...filters, searchQuery: e.target.value })
-            }
-          />
-        </div>
+        {role !== "Creator" && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Search Creator
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Search by username..."
+              value={filters.searchQuery}
+              onChange={(e) =>
+                setFilters({ ...filters, searchQuery: e.target.value })
+              }
+            />
+          </div>
+        )}
 
         {/* Status Filter */}
+        {/* {role !== "Client" && ( */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Status
@@ -804,32 +807,35 @@ function FilterSection({
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
           >
             <option value="all">All Status</option>
-            <option value="0">Pending</option>
+            {role !== "Client" && <option value="0">Pending</option>}
             <option value="1">Review</option>
             <option value="2">Approved</option>
             <option value="3">Rejected</option>
           </select>
         </div>
+        {/* )} */}
 
         {/* Coordinator Filter */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Coordinator
-          </label>
-          <select
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-            value={filters.coordinator}
-            onChange={(e) =>
-              setFilters({ ...filters, coordinator: e.target.value })
-            }
-          >
-            {coordinators.map((coord) => (
-              <option key={coord} value={coord}>
-                {coord === "all" ? "All Coordinators" : coord}
-              </option>
-            ))}
-          </select>
-        </div>
+        {role !== "Creator" && role !== "Co-ordinator" && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Coordinator
+            </label>
+            <select
+              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              value={filters.coordinator}
+              onChange={(e) =>
+                setFilters({ ...filters, coordinator: e.target.value })
+              }
+            >
+              {coordinators.map((coord) => (
+                <option key={coord} value={coord}>
+                  {coord === "all" ? "All Coordinators" : coord}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Date Range Filter */}
         <div>
@@ -1084,6 +1090,7 @@ export default function ReelsSection() {
           coordinators={coordinators}
           totalVideos={videos.length}
           filteredCount={filteredVideos.length}
+          role={localStorage.getItem("Role")}
         />
 
         {/* Video Grid */}
