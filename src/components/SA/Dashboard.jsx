@@ -19,6 +19,7 @@ import {
   XMarkIcon,
   ChartBarIcon,
 } from "@heroicons/react/24/outline";
+import Logo from "../../assets/img/logo.png";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { useLocation } from "react-router-dom";
 import CredentialSection from "./CredentialSection";
@@ -132,12 +133,12 @@ export default function Dashboard() {
               </TransitionChild>
 
               {/* Sidebar component, swap this element with another sidebar if you like */}
-              <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
-                <div className="flex h-16 shrink-0 items-center">
+              <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gradient-to-b from-[#E80071] via-[#EF3F8F] to-[#D53C2F] px-6 pb-4">
+                <div className="flex mt-5 h-16 shrink-0 items-center">
                   <img
-                    alt="Your Company"
-                    src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                    className="h-8 w-auto"
+                    alt={"Your Company"}
+                    src={Logo}
+                    className="h-10  w-auto"
                   />
                 </div>
                 <nav className="flex flex-1 flex-col">
@@ -150,8 +151,8 @@ export default function Dashboard() {
                               href={item.href}
                               className={classNames(
                                 item.current
-                                  ? "bg-gray-50 text-indigo-600"
-                                  : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
+                                  ? "bg-gray-50 text-[#E4007C]"
+                                  : "text-white hover:bg-gray-50 hover:text-white",
                                 "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold"
                               )}
                             >
@@ -159,8 +160,8 @@ export default function Dashboard() {
                                 aria-hidden="true"
                                 className={classNames(
                                   item.current
-                                    ? "text-indigo-600"
-                                    : "text-gray-400 group-hover:text-indigo-600",
+                                    ? "text-[#E4007C]"
+                                    : "text-white group-hover:text-indigo-600",
                                   "size-6 shrink-0"
                                 )}
                               />
@@ -171,7 +172,7 @@ export default function Dashboard() {
                       </ul>
                     </li>
 
-                    <li className="mt-auto">
+                    {/* <li className="mt-auto">
                       <a
                         href="#"
                         className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
@@ -182,7 +183,7 @@ export default function Dashboard() {
                         />
                         Settings
                       </a>
-                    </li>
+                    </li> */}
                   </ul>
                 </nav>
               </div>
@@ -194,12 +195,8 @@ export default function Dashboard() {
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200  px-6 pb-4 bg-gradient-to-b from-[#E80071] via-[#EF3F8F] to-[#D53C2F]">
-            <div className="flex h-16 shrink-0 items-center">
-              <img
-                alt="Your Company"
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                className="h-8 w-auto"
-              />
+            <div className="flex h-16 shrink-0 items-center mt-5">
+              <img alt="Your Company" src={Logo} className="h-10 w-auto" />
             </div>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -230,7 +227,7 @@ export default function Dashboard() {
                   </ul>
                 </li>
 
-                <li className="mt-auto">
+                {/* <li className="mt-auto">
                   <a
                     href="#"
                     className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
@@ -241,7 +238,7 @@ export default function Dashboard() {
                     />
                     Settings
                   </a>
-                </li>
+                </li> */}
               </ul>
             </nav>
           </div>
@@ -268,7 +265,7 @@ export default function Dashboard() {
               <div className="flex items-center gap-x-4 lg:gap-x-6">
                 <button
                   type="button"
-                  className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500"
+                  className="-m-2.5 p-2.5 text-[#E4007C] hover:text-gray-500"
                 >
                   <span className="sr-only">View notifications</span>
                   <BellIcon aria-hidden="true" className="size-6" />
@@ -285,15 +282,15 @@ export default function Dashboard() {
                   <MenuButton className="-m-1.5 flex items-center p-1.5">
                     <span className="sr-only">Open user menu</span>
                     <UsersIcon
-                      className="text-gray-400 hover:text-gray-500"
+                      className="text-[#E4007C] hover:text-gray-500"
                       size={25}
                     />
                     <span className="hidden lg:flex lg:items-center">
                       <span
                         aria-hidden="true"
-                        className="ml-4 text-sm/6 font-semibold text-gray-900"
+                        className="ml-4 text-sm/6 font-semibold text-[#E4007C]"
                       >
-                        Profile Name
+                        Rahul
                       </span>
                       <ChevronDownIcon
                         aria-hidden="true"

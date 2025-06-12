@@ -42,6 +42,7 @@ export default function NotificationSection() {
   const [modalMode, setModalMode] = useState("create"); // 'create' or 'edit'
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const role = localStorage.getItem("Role");
 
   const [formLoading, setFormLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -224,24 +225,26 @@ export default function NotificationSection() {
     <>
       <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold text-gray-900">
+          <h1 className="text-base font-semibold text-[#E4007C]">
             Notifications
           </h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <p className="mt-2 text-sm text-[#FF2D99]">
             Stay updated with your latest activities, feedback, and program
             updates.
           </p>
         </div>
-        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <button
-            type="button"
-            onClick={openCreateModal}
-            className="inline-flex items-center gap-x-1.5 rounded-md bg-pink-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600"
-          >
-            <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-            Create Notification
-          </button>
-        </div>
+        {role === "Admin" && role === "Client" && (
+          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            <button
+              type="button"
+              onClick={openCreateModal}
+              className="inline-flex items-center gap-x-1.5 rounded-md bg-[#FF2D99] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600"
+            >
+              <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+              Create Notification
+            </button>
+          </div>
+        )}
       </div>
 
       {notifications.length === 0 ? (
@@ -255,9 +258,9 @@ export default function NotificationSection() {
               <div
                 key={notification.id}
                 onClick={() => openEditModal(notification)}
-                className="bg-pink-50 hover:cursor-pointer border border-pink-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="bg-pink-50 hover:cursor-pointer border border-pink-700 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="flex justify-between items-start mb-3">
+                <div className="flex justify-between items-start mb-2">
                   <h3 className="text-lg font-semibold text-pink-700">
                     {notification.title}
                   </h3>
@@ -266,7 +269,7 @@ export default function NotificationSection() {
                   </span>
                 </div>
 
-                <p className="text-gray-700 mb-4 leading-relaxed">
+                <p className="text-gray-700 mb-2 leading-relaxed">
                   {notification.message}
                 </p>
 

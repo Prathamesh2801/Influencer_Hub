@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { UpdateVideoStatus } from "../../api/Reel Section/VideoStaus";
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import RepostModal from "./RepostModal";
+import { useNavigate } from "react-router-dom";
 
 // Video Card Component
 function VideoCard({ video, onClick }) {
@@ -365,9 +366,9 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-5xl w-full h-[90vh] flex flex-col shadow-2xl">
+      <div className="bg-[#FFF1F7] rounded-xl max-w-5xl w-full h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-white sticky top-0 z-10 rounded-t-xl">
+        <div className="flex items-center justify-between p-4 border-b border-[#E4007C] bg-white sticky top-0 z-10 rounded-t-xl">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-lg">
@@ -375,8 +376,8 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
               </span>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Video Details</h2>
-              <p className="text-sm text-gray-500">
+              <h2 className="text-xl font-bold text-[#E4007C]">Video Details</h2>
+              <p className="text-sm text-[#F06292]">
                 Uploaded by {video.Username}
               </p>
             </div>
@@ -402,7 +403,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 bg-[#FFF1F7] overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
             {/* Left Column - Video and Comments */}
             <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
@@ -419,7 +420,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
               </div>
 
               {/* Comments Section */}
-              <div className="bg-white rounded-xl shadow-sm">
+              <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm">
                 <div className="p-4 border-b border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-900">
                     Comments & Feedback
@@ -435,7 +436,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                           value={comment}
                           onChange={(e) => setComment(e.target.value)}
                           placeholder="Add your feedback..."
-                          className="w-full min-h-[100px] p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                          className="w-full min-h-[100px] p-3 border border-[#E4007C] rounded-lg  outline-none resize-none"
                           disabled={!canComment}
                         />
                         <div className="flex justify-end">
@@ -517,7 +518,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
             {/* Right Column */}
             <div className="overflow-y-auto border-l p-6 space-y-6 custom-scrollbar">
               {/* Status Card */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="bg-white rounded-xl border border-[#E4007C] shadow-sm p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
                     Current Status
@@ -548,10 +549,19 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                 </div>
               </div>
               {/* Video Details Card */}
-              <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Video Details
-                </h3>
+              <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6 space-y-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Video Details
+                  </h3>
+                  {userRole !== "Admin" && (
+                    <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
+                      {video.Score
+                        ? `Score :  ${video.Score}`
+                        : "No score assigned yet"}
+                    </h3>
+                  )}
+                </div>
 
                 <div className="space-y-4">
                   <div>
@@ -614,7 +624,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
               </div>
               {/* Admin Score Input */}
               {userRole === "Admin" && video.Status !== 2 && (
-                <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">
                       Admin Actions
@@ -776,7 +786,7 @@ function FilterSection({
   onUploadClick,
 }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div className="bg-[#FFF1F7] border border-[#FF2D99]  rounded-lg shadow-sm p-4 mb-6">
       <div className="flex justify-between items-center mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 flex-1">
           {/* Search Input */}
@@ -803,7 +813,7 @@ function FilterSection({
               Status
             </label>
             <select
-              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
               value={filters.status}
               onChange={(e) =>
                 setFilters({ ...filters, status: e.target.value })
@@ -824,7 +834,7 @@ function FilterSection({
                 Coordinator
               </label>
               <select
-                className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-md border border-[#FF2D99] p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
                 value={filters.coordinator}
                 onChange={(e) =>
                   setFilters({ ...filters, coordinator: e.target.value })
@@ -846,7 +856,7 @@ function FilterSection({
             </label>
             <input
               type="date"
-              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
               value={filters.dateRange.start}
               onChange={(e) =>
                 setFilters({
@@ -863,7 +873,7 @@ function FilterSection({
             </label>
             <input
               type="date"
-              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm focus:ring-[#FF2D99] focus:border-[#FF2D99]"
               value={filters.dateRange.end}
               onChange={(e) =>
                 setFilters({
@@ -879,7 +889,7 @@ function FilterSection({
           <div className="ml-4 flex-shrink-0">
             <button
               onClick={onUploadClick}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 bg-[#E4007C] text-white rounded-lg hover:bg-[#F06292] transition-colors flex items-center space-x-2"
             >
               <ArrowUpTrayIcon className="h-5 w-5" />
               <span>Upload Video</span>
@@ -890,7 +900,7 @@ function FilterSection({
 
       {/* Results Summary */}
       <div className="mt-4 pt-3 border-t border-gray-200">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-[#FF2D99] font-semibold">
           Showing {filteredCount} out of {totalVideos} videos
           {filters.searchQuery && ` matching "${filters.searchQuery}"`}
         </div>
@@ -908,10 +918,11 @@ export default function ReelsSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const userRole = localStorage.getItem("Role");
+  const navigate = useNavigate()
 
   // New states for filtering and pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [videosPerPage] = useState(12);
+  const [videosPerPage] = useState(9);
   const [filters, setFilters] = useState({
     status: "all",
     coordinator: "all",
@@ -982,6 +993,8 @@ export default function ReelsSection() {
       }
     } catch (err) {
       setError("Error loading videos: " + err.message);
+      navigate('/login')
+      
       console.error("Error fetching reels:", err);
     } finally {
       setLoading(false);
@@ -1090,22 +1103,22 @@ export default function ReelsSection() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-[#E4007C]">
                 Video Management
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-[#F06292] mt-1">
                 Manage and review submitted videos
               </p>
             </div>
-            <div className="flex items-center space-x-4">
+            {/* <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
                 {filteredVideos.length} video
                 {filteredVideos.length !== 1 ? "s" : ""} found
               </span>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -1169,7 +1182,7 @@ export default function ReelsSection() {
                     setCurrentPage((prev) => Math.max(prev - 1, 1))
                   }
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-4 py-2 border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
@@ -1178,14 +1191,14 @@ export default function ReelsSection() {
                     setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                   }
                   disabled={currentPage === totalPages}
-                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-[#FF2D99]">
                     Showing{" "}
                     <span className="font-medium">{indexOfFirstVideo + 1}</span>{" "}
                     to{" "}
@@ -1194,7 +1207,7 @@ export default function ReelsSection() {
                     </span>{" "}
                     of{" "}
                     <span className="font-medium">{filteredVideos.length}</span>{" "}
-                    results
+                    videos
                   </p>
                 </div>
                 <div>
@@ -1205,7 +1218,7 @@ export default function ReelsSection() {
                     <button
                       onClick={() => setCurrentPage(1)}
                       disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span className="sr-only">First</span>
                       <svg
@@ -1224,7 +1237,7 @@ export default function ReelsSection() {
                     <button
                       onClick={() => setCurrentPage((prev) => prev - 1)}
                       disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span className="sr-only">Previous</span>
                       <svg
@@ -1248,8 +1261,8 @@ export default function ReelsSection() {
                         onClick={() => setCurrentPage(index + 1)}
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           currentPage === index + 1
-                            ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                            : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                            ? "z-10 bg-[#FFF1F7] border-[#FF2D99] text-[#FF2D99]"
+                            : "bg-[#FFF1F7] border-[#FACCE0] text-gray-500 hover:bg-gray-50"
                         }`}
                       >
                         {index + 1}
@@ -1259,7 +1272,7 @@ export default function ReelsSection() {
                     <button
                       onClick={() => setCurrentPage((prev) => prev + 1)}
                       disabled={currentPage === totalPages}
-                      className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span className="sr-only">Next</span>
                       <svg
@@ -1278,7 +1291,7 @@ export default function ReelsSection() {
                     <button
                       onClick={() => setCurrentPage(totalPages)}
                       disabled={currentPage === totalPages}
-                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span className="sr-only">Last</span>
                       <svg

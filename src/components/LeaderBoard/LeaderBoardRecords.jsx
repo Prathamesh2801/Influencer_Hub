@@ -23,8 +23,8 @@ export default function LeaderBoardRecords() {
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold text-gray-900">ScoreBoard</h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <h1 className="text-2xl font-semibold text-[#E4007C]">ScoreBoard</h1>
+          <p className="mt-2 text-sm text-[#FF2D99]">
             A list of all the users in your ScoreBoard including their
             Rank,name, videos, score .
           </p>
@@ -38,33 +38,33 @@ export default function LeaderBoardRecords() {
           </button>
         </div> */}
       </div>
-      <div className="mt-8 flow-root">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div className="mt-8 flow-root ">
+        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 rounded-xl">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <table className="min-w-full divide-y divide-gray-300 border-2 border-pink-300  ">
+            <table className="min-w-full divide-y bg-[#FFC3E2] divide-gray-300 border-2 border-pink-300  ">
               <thead>
                 <tr>
                   <th
                     scope="col"
-                    className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-3"
+                    className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-[#E4007C] sm:pl-3"
                   >
                     Rank
                   </th>
                   <th
                     scope="col"
-                    className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    className="px-3 py-3.5 text-left text-sm font-semibold text-[#E4007C]"
                   >
                     Creator Name
                   </th>
                   <th
                     scope="col"
-                    className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    className="px-3 py-3.5 text-left text-sm font-semibold text-[#E4007C]"
                   >
                     Total Videos
                   </th>
                   <th
                     scope="col"
-                    className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    className="px-3 py-3.5 text-left text-sm font-semibold text-[#E4007C]"
                   >
                     Score
                   </th>
@@ -72,17 +72,17 @@ export default function LeaderBoardRecords() {
               </thead>
               <tbody className="bg-white">
                 {scores.map((user, index) => (
-                  <tr key={index} className="even:bg-gray-50">
-                    <td className="py-4 pr-3 pl-4 text-sm font-medium text-gray-900 sm:pl-3">
+                  <tr key={index} className="even:bg-[#FFF1F7]">
+                    <td className="py-4 pr-3 pl-4 text-sm font-medium text-black sm:pl-3">
                       {user.rank}
                     </td>
-                    <td className="px-3 py-4 text-sm text-gray-500">
+                    <td className="px-3 py-4 text-sm text-gray-800">
                       {user.username}
                     </td>
-                    <td className="px-3 py-4 text-sm text-gray-500">
+                    <td className="px-3 py-4 text-sm text-gray-800">
                       {user.total_videos}
                     </td>
-                    <td className="px-3 py-4 text-sm text-gray-500">
+                    <td className="px-3 py-4 text-md font-bold text-[#E4007C]">
                       {user.total_score}
                     </td>
                   </tr>

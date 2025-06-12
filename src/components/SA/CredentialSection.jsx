@@ -16,19 +16,19 @@ export default function CredentialSection() {
   return (
     <div>
       {/* Button to toggle between views */}
-      <div className="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between mb-6">
-        <h3 className="text-base font-semibold text-gray-900">
+      <div className="border-b  border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between mb-6">
+        <h3 className="text-xl font-bold text-[#E4007C]">
           {currentView === "create"
             ? "Create New Credential"
             : currentView === "viewCredential"
             ? "View Event Details"
-            : "Credentials Records"}
+            : "All Records"}
         </h3>
         <div className="mt-3 sm:mt-0 sm:ml-4">
           <button
             type="button"
             onClick={toggleEventView}
-            className="inline-flex items-center rounded-2xl bg-emerald-700 px-3 py-2 text-md font-semibold text-white shadow-xs hover:bg-[linear-gradient(90deg,#2BC155_7.39%,#7BF29C_104.06%)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="inline-flex items-center rounded-2xl bg-[#E4007C] px-3 py-2 text-md font-semibold text-white shadow-xs hover:bg-gradient-to-br from-[#E80071] via-[#EF3F8F] to-[#D53C2F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
             {currentView === "display"
               ? "Create New Credential"

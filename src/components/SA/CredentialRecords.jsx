@@ -104,7 +104,7 @@ export default function CredentialRecords() {
       columnHelper.accessor("Username", {
         header: ({ column }) => (
           <button
-            className="flex items-center gap-2 font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-2 font-semibold text-[#E4007C] hover:text-[#F06292] transition-colors"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             <User className="w-4 h-4" />
@@ -130,7 +130,7 @@ export default function CredentialRecords() {
       columnHelper.accessor("role", {
         header: ({ column }) => (
           <button
-            className="flex items-center gap-2 font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-2 font-semibold text-[#E4007C] hover:text-[#F06292] transition-colors"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             <Shield className="w-4 h-4" />
@@ -165,7 +165,7 @@ export default function CredentialRecords() {
       }),
       columnHelper.accessor("action", {
         header: () => (
-          <div className="flex items-center gap-2 font-semibold text-gray-900">
+          <div className="flex items-center gap-2 font-semibold text-[#E4007C]">
             <WrenchScrewdriverIcon className="w-4 h-4" />
             Actions
           </div>
@@ -264,12 +264,12 @@ export default function CredentialRecords() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <Users className="w-8 h-8 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">
+          <Users className="w-8 h-8 text-[#F06292]" />
+          <h1 className="text-2xl font-bold text-[#E4007C]">
             Credential Records
           </h1>
         </div>
-        <p className="text-gray-600">Manage and view all user credentials</p>
+        <p className="text-[#F06292]">Manage and view all user credentials</p>
       </div>
 
       {/* Search and Controls */}
@@ -281,7 +281,7 @@ export default function CredentialRecords() {
             placeholder="Search users..."
             value={globalFilter ?? ""}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 border  border-[#E4007C] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           />
         </div>
 
@@ -290,7 +290,7 @@ export default function CredentialRecords() {
           <select
             value={table.getState().pagination.pageSize}
             onChange={(e) => table.setPageSize(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="border border-[#E4007C] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             {[5, 10, 20, 50].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
@@ -304,13 +304,13 @@ export default function CredentialRecords() {
       {/* Table */}
       <div className="overflow-x-scroll sm:overflow-hidden border border-gray-200 rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-[#FFC3E2]">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-4 text-left text-xs font-medium text-[#E4007C] uppercase tracking-wider"
                   >
                     {header.isPlaceholder
                       ? null
@@ -325,7 +325,7 @@ export default function CredentialRecords() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {table.getRowModel().rows.length === 0 ? (
-              <tr>
+              <tr  >
                 <td colSpan={columns.length} className="px-6 py-12 text-center">
                   <div className="flex flex-col items-center">
                     <Users className="w-12 h-12 text-gray-400 mb-4" />
@@ -340,7 +340,7 @@ export default function CredentialRecords() {
               </tr>
             ) : (
               table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={row.id} className="hover:bg-gray-50 transition-colors even:bg-[#FFF1F7]">
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
                       {flexRender(

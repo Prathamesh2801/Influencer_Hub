@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
+
 import { repostVideo } from "../../api/Reel Section/RepostVideoAPI";
+import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 
 export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
   const isUpload = !video; // If no video prop is passed, it's an upload
@@ -14,14 +17,49 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
     const file = e.target.files[0];
     if (file) {
       console.log('Selected file:', { name: file.name, type: file.type, size: file.size });
-      if (file.type === "video/mp4") {
+      if (file.type === "video/mp4" || file.type === "video/mov" || file.type === "video/avi") {
         setSelectedFile(file);
       } else {
         console.log('Invalid file type:', file.type);
-        toast.error("Please select an MP4 video file");
+        toast.error("Please select a valid video file (MP4, MOV, AVI)");
         fileInputRef.current.value = "";
       }
     }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      console.log('Dropped file:', { name: file.name, type: file.type, size: file.size });
+      
+      if (file.type === "video/mp4" || file.type === "video/mov" || file.type === "video/avi") {
+        if (file.size <= 2 * 1024 * 1024 * 1024) { // 2GB limit
+          setSelectedFile(file);
+        } else {
+          toast.error("File size must be less than 2GB");
+        }
+      } else {
+        toast.error("Please select a valid video file (MP4, MOV, AVI)");
+      }
+    }
+  };
+
+  const handleBrowseClick = () => {
+    fileInputRef.current?.click();
   };
 
   const handleSubmit = async (e) => {
@@ -85,6 +123,7 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
   useEffect(() => {
     if (!isOpen) {
       setSelectedFile(null);
+      setIsDragging(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -98,7 +137,7 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">
-            {isUpload ? "Upload Video" : "Repost Video"}
+            {isUpload ? "Video Upload" : "Repost Video"}
           </h2>
           <button
             onClick={onClose}
@@ -121,27 +160,82 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select {isUpload ? "Video" : "New Video"}
-            </label>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept="video/mp4"
-              onChange={handleFileChange}
-              className="w-full border border-gray-300 rounded-md p-2 text-sm"
-              disabled={uploading}
-            />
-          </div>
-
-          {selectedFile && (
-            <div className="text-sm text-gray-600">
-              Selected file: {selectedFile.name}
+          {!selectedFile ? (
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                isDragging 
+                  ? 'border-pink-400 bg-pink-50' 
+                  : 'border-pink-300 bg-pink-50'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <CloudArrowUpIcon className="w-12 h-12 text-gray-400" />
+                <div>
+                  <p className="text-lg font-medium text-gray-900 mb-1">
+                    Drag & drop your video here
+                  </p>
+                  <p className="text-gray-500 mb-4">or</p>
+                  <button
+                    type="button"
+                    onClick={handleBrowseClick}
+                    className="px-6 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 transition-colors font-medium"
+                    disabled={uploading}
+                  >
+                    Browse Files
+                  </button>
+                </div>
+                <p className="text-sm text-gray-400">
+                  Supported formats: MP4, MOV, AVI (Max 2GB)
+                </p>
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="video/mp4,video/mov,video/avi"
+                onChange={handleFileChange}
+                className="hidden"
+                disabled={uploading}
+              />
+            </div>
+          ) : (
+            <div className="border-2 border-green-300 bg-green-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <CloudArrowUpIcon className="w-8 h-8 text-green-500" />
+                  <div>
+                    <p className="font-medium text-gray-900">{selectedFile.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = "";
+                    }
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                  disabled={uploading}
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
 
-          <div className="flex justify-end space-x-3 mt-4">
+          <div className="flex justify-end space-x-3 mt-6">
             <button
               type="button"
               onClick={onClose}
@@ -153,7 +247,7 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
             <button
               type="submit"
               disabled={!selectedFile || uploading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="px-4 py-2 bg-[#E4007C] text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               {uploading ? (
                 <>
@@ -176,7 +270,7 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  <span>{uploading ? "Uploading..." : "Upload"}</span>
+                  <span>Uploading...</span>
                 </>
               ) : (
                 <span>
