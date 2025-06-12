@@ -15,13 +15,18 @@ import {
   Cog6ToothIcon,
   DocumentDuplicateIcon,
   HomeIcon,
+  UserIcon,
   XMarkIcon,
+  ChartBarIcon,
 } from "@heroicons/react/24/outline";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { useLocation } from "react-router-dom";
 import CredentialSection from "./CredentialSection";
 
 import ReelsSection from "./ReelsSection";
+import { UsersIcon } from "lucide-react";
+import LeaderBoardRecords from "../LeaderBoard/LeaderBoardRecords";
+import NotificationSection from "../Notifications/NotificationSection";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -32,7 +37,7 @@ export default function Dashboard() {
   const queryParams = new URLSearchParams(location.search);
   const activeTab = queryParams.get("tab") || "reels";
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const role = localStorage.getItem("Role");
   const navigation = [
     {
       name: "Home",
@@ -40,28 +45,55 @@ export default function Dashboard() {
       icon: HomeIcon,
       current: activeTab === "reels",
     },
+    ...(role === "Admin"
+      ? [
+          {
+            name: "Credentials",
+            href: "#/dashboard?tab=credentials",
+            icon: DocumentDuplicateIcon,
+            current: activeTab === "credentials",
+          },
+        ]
+      : []),
     {
-      name: "Credentials",
-      href: "#/dashboard?tab=credentials",
-      icon: DocumentDuplicateIcon,
-      current: activeTab === "credentials",
+      name: "Scoreboard",
+      href: "#/dashboard?tab=leaderboard",
+      icon: ChartBarIcon,
+      current: activeTab === "leaderboard",
+    },
+    {
+      name: "Notifications",
+      href: "#/dashboard?tab=notifications",
+      icon: BellIcon,
+      current: activeTab === "notifications",
     },
   ];
 
   const userNavigation = [
     { name: "Your profile", href: "#" },
-    { name: "Sign out", href: "#" },
+    {
+      name: "Sign out",
+      onClick: () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("Role");
+        localStorage.clear();
+        window.location.href = "/login";
+      },
+    },
   ];
 
   const renderContent = () => {
     switch (activeTab) {
       case "reels":
-        return <ReelsSection/>
+        return <ReelsSection />;
       case "credentials":
         return <CredentialSection />;
-
+      case "leaderboard":
+        return <LeaderBoardRecords />;
+      case "notifications":
+        return <NotificationSection />;
       default:
-        return <ReelsSection/>
+        return <ReelsSection />;
     }
   };
 
@@ -161,7 +193,7 @@ export default function Dashboard() {
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
+          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200  px-6 pb-4 bg-gradient-to-b from-[#E80071] via-[#EF3F8F] to-[#D53C2F]">
             <div className="flex h-16 shrink-0 items-center">
               <img
                 alt="Your Company"
@@ -172,24 +204,22 @@ export default function Dashboard() {
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
-                  <ul role="list" className="-mx-2 space-y-1">
+                  <ul role="list" className="-mx-2 space-y-2">
                     {navigation.map((item) => (
                       <li key={item.name}>
                         <a
                           href={item.href}
                           className={classNames(
                             item.current
-                              ? "bg-gray-50 text-indigo-600"
-                              : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-                            "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold"
+                              ? "bg-gray-50 text-[#E4007C]"
+                              : "text-white hover:bg-white/20 hover:text-white hover:backdrop-blur-md hover:shadow-md hover:border hover:border-white/30",
+                            "group flex gap-x-3 rounded-lg p-2 text-sm/6 font-semibold transition duration-300 ease-in-out"
                           )}
                         >
                           <item.icon
                             aria-hidden="true"
                             className={classNames(
-                              item.current
-                                ? "text-indigo-600"
-                                : "text-gray-400 group-hover:text-indigo-600",
+                              item.current ? "text-[#E4007C]" : "text-white ",
                               "size-6 shrink-0"
                             )}
                           />
@@ -254,17 +284,16 @@ export default function Dashboard() {
                 <Menu as="div" className="relative">
                   <MenuButton className="-m-1.5 flex items-center p-1.5">
                     <span className="sr-only">Open user menu</span>
-                    <img
-                      alt=""
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      className="size-8 rounded-full bg-gray-50"
+                    <UsersIcon
+                      className="text-gray-400 hover:text-gray-500"
+                      size={25}
                     />
                     <span className="hidden lg:flex lg:items-center">
                       <span
                         aria-hidden="true"
                         className="ml-4 text-sm/6 font-semibold text-gray-900"
                       >
-                        Tom Cook
+                        Profile Name
                       </span>
                       <ChevronDownIcon
                         aria-hidden="true"
@@ -280,7 +309,7 @@ export default function Dashboard() {
                       <MenuItem key={item.name}>
                         <a
                           href={item.href}
-                          className="block px-3 py-1 text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden"
+                          className="block px-3 py-1 hover:cursor-pointer text-sm/6 text-gray-900 data-focus:bg-gray-50 data-focus:outline-hidden"
                         >
                           {item.name}
                         </a>
@@ -293,9 +322,7 @@ export default function Dashboard() {
           </div>
 
           <main className="py-10">
-            <div className="px-4 sm:px-6 lg:px-8">
-                {renderContent()}
-            </div>
+            <div className="px-4 sm:px-6 lg:px-8">{renderContent()}</div>
           </main>
         </div>
       </div>

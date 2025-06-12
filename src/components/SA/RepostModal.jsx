@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import { repostVideo } from "../../api/Reel Section/RepostVideoAPI";
 
@@ -7,12 +7,17 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
+  const isUpload = !video; // If no video prop is passed, it's an upload
+  console.log('Modal type:', isUpload ? 'Upload' : 'Repost', { video });
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      console.log('Selected file:', { name: file.name, type: file.type, size: file.size });
       if (file.type === "video/mp4") {
         setSelectedFile(file);
       } else {
+        console.log('Invalid file type:', file.type);
         toast.error("Please select an MP4 video file");
         fileInputRef.current.value = "";
       }
@@ -22,30 +27,69 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedFile) {
+      console.log('No file selected');
       toast.error("Please select a video file");
       return;
     }
 
+    console.log('Starting upload process:', {
+      isUpload,
+      videoId: video?.Video_ID,
+      fileName: selectedFile.name
+    });
+
     try {
       setUploading(true);
-      const response = await repostVideo(video.Video_ID, selectedFile);
+      // If video prop exists, it's a repost. Otherwise, it's a new upload
+      console.log('Calling repostVideo API with:', {
+        videoId: video?.Video_ID,
+        fileName: selectedFile.name,
+        fileSize: selectedFile.size
+      });
+      const response = await repostVideo(video?.Video_ID, selectedFile);
+      console.log('API Response:', response);
 
       if (response?.data?.Status) {
-        toast.success("Video reposted successfully");
+        // console.log('Upload successful:', response.data);
+        toast.success(
+          isUpload
+            ? "Video uploaded successfully"
+            : "Video reposted successfully"
+        );
         if (onSuccess) {
           onSuccess(response.data.Data);
         }
         onClose();
       } else {
-        toast.error(response?.data?.Message || "Failed to repost video");
+        console.error('API Error Response:', response?.data);
+        toast.error(
+          response?.data?.Message ||
+            `Failed to ${isUpload ? "upload" : "repost"} video`
+        );
       }
     } catch (error) {
-      console.error("Error reposting video:", error);
-      toast.error("Failed to repost video");
+      console.error(
+        `Error ${isUpload ? "uploading" : "reposting"} video:`,
+        error,
+        '\nError response:',
+        error.response
+      );
+      toast.error(`Failed to ${isUpload ? "upload" : "repost"} video`);
     } finally {
+      console.log('Upload process completed');
       setUploading(false);
     }
   };
+
+  // Reset the form when modal is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -53,7 +97,9 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Repost Video</h2>
+          <h2 className="text-xl font-semibold">
+            {isUpload ? "Upload Video" : "Repost Video"}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -77,7 +123,7 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select New Video
+              Select {isUpload ? "Video" : "New Video"}
             </label>
             <input
               type="file"
@@ -130,10 +176,12 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  <span>Uploading...</span>
+                  <span>{uploading ? "Uploading..." : "Upload"}</span>
                 </>
               ) : (
-                <span>Upload Video</span>
+                <span>
+                  {isUpload ? "Upload Video" : "Upload New Version"}
+                </span>
               )}
             </button>
           </div>

@@ -53,10 +53,15 @@ function VideoCard({ video, onClick }) {
           className="w-full h-full object-cover"
           preload="metadata"
           muted
-          poster={video.Video_Path + "?t=0.5"}
+          controls={false}
+          playsInline
+          onLoadedMetadata={(e) => {
+            e.currentTarget.currentTime = 1; // Move to 1s for a better frame
+          }}
         >
           <source src={video.Video_Path} type="video/mp4" />
         </video>
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
           <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
             <PlayIcon className="w-7 h-7 text-gray-800" />
@@ -350,15 +355,10 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
     }
   }
 
-  const handleRepostSuccess = (repostedData) => {
+  const handleRepostSuccess = () => {
     setIsRepostModalOpen(false);
-    // toast.success("Video reposted successfully");
-
-    // Update the video list with new data
-    if (typeof onStatusUpdate === "function") {
-      onStatusUpdate(video.Video_ID, 0); // Reset status to pending
-    }
     onClose();
+    // getAllReels(); // Refresh the video list
   };
 
   if (!isOpen || !video) return null;
@@ -773,7 +773,7 @@ function FilterSection({
   totalVideos,
   filteredCount,
   role,
-  onUploadClick
+  onUploadClick,
 }) {
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
@@ -796,7 +796,7 @@ function FilterSection({
               />
             </div>
           )}
-          
+
           {/* Status Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -805,7 +805,9 @@ function FilterSection({
             <select
               className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
               value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, status: e.target.value })
+              }
             >
               <option value="all">All Status</option>
               {role !== "Client" && <option value="0">Pending</option>}
@@ -871,8 +873,7 @@ function FilterSection({
               }
             />
           </div>
-        </div>
-
+        </div>{" "}
         {/* Upload Button for Creator */}
         {role === "Creator" && (
           <div className="ml-4 flex-shrink-0">
@@ -905,6 +906,8 @@ export default function ReelsSection() {
   const [error, setError] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const userRole = localStorage.getItem("Role");
 
   // New states for filtering and pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -967,25 +970,25 @@ export default function ReelsSection() {
   );
   const totalPages = Math.ceil(filteredVideos.length / videosPerPage);
 
-  useEffect(() => {
-    async function getAllReels() {
-      try {
-        setLoading(true);
-        const response = await fetchAllReels();
+  async function getAllReels() {
+    try {
+      setLoading(true);
+      const response = await fetchAllReels();
 
-        if (response.data && response.data.Status) {
-          setVideos(response.data.Data || []);
-        } else {
-          setError("Failed to fetch videos");
-        }
-      } catch (err) {
-        setError("Error loading videos: " + err.message);
-        console.error("Error fetching reels:", err);
-      } finally {
-        setLoading(false);
+      if (response.data && response.data.Status) {
+        setVideos(response.data.Data || []);
+      } else {
+        setError("Failed to fetch videos");
       }
+    } catch (err) {
+      setError("Error loading videos: " + err.message);
+      console.error("Error fetching reels:", err);
+    } finally {
+      setLoading(false);
     }
+  }
 
+  useEffect(() => {
     getAllReels();
   }, []);
 
@@ -997,6 +1000,17 @@ export default function ReelsSection() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedVideo(null);
+    getAllReels(); // Refresh the video list
+  };
+
+  const handleUploadSuccess = () => {
+    setIsUploadModalOpen(false);
+    getAllReels(); // Refresh the video list
+  };
+
+  const handleRepostSuccess = () => {
+    setIsRepostModalOpen(false);
+    getAllReels(); // Refresh the video list
   };
 
   const handleFilterChange = (e) => {
@@ -1104,8 +1118,8 @@ export default function ReelsSection() {
           coordinators={coordinators}
           totalVideos={videos.length}
           filteredCount={filteredVideos.length}
-          role={localStorage.getItem("Role")}
-          onUploadClick={() => console.log("Upload button clicked")}
+          role={userRole}
+          onUploadClick={() => setIsUploadModalOpen(true)}
         />
 
         {/* Video Grid */}
@@ -1293,6 +1307,11 @@ export default function ReelsSection() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onStatusUpdate={handleVideoUpdate}
+      />
+      <RepostModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={handleUploadSuccess}
       />
     </div>
   );
