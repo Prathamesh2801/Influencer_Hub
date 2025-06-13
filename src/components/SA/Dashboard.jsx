@@ -29,6 +29,9 @@ import { LogOutIcon, UsersIcon } from "lucide-react";
 import LeaderBoardRecords from "../LeaderBoard/LeaderBoardRecords";
 import NotificationSection from "../Notifications/NotificationSection";
 import { messaging, getToken, onMessage } from "../../config/firebaseConfig";
+import { NotificationPermissionDialog } from "../Notifications/NotificationPermissionDialog";
+import { Toast } from "../Notifications/Toast";
+import { v4 as uuidv4 } from 'uuid';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -43,37 +46,127 @@ export default function Dashboard() {
   const username = localStorage.getItem("Username");
   const navigate = useNavigate();
   const [fcmToken, setFcmToken] = useState("");
-  const [notification, setNotification] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [showPermissionDialog, setShowPermissionDialog] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState(
+    typeof Notification !== "undefined" ? Notification.permission : "default"
+  );
+
+  const addToast = (type, title, message) => {
+    const id = uuidv4();
+    const newToast = { id, type, title, message };
+    setToasts((prev) => [...prev, newToast]);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+
+  const checkNotificationPermission = () => {
+    if (typeof Notification === "undefined") {
+      addToast(
+        "error",
+        "Not Supported",
+        "Notifications are not supported in this browser"
+      );
+      return;
+    }
+
+    const permission = Notification.permission;
+    setNotificationPermission(permission);
+
+    if (permission === "default") {
+      setShowPermissionDialog(true);
+    } else if (permission === "denied") {
+      addToast(
+        "warning",
+        "Notifications Blocked",
+        "Please enable notifications in your browser settings"
+      );
+    }
+  };
+
+  const requestNotificationPermission = async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      setShowPermissionDialog(false);
+
+      if (permission === "granted") {
+        addToast(
+          "success",
+          "Notifications Enabled",
+          "You will now receive push notifications"
+        );
+        initializeFCM();
+      } else if (permission === "denied") {
+        addToast(
+          "error",
+          "Notifications Denied",
+          "You have denied notification permissions"
+        );
+      }
+    } catch (error) {
+      console.error("Error requesting notification permission:", error);
+      addToast(
+        "error",
+        "Permission Error",
+        "Failed to request notification permission"
+      );
+      setShowPermissionDialog(false);
+    }
+  };
+
+  const initializeFCM = async () => {
+    try {
+      const token = await getToken(messaging, {
+        vapidKey:
+          "BG1OVKCIK8kznhlzxPYPKJmhY3t1jQeMnryB99bo_8xEZNlol0jb86ZzUCV-rg-jPqx6Ge4Pkz4MxBAJpDUwH4A",
+      });
+      console.log("FCM Token:", token);
+      setFcmToken(token);
+      localStorage.setItem("fcmToken", token);
+
+      addToast(
+        "info",
+        "FCM Token Generated",
+        "Push notifications are now active"
+      );
+    } catch (error) {
+      console.error("FCM token error:", error);
+      addToast("error", "FCM Error", "Failed to initialize push notifications");
+    }
+  };
+
+  const showNotificationToast = (notification) => {
+    addToast("info", notification.title, notification.body);
+  };
 
   useEffect(() => {
-    const requestPermissionAndToken = async () => {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        try {
-          const token = await getToken(messaging, {
-            vapidKey:
-              "BG1OVKCIK8kznhlzxPYPKJmhY3t1jQeMnryB99bo_8xEZNlol0jb86ZzUCV-rg-jPqx6Ge4Pkz4MxBAJpDUwH4A",
-          });
-          console.log("FCM Token:", token);
-          setFcmToken(token);
-          localStorage.setItem("fcmToken", token);
-        } catch (err) {
-          console.error("FCM token error:", err);
-        }
-      } else {
-        console.warn("Notification permission denied");
-      }
-    };
+    // Check notification permission on component mount
+    const timer = setTimeout(() => {
+      checkNotificationPermission();
+    }, 2000); // Wait 2 seconds before checking
 
-    requestPermissionAndToken();
-
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("Foreground Notification: ", payload);
-      setNotification(payload.notification);
-    });
-
-    return () => unsubscribe();
+    return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (notificationPermission === "granted" && !fcmToken) {
+      initializeFCM();
+    }
+  }, [notificationPermission, fcmToken]);
+
+  useEffect(() => {
+    if (notificationPermission === "granted") {
+      const unsubscribe = onMessage(messaging, (payload) => {
+        console.log("Foreground Notification: ", payload);
+        showNotificationToast(payload.notification);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [notificationPermission]);
 
   const navigation = [
     {
@@ -109,6 +202,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     localStorage.clear(); // Clear all localStorage items
     navigate("/login"); // Navigate to login page
+    addToast("info", "Logged Out", "You have been successfully logged out");
   };
 
   const userNavigation = [
@@ -336,14 +430,25 @@ export default function Dashboard() {
           <main className="py-10">
             <div className="px-4 sm:px-6 lg:px-8">{renderContent()}</div>
           </main>
-          {notification && (
-            <div className="mx-4 mb-4 p-4 bg-yellow-100 border border-yellow-300 text-yellow-800 rounded">
-              <strong>{notification.title}</strong>
-              <p>{notification.body}</p>
-            </div>
-          )}
         </div>
       </div>
+      {/* Notification Permission Dialog */}
+      <NotificationPermissionDialog
+        isOpen={showPermissionDialog}
+        onClose={() => setShowPermissionDialog(false)}
+        onGrant={requestNotificationPermission}
+      />
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </>
   );
 }
