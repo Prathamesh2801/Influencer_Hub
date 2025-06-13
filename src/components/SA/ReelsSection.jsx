@@ -1407,7 +1407,7 @@ export default function ReelsSection() {
   async function getAllReels() {
     try {
       setLoading(true);
-      const response = await fetchAllReels();
+      const response = await fetchAllReels(localStorage.getItem('fcmToken'));
 
       if (response.data && response.data.Status) {
         setVideos(response.data.Data || []);

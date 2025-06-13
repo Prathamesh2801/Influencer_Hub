@@ -1,9 +1,5 @@
-importScripts(
-  "https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"
-);
-importScripts(
-  "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"
-);
+importScripts('https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
   apiKey: "AIzaSyC9AopJqvy6xh8tTzjprSHldUKZkpKwXvw",
@@ -16,21 +12,14 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(function (payload) {
-  console.log(
-    "[firebase-messaging-sw.js] Received background message ",
-    payload
-  );
-
-  const { title, body, image, icon } = payload.notification;
-
-  const notificationTitle = title || "New Notification";
+messaging.onBackgroundMessage(function(payload) {
+  console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  
+  const notificationTitle = payload.notification.title;
   const notificationOptions = {
-    body: body || "",
-    icon: icon || "/logo.png", // fallback icon
-    image: image || undefined,
-    data: payload.data || {},
+    body: payload.notification.body,
+    icon: '/icons/Square150x150Logo.scale-100.png'
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });

@@ -126,7 +126,7 @@ export default function Dashboard() {
       console.log("FCM Token:", token);
       setFcmToken(token);
       localStorage.setItem("fcmToken", token);
-
+      
       addToast(
         "info",
         "FCM Token Generated",
