@@ -43,6 +43,7 @@ export default function NotificationSection() {
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const role = localStorage.getItem("Role");
+  const currentUsername = localStorage.getItem("Username");
 
   const [formLoading, setFormLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -160,7 +161,10 @@ export default function NotificationSection() {
         }
       }
     } catch (err) {
-      toast.error("An error occurred while saving the notification");
+      toast.error(
+        err.response.data.Message ||
+          "An error occurred while saving the notification"
+      );
       console.error("Error saving notification:", err);
     } finally {
       setFormLoading(false);
@@ -233,7 +237,7 @@ export default function NotificationSection() {
             updates.
           </p>
         </div>
-        {role === "Admin" && role === "Client" && (
+        {(role === "Admin" || role === "Client") && (
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             <button
               type="button"
@@ -254,10 +258,22 @@ export default function NotificationSection() {
       ) : (
         <div className="space-y-4">
           {notifications.map((notification) => {
+            console.log("Notification Struture : ", notification);
             return (
               <div
                 key={notification.id}
-                onClick={() => openEditModal(notification)}
+                onClick={() => {
+                  if (
+                    notification.created_by?.toLowerCase() ===
+                    currentUsername?.toLowerCase()
+                  ) {
+                    openEditModal(notification);
+                  } else {
+                    console.log(
+                      "You are not allowed to edit this notification."
+                    );
+                  }
+                }}
                 className="bg-pink-50 hover:cursor-pointer border border-pink-700 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex justify-between items-start mb-2">
@@ -286,14 +302,14 @@ export default function NotificationSection() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div className="fixed w-full inset-0 z-50 overflow-y-auto">
+         <div className="flex  min-h-full items-center justify-center p-4 text-center sm:p-0">
             <div
               className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
               onClick={closeModal}
             ></div>
 
-            <div className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+            <div className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all my-8 w-full max-w-lg p-6">
               <div className="absolute right-0 top-0 pr-4 pt-4">
                 <button
                   type="button"
@@ -328,7 +344,7 @@ export default function NotificationSection() {
                         value={formData.title}
                         onChange={handleInputChange}
                         required
-                        className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 px-3"
+                        className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 outline-none focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 px-3"
                         placeholder="Enter notification title"
                       />
                     </div>
@@ -347,16 +363,16 @@ export default function NotificationSection() {
                         value={formData.message}
                         onChange={handleInputChange}
                         required
-                        className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 px-3"
+                        className="mt-2 block w-full rounded-md outline-none border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 px-3"
                         placeholder="Enter notification message"
                       />
                     </div>
 
-                    <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                    <div className="mt-5  grid grid-flow-row-dense grid-cols-2 gap-3">
                       <button
                         type="submit"
                         disabled={formLoading}
-                        className="inline-flex w-full justify-center rounded-md bg-pink-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600 sm:col-start-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex w-full items-center justify-center rounded-md bg-pink-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600 sm:col-start-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {formLoading ? (
                           <div className="flex items-center">
@@ -378,7 +394,7 @@ export default function NotificationSection() {
                             ) : (
                               <>
                                 <PencilIcon
-                                  className="-ml-0.5 mr-1.5 h-5 w-5"
+                                  className="-ml-0.5 mr-1.5 h-4 w-4"
                                   aria-hidden="true"
                                 />
                                 Update
@@ -389,10 +405,11 @@ export default function NotificationSection() {
                       </button>
                       <button
                         type="button"
-                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+                        className=" inline-flex w-full justify-center rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
                         onClick={closeModal}
                         disabled={formLoading}
                       >
+                          
                         Cancel
                       </button>
                     </div>

@@ -281,7 +281,7 @@ export default function CredentialRecords() {
             placeholder="Search users..."
             value={globalFilter ?? ""}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border  border-[#E4007C] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 border  border-[#E4007C] rounded-lg focus:ring-1 outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors"
           />
         </div>
 
@@ -290,7 +290,7 @@ export default function CredentialRecords() {
           <select
             value={table.getState().pagination.pageSize}
             onChange={(e) => table.setPageSize(Number(e.target.value))}
-            className="border border-[#E4007C] rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="border border-[#E4007C] rounded-lg px-3 py-2 text-sm focus:ring-1 outline-none focus:ring-blue-500 focus:border-blue-500"
           >
             {[5, 10, 20, 50].map((pageSize) => (
               <option key={pageSize} value={pageSize}>

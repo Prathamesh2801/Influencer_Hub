@@ -21,6 +21,7 @@ export default function Login() {
       console.log("Login successful:", response);
       localStorage.setItem("token", response.data.Token);
       localStorage.setItem("Role", response.data.Role);
+      localStorage.setItem("Username", username);
       navigate("/dashboard");
       setUsername("");
       setPassword("");

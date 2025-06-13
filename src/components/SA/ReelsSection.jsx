@@ -126,6 +126,7 @@ function VideoCard({ video, onClick }) {
 }
 
 // Video Detail Modal Component
+
 function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
@@ -135,6 +136,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
   const [isRepostModalOpen, setIsRepostModalOpen] = useState(false);
   const userRole = localStorage.getItem("Role");
   const canComment = ["Admin", "Client", "Creator"].includes(userRole);
+  const [mobileView, setMobileView] = useState("comments"); // "comments" or "details"
 
   // Fetch comments when modal opens
   useEffect(() => {
@@ -376,7 +378,9 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
               </span>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#E4007C]">Video Details</h2>
+              <h2 className="text-xl font-bold text-[#E4007C]">
+                Video Details
+              </h2>
               <p className="text-sm text-[#F06292]">
                 Uploaded by {video.Username}
               </p>
@@ -404,362 +408,770 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
 
         {/* Content */}
         <div className="flex-1 bg-[#FFF1F7] overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
-            {/* Left Column - Video and Comments */}
-            <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
-              {/* Video Player */}
-              <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
-                <video
-                  className="w-full h-full object-contain"
-                  controls
-                  preload="metadata"
-                >
-                  <source src={video.Video_Path} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-
-              {/* Comments Section */}
-              <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm">
-                <div className="p-4 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Comments & Feedback
-                  </h3>
+          <div className="h-full">
+            {/* Desktop Layout */}
+            <div className="hidden lg:grid lg:grid-cols-2 h-full">
+              {/* Left Column - Video and Comments (Desktop) */}
+              <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                {/* Video Player (Desktop) */}
+                <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
+                  <video
+                    className="w-full h-full object-contain"
+                    controls
+                    preload="metadata"
+                  >
+                    <source src={video.Video_Path} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
 
-                <div className="p-4">
-                  {/* Comment Input */}
-                  {canComment ? (
-                    <form onSubmit={handleCommentSubmit} className="mb-6">
-                      <div className="flex flex-col space-y-3">
-                        <textarea
-                          value={comment}
-                          onChange={(e) => setComment(e.target.value)}
-                          placeholder="Add your feedback..."
-                          className="w-full min-h-[100px] p-3 border border-[#E4007C] rounded-lg  outline-none resize-none"
-                          disabled={!canComment}
-                        />
-                        <div className="flex justify-end">
+                {/* Comments Section (Desktop) */}
+                <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm">
+                  <div className="p-4 border-b border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Comments & Feedback
+                    </h3>
+                  </div>
+
+                  <div className="p-4">
+                    {/* Comment Input */}
+                    {canComment ? (
+                      <form onSubmit={handleCommentSubmit} className="mb-6">
+                        <div className="flex flex-col space-y-3">
+                          <textarea
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Add your feedback..."
+                            className="w-full min-h-[100px] p-3 border border-[#E4007C] rounded-lg outline-none resize-none"
+                            disabled={!canComment}
+                          />
+                          <div className="flex justify-end">
+                            <button
+                              type="submit"
+                              disabled={!comment.trim()}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+                            >
+                              <span>Add Comment</span>
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="mb-6 p-4 bg-gray-50 rounded-lg text-gray-600 text-sm">
+                        You can view but cannot add comments as a coordinator.
+                      </div>
+                    )}
+                    {/* Comments List */}
+                    <div className="space-y-4">
+                      {comments.map((comment) => (
+                        <div
+                          key={comment.id}
+                          className="flex space-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex-shrink-0">
+                            <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                              <span className="text-white font-semibold text-sm">
+                                {comment.user.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                  {comment.user}
+                                </p>
+                                <p className="mt-1 text-sm text-gray-700">
+                                  {comment.text}
+                                </p>
+                              </div>
+                              <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
+                                {formatDate(comment.timestamp)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {comments.length === 0 && (
+                        <div className="text-center py-6">
+                          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg
+                              className="w-6 h-6 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                              />
+                            </svg>
+                          </div>
+                          <p className="text-gray-500 text-sm">
+                            No comments yet
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column (Desktop) */}
+              <div className="overflow-y-auto border-l p-6 space-y-6 custom-scrollbar">
+                {/* Status Card */}
+                <div className="bg-white rounded-xl border border-[#E4007C] shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Current Status
+                    </h3>
+                    <span
+                      className={`px-3 py-1 text-sm font-semibold rounded-full ${videoStatusBadgeColor}`}
+                    >
+                      {videoStatusText}
+                    </span>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">
+                          {video.Coordinator_username?.charAt(
+                            0
+                          ).toUpperCase() || "C"}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          Assigned Coordinator
+                        </p>
+                        <p className="font-medium text-gray-900">
+                          {video.Coordinator_username}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Video Details Card */}
+                <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6 space-y-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Video Details
+                    </h3>
+                    {userRole !== "Admin" && (
+                      <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
+                        {video.Score
+                          ? `Score :  ${video.Score}`
+                          : "No score assigned yet"}
+                      </h3>
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 block mb-1">
+                        Video ID
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
+                          {video.Video_ID}
+                        </code>
+                      </div>
+                    </div>
+
+                    <div className="">
+                      <label className="text-sm font-medium text-gray-700 block mb-1">
+                        Source URL
+                      </label>
+                      <a
+                        href={video.Video_Path}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 "
+                      >
+                        <span className="break-words">{video.Video_Path}</span>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </a>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 block mb-1">
+                          Created
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {formatDate(video.Created_AT)}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 block mb-1">
+                          Last Updated
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {formatDate(video.Update_AT)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Admin Score Input */}
+                {userRole === "Admin" && video.Status !== 2 && (
+                  <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Admin Actions
+                      </h3>
+                      <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
+                        {video.Score
+                          ? `Score :  ${video.Score}`
+                          : "No score assigned yet"}
+                      </h3>
+                    </div>
+                    <div className="flex items-end gap-4">
+                      <div className=" flex-1 ">
+                        <div className="flex flex-1 space-x-4">
+                          <div className="flex-1">
+                            <label className="text-sm font-medium text-gray-700 block mb-2">
+                              Score (0-100)
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Enter score..."
+                              value={score}
+                              onChange={(e) => {
+                                const value = Number.parseInt(e.target.value);
+                                if (
+                                  !isNaN(value) &&
+                                  value >= 0 &&
+                                  value <= 100
+                                ) {
+                                  setScore(value);
+                                } else if (e.target.value === "") {
+                                  setScore("");
+                                }
+                              }}
+                            />
+                          </div>{" "}
                           <button
-                            type="submit"
-                            disabled={!comment.trim()}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+                            onClick={handleScoreSubmit}
+                            disabled={!score || submittingScore}
+                            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
                           >
-                            <span>Add Comment</span>
+                            {submittingScore ? (
+                              <>
+                                <svg
+                                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  />
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  />
+                                </svg>
+                                <span>Updating...</span>
+                              </>
+                            ) : (
+                              <span>Submit Score</span>
+                            )}
                           </button>
                         </div>
                       </div>
-                    </form>
-                  ) : (
-                    <div className="mb-6 p-4 bg-gray-50 rounded-lg text-gray-600 text-sm">
-                      You can view but cannot add comments as a coordinator.
                     </div>
-                  )}{" "}
-                  {/* Comments List */}
-                  <div className="space-y-4">
-                    {comments.map((comment) => (
-                      <div
-                        key={comment.id}
-                        className="flex space-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
-                            <span className="text-white font-semibold text-sm">
-                              {comment.user.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                {comment.user}
-                                {/* <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600">
-                                  {comment.role}
-                                </span> */}
-                              </p>
-                              <p className="mt-1 text-sm text-gray-700">
-                                {comment.text}
-                              </p>
-                            </div>
-                            <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
-                              {formatDate(comment.timestamp)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    {comments.length === 0 && (
-                      <div className="text-center py-6">
-                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <svg
-                            className="w-6 h-6 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                            />
-                          </svg>
-                        </div>
-                        <p className="text-gray-500 text-sm">No comments yet</p>
-                      </div>
-                    )}
                   </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  {userRole === "Admin" && (
+                    <>
+                      <button
+                        className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors flex items-center justify-center space-x-2"
+                        onClick={() => handleStatusUpdate(1)}
+                        disabled={loading}
+                      >
+                        <EyeIcon className="h-5 w-5" />
+                        <span>Review</span>
+                      </button>
+                      <button
+                        className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
+                        onClick={() => handleStatusUpdate(3)}
+                        disabled={loading}
+                      >
+                        <XIcon className="h-5 w-5" />
+                        <span>Reject</span>
+                      </button>
+                    </>
+                  )}
+
+                  {userRole === "Client" && (
+                    <>
+                      <button
+                        className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                        onClick={() => handleStatusUpdate(2)}
+                        disabled={loading}
+                      >
+                        <CheckIcon className="h-5 w-5" />
+                        <span>Approve</span>
+                      </button>
+                      <button
+                        className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
+                        onClick={() => handleStatusUpdate(3)}
+                        disabled={loading}
+                      >
+                        <XIcon className="h-5 w-5" />
+                        <span>Reject</span>
+                      </button>
+                    </>
+                  )}
+                  {userRole === "Creator" && (
+                    <button
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                      disabled={loading}
+                      onClick={() => setIsRepostModalOpen(true)}
+                    >
+                      <ArrowUpTrayIcon className="h-5 w-5" />
+                      <span>Repost the video</span>
+                    </button>
+                  )}
+
+                  {/* Download button visible to all roles */}
+                  <button
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                    onClick={() => window.open(video.Video_Path, "_blank")}
+                    disabled={loading}
+                  >
+                    <DownloadIcon className="h-5 w-5" />
+                    <span>Download</span>
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Right Column */}
-            <div className="overflow-y-auto border-l p-6 space-y-6 custom-scrollbar">
-              {/* Status Card */}
-              <div className="bg-white rounded-xl border border-[#E4007C] shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Current Status
-                  </h3>
-                  <span
-                    className={`px-3 py-1 text-sm font-semibold rounded-full ${videoStatusBadgeColor}`}
+            {/* Mobile Layout */}
+            <div className="lg:hidden flex flex-col h-full">
+              {/* Video Player (Mobile - Always Visible) */}
+              <div className="p-4">
+                <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
+                  <video
+                    className="w-full h-full object-contain"
+                    controls
+                    preload="metadata"
                   >
-                    {videoStatusText}
-                  </span>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">
-                        {video.Coordinator_username?.charAt(0).toUpperCase() ||
-                          "C"}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">
-                        Assigned Coordinator
-                      </p>
-                      <p className="font-medium text-gray-900">
-                        {video.Coordinator_username}
-                      </p>
-                    </div>
-                  </div>
+                    <source src={video.Video_Path} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
               </div>
-              {/* Video Details Card */}
-              <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6 space-y-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Video Details
-                  </h3>
-                  {userRole !== "Admin" && (
-                    <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
-                      {video.Score
-                        ? `Score :  ${video.Score}`
-                        : "No score assigned yet"}
-                    </h3>
-                  )}
-                </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-1">
-                      Video ID
-                    </label>
-                    <div className="flex items-center space-x-2">
-                      <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
-                        {video.Video_ID}
-                      </code>
-                    </div>
-                  </div>
-
-                  <div className="">
-                    <label className="text-sm font-medium text-gray-700 block mb-1">
-                      Source URL
-                    </label>
-                    <a
-                      href={video.Video_Path}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 "
-                    >
-                      <span className="break-words">{video.Video_Path}</span>
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                        />
-                      </svg>
-                    </a>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 block mb-1">
-                        Created
-                      </label>
-                      <p className="text-sm text-gray-900">
-                        {formatDate(video.Created_AT)}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 block mb-1">
-                        Last Updated
-                      </label>
-                      <p className="text-sm text-gray-900">
-                        {formatDate(video.Update_AT)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              {/* Mobile Toggle Buttons */}
+              <div className="flex px-4 gap-2 border-b pb-2 border-[#E4007C]">
+                <button
+                  onClick={() => setMobileView("comments")}
+                  className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                    mobileView === "comments"
+                      ? "bg-[#E4007C] text-white"
+                      : "bg-white text-[#E4007C] border border-[#E4007C]"
+                  }`}
+                >
+                  Comments
+                </button>
+                <button
+                  onClick={() => setMobileView("details")}
+                  className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                    mobileView === "details"
+                      ? "bg-[#E4007C] text-white"
+                      : "bg-white text-[#E4007C] border border-[#E4007C]"
+                  }`}
+                >
+                  Video Details
+                </button>
               </div>
-              {/* Admin Score Input */}
-              {userRole === "Admin" && video.Status !== 2 && (
-                <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                      Admin Actions
-                    </h3>
-                    <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
-                      {video.Score
-                        ? `Score :  ${video.Score}`
-                        : "No score assigned yet"}
-                    </h3>
-                  </div>
-                  <div className="flex items-end gap-4">
-                    <div className=" flex-1 ">
-                      <div className="flex flex-1 space-x-4">
-                        <div className="flex-1">
-                          <label className="text-sm font-medium text-gray-700 block mb-2">
-                            Score (0-100)
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Enter score..."
-                            value={score}
-                            onChange={(e) => {
-                              const value = parseInt(e.target.value);
-                              if (!isNaN(value) && value >= 0 && value <= 100) {
-                                setScore(value);
-                              } else if (e.target.value === "") {
-                                setScore("");
-                              }
-                            }}
-                          />
-                        </div>{" "}
-                        <button
-                          onClick={handleScoreSubmit}
-                          disabled={!score || submittingScore}
-                          className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
-                        >
-                          {submittingScore ? (
-                            <>
-                              <svg
-                                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
+
+              {/* Mobile Content Area - Toggleable */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar">
+                {/* Comments Section (Mobile) */}
+                {mobileView === "comments" && (
+                  <div className="p-4 space-y-6">
+                    <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm">
+                      <div className="p-4 border-b border-gray-100">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Comments & Feedback
+                        </h3>
+                      </div>
+
+                      <div className="p-4">
+                        {/* Comment Input */}
+                        {canComment ? (
+                          <form onSubmit={handleCommentSubmit} className="mb-6">
+                            <div className="flex flex-col space-y-3">
+                              <textarea
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                placeholder="Add your feedback..."
+                                className="w-full min-h-[100px] p-3 border border-[#E4007C] rounded-lg outline-none resize-none"
+                                disabled={!canComment}
+                              />
+                              <div className="flex justify-end">
+                                <button
+                                  type="submit"
+                                  disabled={!comment.trim()}
+                                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+                                >
+                                  <span>Add Comment</span>
+                                </button>
+                              </div>
+                            </div>
+                          </form>
+                        ) : (
+                          <div className="mb-6 p-4 bg-gray-50 rounded-lg text-gray-600 text-sm">
+                            You can view but cannot add comments as a
+                            coordinator.
+                          </div>
+                        )}
+                        {/* Comments List */}
+                        <div className="space-y-4">
+                          {comments.map((comment) => (
+                            <div
+                              key={comment.id}
+                              className="flex space-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                              <div className="flex-shrink-0">
+                                <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                                  <span className="text-white font-semibold text-sm">
+                                    {comment.user.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {comment.user}
+                                    </p>
+                                    <p className="mt-1 text-sm text-gray-700">
+                                      {comment.text}
+                                    </p>
+                                  </div>
+                                  <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
+                                    {formatDate(comment.timestamp)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+
+                          {comments.length === 0 && (
+                            <div className="text-center py-6">
+                              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg
+                                  className="w-6 h-6 text-gray-400"
+                                  fill="none"
                                   stroke="currentColor"
-                                  strokeWidth="4"
-                                />
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                />
-                              </svg>
-                              <span>Updating...</span>
-                            </>
-                          ) : (
-                            <span>Submit Score</span>
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                  />
+                                </svg>
+                              </div>
+                              <p className="text-gray-500 text-sm">
+                                No comments yet
+                              </p>
+                            </div>
                           )}
-                        </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex space-x-3">
-                {userRole === "Admin" && (
-                  <>
-                    <button
-                      className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors flex items-center justify-center space-x-2"
-                      onClick={() => handleStatusUpdate(1)}
-                      disabled={loading}
-                    >
-                      <EyeIcon className="h-5 w-5" />
-                      <span>Review</span>
-                    </button>
-                    <button
-                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
-                      onClick={() => handleStatusUpdate(3)}
-                      disabled={loading}
-                    >
-                      <XIcon className="h-5 w-5" />
-                      <span>Reject</span>
-                    </button>
-                  </>
                 )}
 
-                {userRole === "Client" && (
-                  <>
-                    <button
-                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
-                      onClick={() => handleStatusUpdate(2)}
-                      disabled={loading}
-                    >
-                      <CheckIcon className="h-5 w-5" />
-                      <span>Approve</span>
-                    </button>
-                    <button
-                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
-                      onClick={() => handleStatusUpdate(3)}
-                      disabled={loading}
-                    >
-                      <XIcon className="h-5 w-5" />
-                      <span>Reject</span>
-                    </button>
-                  </>
-                )}
-                {userRole === "Creator" && (
-                  <button
-                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
-                    disabled={loading}
-                    onClick={() => setIsRepostModalOpen(true)}
-                  >
-                    <ArrowUpTrayIcon className="h-5 w-5" />
-                    <span>Repost the video</span>
-                  </button>
-                )}
+                {/* Video Details Section (Mobile) */}
+                {mobileView === "details" && (
+                  <div className="p-4 space-y-6">
+                    {/* Status Card */}
+                    <div className="bg-white rounded-xl border border-[#E4007C] shadow-sm p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Current Status
+                        </h3>
+                        <span
+                          className={`px-3 py-1 text-sm font-semibold rounded-full ${videoStatusBadgeColor}`}
+                        >
+                          {videoStatusText}
+                        </span>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <span className="text-white font-bold text-lg">
+                              {video.Coordinator_username?.charAt(
+                                0
+                              ).toUpperCase() || "C"}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">
+                              Assigned Coordinator
+                            </p>
+                            <p className="font-medium text-gray-900">
+                              {video.Coordinator_username}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Video Details Card */}
+                    <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6 space-y-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Video Details
+                        </h3>
+                        {userRole !== "Admin" && (
+                          <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
+                            {video.Score
+                              ? `Score :  ${video.Score}`
+                              : "No score assigned yet"}
+                          </h3>
+                        )}
+                      </div>
 
-                {/* Download button visible to all roles */}
-                <button
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
-                  onClick={() => window.open(video.Video_Path, "_blank")}
-                  disabled={loading}
-                >
-                  <DownloadIcon className="h-5 w-5" />
-                  <span>Download</span>
-                </button>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700 block mb-1">
+                            Video ID
+                          </label>
+                          <div className="flex items-center space-x-2">
+                            <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
+                              {video.Video_ID}
+                            </code>
+                          </div>
+                        </div>
+
+                        <div className="">
+                          <label className="text-sm font-medium text-gray-700 block mb-1">
+                            Source URL
+                          </label>
+                          <a
+                            href={video.Video_Path}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 "
+                          >
+                            <span className="break-words">
+                              {video.Video_Path}
+                            </span>
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>
+                          </a>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-700 block mb-1">
+                              Created
+                            </label>
+                            <p className="text-sm text-gray-900">
+                              {formatDate(video.Created_AT)}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-700 block mb-1">
+                              Last Updated
+                            </label>
+                            <p className="text-sm text-gray-900">
+                              {formatDate(video.Update_AT)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Admin Score Input */}
+                    {userRole === "Admin" && video.Status !== 2 && (
+                      <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            Admin Actions
+                          </h3>
+                          <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
+                            {video.Score
+                              ? `Score :  ${video.Score}`
+                              : "No score assigned yet"}
+                          </h3>
+                        </div>
+                        <div className="flex items-end gap-4">
+                          <div className=" flex-1 ">
+                            <div className="flex flex-1 space-x-4">
+                              <div className="flex-1">
+                                <label className="text-sm font-medium text-gray-700 block mb-2">
+                                  Score (0-100)
+                                </label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Enter score..."
+                                  value={score}
+                                  onChange={(e) => {
+                                    const value = Number.parseInt(
+                                      e.target.value
+                                    );
+                                    if (
+                                      !isNaN(value) &&
+                                      value >= 0 &&
+                                      value <= 100
+                                    ) {
+                                      setScore(value);
+                                    } else if (e.target.value === "") {
+                                      setScore("");
+                                    }
+                                  }}
+                                />
+                              </div>{" "}
+                              <button
+                                onClick={handleScoreSubmit}
+                                disabled={!score || submittingScore}
+                                className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+                              >
+                                {submittingScore ? (
+                                  <>
+                                    <svg
+                                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                      />
+                                      <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                      />
+                                    </svg>
+                                    <span>Updating...</span>
+                                  </>
+                                ) : (
+                                  <span>Submit Score</span>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex space-x-3">
+                      {userRole === "Admin" && (
+                        <>
+                          <button
+                            className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors flex items-center justify-center space-x-2"
+                            onClick={() => handleStatusUpdate(1)}
+                            disabled={loading}
+                          >
+                            <EyeIcon className="h-5 w-5" />
+                            <span>Review</span>
+                          </button>
+                          <button
+                            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
+                            onClick={() => handleStatusUpdate(3)}
+                            disabled={loading}
+                          >
+                            <XIcon className="h-5 w-5" />
+                            <span>Reject</span>
+                          </button>
+                        </>
+                      )}
+
+                      {userRole === "Client" && (
+                        <>
+                          <button
+                            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                            onClick={() => handleStatusUpdate(2)}
+                            disabled={loading}
+                          >
+                            <CheckIcon className="h-5 w-5" />
+                            <span>Approve</span>
+                          </button>
+                          <button
+                            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
+                            onClick={() => handleStatusUpdate(3)}
+                            disabled={loading}
+                          >
+                            <XIcon className="h-5 w-5" />
+                            <span>Reject</span>
+                          </button>
+                        </>
+                      )}
+                      {userRole === "Creator" && (
+                        <button
+                          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                          disabled={loading}
+                          onClick={() => setIsRepostModalOpen(true)}
+                        >
+                          <ArrowUpTrayIcon className="h-5 w-5" />
+                          <span>Repost the video</span>
+                        </button>
+                      )}
+                    </div>
+                    {/* Download button visible to all roles */}
+                    <button
+                      className="flex-1 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                      onClick={() => window.open(video.Video_Path, "_blank")}
+                      disabled={loading}
+                    >
+                      <DownloadIcon className="h-5 w-5" />
+                      <span>Download </span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -797,7 +1209,7 @@ function FilterSection({
               </label>
               <input
                 type="text"
-                className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-md border border-[#FF2D99] outline-none p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Search by username..."
                 value={filters.searchQuery}
                 onChange={(e) =>
@@ -813,7 +1225,7 @@ function FilterSection({
               Status
             </label>
             <select
-              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-[#FF2D99] p-2 outline-none text-sm focus:ring-blue-500 focus:border-blue-500"
               value={filters.status}
               onChange={(e) =>
                 setFilters({ ...filters, status: e.target.value })
@@ -834,7 +1246,7 @@ function FilterSection({
                 Coordinator
               </label>
               <select
-                className="w-full rounded-md border border-[#FF2D99] p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-md border border-[#FF2D99] p-2 outline-none text-sm focus:ring-blue-500 focus:border-blue-500"
                 value={filters.coordinator}
                 onChange={(e) =>
                   setFilters({ ...filters, coordinator: e.target.value })
@@ -856,7 +1268,7 @@ function FilterSection({
             </label>
             <input
               type="date"
-              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm outline-none focus:ring-blue-500 focus:border-blue-500"
               value={filters.dateRange.start}
               onChange={(e) =>
                 setFilters({
@@ -873,7 +1285,7 @@ function FilterSection({
             </label>
             <input
               type="date"
-              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm focus:ring-[#FF2D99] focus:border-[#FF2D99]"
+              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm outline-none focus:ring-blue-500 focus:border-blue-500"
               value={filters.dateRange.end}
               onChange={(e) =>
                 setFilters({
@@ -883,10 +1295,9 @@ function FilterSection({
               }
             />
           </div>
-        </div>{" "}
-        {/* Upload Button for Creator */}
+        </div>
         {role === "Creator" && (
-          <div className="ml-4 flex-shrink-0">
+          <div className="ml-4 flex-shrink-0 hidden sm:block">
             <button
               onClick={onUploadClick}
               className="px-4 py-2 bg-[#E4007C] text-white rounded-lg hover:bg-[#F06292] transition-colors flex items-center space-x-2"
@@ -899,11 +1310,23 @@ function FilterSection({
       </div>
 
       {/* Results Summary */}
-      <div className="mt-4 pt-3 border-t border-gray-200">
+      <div className="mt-4 pt-3 border-t border-gray-200 flex ">
         <div className="text-sm text-[#FF2D99] font-semibold">
           Showing {filteredCount} out of {totalVideos} videos
           {filters.searchQuery && ` matching "${filters.searchQuery}"`}
         </div>
+        {/* Upload Button for Creator */}
+        {role === "Creator" && (
+          <div className="ml-4 flex-shrink-0 sm:hidden">
+            <button
+              onClick={onUploadClick}
+              className="px-4 py-2 bg-[#E4007C] text-white rounded-lg hover:bg-[#F06292] transition-colors flex items-center space-x-2"
+            >
+              <ArrowUpTrayIcon className="h-5 w-5" />
+              <span>Upload Video</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -918,7 +1341,7 @@ export default function ReelsSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const userRole = localStorage.getItem("Role");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // New states for filtering and pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -993,8 +1416,8 @@ export default function ReelsSection() {
       }
     } catch (err) {
       setError("Error loading videos: " + err.message);
-      navigate('/login')
-      
+      navigate("/login");
+
       console.error("Error fetching reels:", err);
     } finally {
       setLoading(false);
@@ -1210,101 +1633,122 @@ export default function ReelsSection() {
                     videos
                   </p>
                 </div>
-                <div>
+                <div className="mt-6 flex justify-center">
                   <nav
-                    className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                    className="inline-flex items-center rounded-md border border-[#FACCE0] bg-[#FFF1F7] shadow-sm"
                     aria-label="Pagination"
                   >
+                    {/* First */}
                     <button
                       onClick={() => setCurrentPage(1)}
                       disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-2 border-r border-[#FACCE0] text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-l-md"
                     >
                       <span className="sr-only">First</span>
                       <svg
                         className="h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
                         fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setCurrentPage((prev) => prev - 1)}
-                      disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-2 py-2 border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <span className="sr-only">Previous</span>
-                      <svg
-                        className="h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
-                        fill="currentColor"
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
+                        <path d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" />
                       </svg>
                     </button>
 
-                    {/* Page Numbers */}
-                    {[...Array(totalPages)].map((_, index) => (
-                      <button
-                        key={index + 1}
-                        onClick={() => setCurrentPage(index + 1)}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                          currentPage === index + 1
-                            ? "z-10 bg-[#FFF1F7] border-[#FF2D99] text-[#FF2D99]"
-                            : "bg-[#FFF1F7] border-[#FACCE0] text-gray-500 hover:bg-gray-50"
-                        }`}
-                      >
-                        {index + 1}
-                      </button>
-                    ))}
+                    {/* Pages */}
+                    {(() => {
+                      const pages = [];
+                      const startPage = Math.max(2, currentPage - 1);
+                      const endPage = Math.min(totalPages - 1, currentPage + 1);
 
-                    <button
-                      onClick={() => setCurrentPage((prev) => prev + 1)}
-                      disabled={currentPage === totalPages}
-                      className="relative inline-flex items-center px-2 py-2 border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <span className="sr-only">Next</span>
-                      <svg
-                        className="h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
+                      // Page 1
+                      pages.push(
+                        <button
+                          key={1}
+                          onClick={() => setCurrentPage(1)}
+                          className={`px-4 py-2 text-sm border-r border-[#FACCE0] font-medium ${
+                            currentPage === 1
+                              ? "bg-[#FF2D99] text-white"
+                              : "text-gray-500 hover:bg-gray-100"
+                          }`}
+                        >
+                          1
+                        </button>
+                      );
+
+                      // Start ellipsis
+                      if (startPage > 2) {
+                        pages.push(
+                          <span
+                            key="start-ellipsis"
+                            className="px-3 py-2 text-sm text-gray-500"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+
+                      // Middle pages
+                      for (let i = startPage; i <= endPage; i++) {
+                        pages.push(
+                          <button
+                            key={i}
+                            onClick={() => setCurrentPage(i)}
+                            className={`px-4 py-2 text-sm border-r border-[#FACCE0] font-medium ${
+                              currentPage === i
+                                ? "bg-[#FF2D99] text-white"
+                                : "text-gray-500 hover:bg-gray-100"
+                            }`}
+                          >
+                            {i}
+                          </button>
+                        );
+                      }
+
+                      // End ellipsis
+                      if (endPage < totalPages - 1) {
+                        pages.push(
+                          <span
+                            key="end-ellipsis"
+                            className="px-3 py-2 text-sm text-gray-500"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+
+                      // Last page
+                      if (totalPages > 1) {
+                        pages.push(
+                          <button
+                            key={totalPages}
+                            onClick={() => setCurrentPage(totalPages)}
+                            className={`px-4 py-2 text-sm font-medium ${
+                              currentPage === totalPages
+                                ? "bg-[#FF2D99] text-white"
+                                : "text-gray-500 hover:bg-gray-100"
+                            }`}
+                          >
+                            {totalPages}
+                          </button>
+                        );
+                      }
+
+                      return pages;
+                    })()}
+
+                    {/* Last */}
                     <button
                       onClick={() => setCurrentPage(totalPages)}
                       disabled={currentPage === totalPages}
-                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-2 border-l border-[#FACCE0] text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-r-md"
                     >
                       <span className="sr-only">Last</span>
                       <svg
                         className="h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
                         fill="currentColor"
+                        viewBox="0 0 20 20"
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 6.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm6 0a1 1 0 010-1.414L14.586 10l-4.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
-                          clipRule="evenodd"
-                        />
+                        <path d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 6.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm6 0a1 1 0 010-1.414L14.586 10l-4.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" />
                       </svg>
                     </button>
                   </nav>
