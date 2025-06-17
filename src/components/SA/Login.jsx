@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthLogin } from "../../api/SuperAdmin/LoginApi";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,13 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+
+ useEffect(()=>{
+  const token = localStorage.getItem('token');
+  if (token){
+    navigate('/dashboard')
+  }
+ },[])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,7 +85,14 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="mt-2 relative">
+              <div >
+                 <label
+                  htmlFor="password"
+                  className="block text-sm/6 font-medium text-gray-900"
+                >
+                  Password
+                </label>
+                <div className="mt-2">
                 <input
                   id="password"
                   name="password"
@@ -90,6 +104,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-[#E80071] sm:text-sm/6 pr-10"
                 />
+                </div>
                 <div
                   className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}

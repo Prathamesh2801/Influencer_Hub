@@ -7,7 +7,7 @@ export async function UpdateVideoStatus(videoID, status) {
     formData.append("Video_ID", videoID);
     formData.append("Status", status);
     const response = await axios.post(
-      `${API_URL}/Nykaa/Client/updateStatus.php`,
+      `${API_URL}/Client/UpdateStatus.php`,
       formData,
       {
         headers: {
@@ -18,6 +18,7 @@ export async function UpdateVideoStatus(videoID, status) {
     return response;
   } catch (error) {
     console.error("Error in updating Video Staus : ", error);
+    localStorage.clear();
     return error;
   }
 }

@@ -1,26 +1,41 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { repostVideo } from "../../api/Reel Section/RepostVideoAPI";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 
-export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
+export default function RepostModal({
+  video,
+  isOpen,
+  onClose,
+  onSuccess,
+  taskId = null,
+}) {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [socialUrl, setSocialUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
   const isUpload = !video; // If no video prop is passed, it's an upload
-  console.log('Modal type:', isUpload ? 'Upload' : 'Repost', { video });
+  console.log("Modal type:", isUpload ? "Upload" : "Repost", { taskId });
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      console.log('Selected file:', { name: file.name, type: file.type, size: file.size });
-      if (file.type === "video/mp4" || file.type === "video/mov" || file.type === "video/avi") {
+      console.log("Selected file:", {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      });
+      if (
+        file.type === "video/mp4" ||
+        file.type === "video/mov" ||
+        file.type === "video/avi"
+      ) {
         setSelectedFile(file);
       } else {
-        console.log('Invalid file type:', file.type);
+        console.log("Invalid file type:", file.type);
         toast.error("Please select a valid video file (MP4, MOV, AVI)");
         fileInputRef.current.value = "";
       }
@@ -40,14 +55,23 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
-      console.log('Dropped file:', { name: file.name, type: file.type, size: file.size });
-      
-      if (file.type === "video/mp4" || file.type === "video/mov" || file.type === "video/avi") {
-        if (file.size <= 2 * 1024 * 1024 * 1024) { // 2GB limit
+      console.log("Dropped file:", {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      });
+
+      if (
+        file.type === "video/mp4" ||
+        file.type === "video/mov" ||
+        file.type === "video/avi"
+      ) {
+        if (file.size <= 2 * 1024 * 1024 * 1024) {
+          // 2GB limit
           setSelectedFile(file);
         } else {
           toast.error("File size must be less than 2GB");
@@ -65,27 +89,32 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedFile) {
-      console.log('No file selected');
+      console.log("No file selected");
       toast.error("Please select a video file");
       return;
     }
 
-    console.log('Starting upload process:', {
+    console.log("Starting upload process:", {
       isUpload,
       videoId: video?.Video_ID,
-      fileName: selectedFile.name
+      fileName: selectedFile.name,
     });
 
     try {
       setUploading(true);
       // If video prop exists, it's a repost. Otherwise, it's a new upload
-      console.log('Calling repostVideo API with:', {
+      console.log("Calling repostVideo API with:", {
         videoId: video?.Video_ID,
         fileName: selectedFile.name,
-        fileSize: selectedFile.size
+        fileSize: selectedFile.size,
       });
-      const response = await repostVideo(video?.Video_ID, selectedFile);
-      console.log('API Response:', response);
+      const response = await repostVideo(
+        video?.Video_ID,
+        selectedFile,
+        socialUrl,
+        taskId
+      );
+      console.log("API Response:", response);
 
       if (response?.data?.Status) {
         // console.log('Upload successful:', response.data);
@@ -99,7 +128,7 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
         }
         onClose();
       } else {
-        console.error('API Error Response:', response?.data);
+        console.error("API Error Response:", response?.data);
         toast.error(
           response?.data?.Message ||
             `Failed to ${isUpload ? "upload" : "repost"} video`
@@ -109,12 +138,12 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
       console.error(
         `Error ${isUpload ? "uploading" : "reposting"} video:`,
         error,
-        '\nError response:',
+        "\nError response:",
         error.response
       );
       toast.error(`Failed to ${isUpload ? "upload" : "repost"} video`);
     } finally {
-      console.log('Upload process completed');
+      console.log("Upload process completed");
       setUploading(false);
     }
   };
@@ -123,6 +152,7 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
   useEffect(() => {
     if (!isOpen) {
       setSelectedFile(null);
+      setSocialUrl("");
       setIsDragging(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -163,9 +193,9 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
           {!selectedFile ? (
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                isDragging 
-                  ? 'border-pink-400 bg-pink-50' 
-                  : 'border-pink-300 bg-pink-50'
+                isDragging
+                  ? "border-pink-400 bg-pink-50"
+                  : "border-pink-300 bg-pink-50"
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -206,7 +236,9 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
                 <div className="flex items-center space-x-3">
                   <CloudArrowUpIcon className="w-8 h-8 text-green-500" />
                   <div>
-                    <p className="font-medium text-gray-900">{selectedFile.name}</p>
+                    <p className="font-medium text-gray-900">
+                      {selectedFile.name}
+                    </p>
                     <p className="text-sm text-gray-500">
                       {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
                     </p>
@@ -223,7 +255,11 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
                   className="text-gray-400 hover:text-gray-600"
                   disabled={uploading}
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -234,6 +270,23 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
               </div>
             </div>
           )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Social Media URL <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="url"
+              value={socialUrl}
+              onChange={(e) => setSocialUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=example"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent"
+              disabled={uploading}
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              You can paste a YouTube, Instagram, or any valid social media
+              video URL.
+            </p>
+          </div>
 
           <div className="flex justify-end space-x-3 mt-6">
             <button
@@ -273,9 +326,7 @@ export default function RepostModal({ video, isOpen, onClose, onSuccess }) {
                   <span>Uploading...</span>
                 </>
               ) : (
-                <span>
-                  {isUpload ? "Upload Video" : "Upload New Version"}
-                </span>
+                <span>{isUpload ? "Upload Video" : "Upload New Version"}</span>
               )}
             </button>
           </div>

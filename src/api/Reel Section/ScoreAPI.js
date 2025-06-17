@@ -8,7 +8,7 @@ export async function updateVideoScore(videoID, score) {
     formData.append("Score", score);
     
     const response = await axios.post(
-      `${API_URL}/Nykaa/Admin/UpdateScore.php`,
+      `${API_URL}/Admin/UpdateScore.php`,
       formData,
       {
         headers: {
@@ -19,6 +19,7 @@ export async function updateVideoScore(videoID, score) {
     return response;
   } catch (error) {
     console.error("Error updating video score:", error);
+    localStorage.clear();
     return error;
   }
 }

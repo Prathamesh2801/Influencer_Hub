@@ -3,7 +3,7 @@ import { API_URL } from "../../../config";
 
 export async function getAllNotifications() {
   try {
-    const response = await axios.get(`${API_URL}/Nykaa/notification.php`, {
+    const response = await axios.get(`${API_URL}/notification.php`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -12,13 +12,14 @@ export async function getAllNotifications() {
     return response;
   } catch (error) {
     console.error("Failed to fetch notifications:", error);
+    localStorage.clear();
     throw error;
   }
 }
 
 export async function getSpecificNotifications(id) {
   try {
-    const response = await axios.get(`${API_URL}/Nykaa/notification.php`, {
+    const response = await axios.get(`${API_URL}/notification.php`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -30,6 +31,7 @@ export async function getSpecificNotifications(id) {
     return response;
   } catch (error) {
     console.error("Failed to fetch specific notification:", error);
+    localStorage.clear();
     throw error;
   }
 }
@@ -42,7 +44,7 @@ export async function createNotification(title, message) {
 
     // Fixed: Changed from axios.get to axios.post
     const response = await axios.post(
-      `${API_URL}/Nykaa/notification.php`,
+      `${API_URL}/notification.php`,
       formData,
       {
         headers: {
@@ -54,6 +56,7 @@ export async function createNotification(title, message) {
     return response;
   } catch (error) {
     console.error("Failed to create notification:", error);
+    localStorage.clear();
     throw error;
   }
 }
@@ -61,7 +64,7 @@ export async function createNotification(title, message) {
 export async function updateNotification(SR_NO, Title, Message) {
   try {
     const response = await axios.put(
-      `${API_URL}/Nykaa/notification.php`,
+      `${API_URL}/notification.php`,
       {
         SR_NO: SR_NO,
         Title: Title,
@@ -78,13 +81,14 @@ export async function updateNotification(SR_NO, Title, Message) {
     return response.data;
   } catch (error) {
     console.error("Failed to update notification:", error);
+    localStorage.clear();
     throw error;
   }
 }
 
 export async function deleteNotification(id) {
   try {
-    const response = await axios.delete(`${API_URL}/Nykaa/notification.php`, {
+    const response = await axios.delete(`${API_URL}/notification.php`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -96,6 +100,7 @@ export async function deleteNotification(id) {
     return response;
   } catch (error) {
     console.error("Failed to delete notification:", error);
+    localStorage.clear();
     throw error;
   }
 }

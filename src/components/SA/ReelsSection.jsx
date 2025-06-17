@@ -419,6 +419,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                     className="w-full h-full object-contain"
                     controls
                     preload="metadata"
+                    playsInline
                   >
                     <source src={video.Video_Path} type="video/mp4" />
                     Your browser does not support the video tag.
@@ -577,6 +578,16 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                       <div className="flex items-center space-x-2">
                         <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
                           {video.Video_ID}
+                        </code>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 block mb-1">
+                        Task ID
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
+                          {video.Task_ID}
                         </code>
                       </div>
                     </div>
@@ -783,6 +794,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                     className="w-full h-full object-contain"
                     controls
                     preload="metadata"
+                    playsInline
                   >
                     <source src={video.Video_Path} type="video/mp4" />
                     Your browser does not support the video tag.
@@ -973,6 +985,17 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                           <div className="flex items-center space-x-2">
                             <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
                               {video.Video_ID}
+                            </code>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium text-gray-700 block mb-1">
+                            Task ID
+                          </label>
+                          <div className="flex items-center space-x-2">
+                            <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
+                              {video.Task_ID}
                             </code>
                           </div>
                         </div>
@@ -1407,7 +1430,7 @@ export default function ReelsSection() {
   async function getAllReels() {
     try {
       setLoading(true);
-      const response = await fetchAllReels(localStorage.getItem('fcmToken'));
+      const response = await fetchAllReels(localStorage.getItem("fcmToken"));
 
       if (response.data && response.data.Status) {
         setVideos(response.data.Data || []);
