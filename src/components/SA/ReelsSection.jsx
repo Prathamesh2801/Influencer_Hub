@@ -135,7 +135,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
   const [submittingScore, setSubmittingScore] = useState(false);
   const [isRepostModalOpen, setIsRepostModalOpen] = useState(false);
   const userRole = localStorage.getItem("Role");
-  const canComment = ["Admin", "Client", "Creator"].includes(userRole);
+  const canComment = ["Admin", "Client"].includes(userRole);
   const [mobileView, setMobileView] = useState("comments"); // "comments" or "details"
 
   // Fetch comments when modal opens
@@ -459,7 +459,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                       </form>
                     ) : (
                       <div className="mb-6 p-4 bg-gray-50 rounded-lg text-gray-600 text-sm">
-                        You can view but cannot add comments as a coordinator.
+                        You can view but cannot add comments.
                       </div>
                     )}
                     {/* Comments List */}
@@ -782,14 +782,16 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                   )}
 
                   {/* Download button visible to all roles */}
-                  <button
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
-                    onClick={() => window.open(video.Video_Path, "_blank")}
-                    disabled={loading}
-                  >
-                    <DownloadIcon className="h-5 w-5" />
-                    <span>Download</span>
-                  </button>
+                  {userRole !== "Creator" && userRole !== "Co-ordinator" && (
+                    <button
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                      onClick={() => window.open(video.Video_Path, "_blank")}
+                      disabled={loading}
+                    >
+                      <DownloadIcon className="h-5 w-5" />
+                      <span>Download</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -872,8 +874,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                           </form>
                         ) : (
                           <div className="mb-6 p-4 bg-gray-50 rounded-lg text-gray-600 text-sm">
-                            You can view but cannot add comments as a
-                            coordinator.
+                            You can view but cannot add comments.
                           </div>
                         )}
                         {/* Comments List */}
@@ -1271,7 +1272,7 @@ function FilterSection({
               }
             >
               <option value="all">All Status</option>
-              {role !== "Client" && <option value="0">Pending</option>}
+              <option value="0">Pending</option>
               <option value="1">Review</option>
               <option value="2">Approved</option>
               <option value="3">Rejected</option>
@@ -1317,7 +1318,7 @@ function FilterSection({
           )}
 
           {/* Active VideoId Filter Tag */}
-          {filters.VideoId && role == 'Creator' && (
+          {filters.VideoId && role == "Creator" && (
             <div className="flex items-center mb-4 space-x-2">
               <span className="px-3 py-1 bg-[#EDE9FE] rounded-full text-sm font-medium">
                 Video ID: {filters.VideoId}

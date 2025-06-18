@@ -37,6 +37,7 @@ import { Toast } from "../Notifications/Toast";
 import { v4 as uuidv4 } from "uuid";
 import { fetchAllReels } from "../../api/SuperAdmin/FetchAllReels";
 import TaskSection from "../Tasks/TaskSection";
+import ProfileSection from "../ProfileSection/ProfileSection";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -575,6 +576,10 @@ export default function Dashboard() {
     },
   ];
 
+  const handleRedirectProfile = () => {
+    navigate("/dashboard?tab=profile");
+  };
+
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
@@ -582,6 +587,11 @@ export default function Dashboard() {
   };
 
   const userNavigation = [
+    {
+      name: "Profile",
+      icon: UsersIcon,
+      onClick: handleRedirectProfile,
+    },
     {
       name: "Sign out",
       icon: LogOutIcon,
@@ -601,6 +611,8 @@ export default function Dashboard() {
         return <LeaderBoardRecords />;
       case "notifications":
         return <NotificationSection />;
+      case "profile":
+        return <ProfileSection />;
       default:
         return <ReelsSection />;
     }
@@ -765,25 +777,29 @@ export default function Dashboard() {
 
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative">
-                  <MenuButton className="-m-1.5 flex items-center p-1.5">
+                  <MenuButton className="-m-1.5 flex items-center p-1.5 max-w-[180px] sm:max-w-[220px]">
                     <span className="sr-only">Open user menu</span>
+
                     <UsersIcon
                       className="text-[#E4007C] hover:text-gray-500"
                       size={25}
                     />
-                    <span className="hidden lg:flex lg:items-center">
+
+                    <span className="ml-2 flex items-center space-x-2 overflow-hidden">
                       <span
                         aria-hidden="true"
-                        className="ml-4 text-sm leading-6 font-semibold text-[#E4007C]"
+                        className="text-sm leading-6 font-semibold text-[#E4007C] truncate"
                       >
                         {username}
                       </span>
+
                       <ChevronDownIcon
                         aria-hidden="true"
-                        className="ml-2 h-5 w-5 text-gray-400"
+                        className="h-5 w-5 text-gray-400"
                       />
                     </span>
                   </MenuButton>
+
                   <MenuItems
                     transition
                     className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:ease-out data-[leave]:duration-75 data-[leave]:ease-in"

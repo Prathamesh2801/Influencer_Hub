@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/img/logo.png";
 import { Eye, EyeOff } from "lucide-react";
+
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -12,124 +13,115 @@ export default function Login() {
 
   const navigate = useNavigate();
 
- useEffect(()=>{
-  const token = localStorage.getItem('token');
-  if (token){
-    navigate('/dashboard')
-  }
- },[])
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const response = await AuthLogin(username, password);
-    if (response.data.Status) {
-      toast.success(response.data.Message || "Login successful!");
-      console.log("Login successful:", response);
-      localStorage.setItem("token", response.data.Token);
-      localStorage.setItem("Role", response.data.Role);
-      localStorage.setItem("Username", username);
-      navigate("/dashboard");
+    try {
+      const response = await AuthLogin(username, password);
+      if (response.data.Status) {
+        toast.success(response.data.Message || "Login successful!");
+        localStorage.setItem("token", response.data.Token);
+        localStorage.setItem("Role", response.data.Role);
+        localStorage.setItem("Username", username);
+        navigate("/dashboard");
+      } else {
+        toast.error(response.data.Message || "Login failed!");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
       setUsername("");
       setPassword("");
-      setLoading(false);
-    } else {
-      console.error("Login failed:", response);
-      toast.error(response.data.Message || "Login failed!");
-      setUsername("");
-      setPassword("");
-      setLoading(false);
     }
   };
+
   return (
-    <>
-      <div className="flex bg-gradient-to-br from-[#E80071] via-[#EF3F8F] to-[#D53C2F] min-h-screen flex-1 flex-col justify-center py-12 px-10 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <img
-            alt="Your Company"
-            src={Logo}
-            className="mx-auto h-20 w-auto mb-5"
-          />
-          <h2 className=" text-center text-2xl/9 font-bold tracking-tight text-white">
-            Sign in to your account
-          </h2>
+    <div className="flex min-h-screen flex-col justify-center bg-gradient-to-br from-[#E80071] via-[#EF3F8F] to-[#D53C2F] px-4 py-12">
+      <div className="mx-auto w-full max-w-md">
+        <div className="text-center mb-8">
+          <img src={Logo} alt="Your Company" className="mx-auto h-16 w-auto sm:h-20" />
+          <h2 className="mt-4 text-2xl font-bold text-white">Sign in to your account</h2>
         </div>
 
-        <div className="mt-5  sm:mx-auto sm:w-full sm:max-w-[480px]">
-          <div className="bg-white px-6 py-12 shadow-sm rounded-2xl sm:px-12">
-            <form
-              action="#"
-              method="POST"
-              className="space-y-6"
-              onSubmit={handleSubmit}
+        <div className="bg-white px-6 py-8 shadow rounded-2xl sm:px-12">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Username */}
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-900">
+                Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                autoComplete="username"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="mt-1 block w-full rounded-lg bg-gray-100 px-3 py-2 text-base text-gray-900 border border-gray-200 focus:border-[#E80071] focus:outline-none"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="relative">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-900">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                required
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 block w-full rounded-lg bg-gray-100 px-3 py-2 text-base text-gray-900 border border-gray-200 focus:border-[#E80071] focus:outline-none pr-10"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute inset-y-0 top-6 right-3 flex items-center justify-center text-gray-500"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+
+            {/* Submit */}
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex w-full items-center justify-center rounded-lg bg-[#E80071] px-4 py-2 text-base font-semibold text-white shadow-sm hover:bg-[#D53C2F] disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#E80071]"
+              >
+                {loading ? "Signing in..." : "Sign in"}
+              </button>
+            </div>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Not a member?{' '}
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSd6UlsJEmb0E5FpopouOjm_A2BML1oUcjOiL-D2PJ0CLrv_sA/viewform"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
             >
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm/6 font-medium text-gray-900"
-                >
-                  Username
-                </label>
-                <div className="mt-2">
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    required
-                    autoComplete="username"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-900 outline  outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-[#E80071] sm:text-sm/6 "
-                  />
-                </div>
-              </div>
-
-              <div >
-                 <label
-                  htmlFor="password"
-                  className="block text-sm/6 font-medium text-gray-900"
-                >
-                  Password
-                </label>
-                <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  required
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-[#E80071] sm:text-sm/6 pr-10"
-                />
-                </div>
-                <div
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-500" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-500" />
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex w-full justify-center rounded-md bg-[#E80071] px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-[#D53C2F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  {loading ? "Siggning in..." : "Sign in"}
-                </button>
-              </div>
-            </form>
-          </div>
+              Register Here
+            </a>
+          </p>
         </div>
       </div>
-    </>
+    </div>
   );
 }
