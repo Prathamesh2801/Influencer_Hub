@@ -7,9 +7,9 @@ import { CheckIcon, DownloadIcon, XIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UpdateVideoStatus } from "../../api/Reel Section/VideoStaus";
-import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import RepostModal from "./RepostModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 // Video Card Component
 function VideoCard({ video, onClick }) {
@@ -572,9 +572,16 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
 
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-700 block mb-1">
-                        Video ID
-                      </label>
+                      <div className="flex flex-row justify-between">
+                        <label className="text-sm font-medium text-gray-700 block mb-1">
+                          Video ID
+                        </label>
+                        {video.is_repost && (
+                          <h3 className="text-sm bg-yellow-100 text-yellow-800 border-yellow-300 px-3 -mt-2 mb-1 py-1 rounded-full border ">
+                            Reposted
+                          </h3>
+                        )}
+                      </div>
                       <div className="flex items-center space-x-2">
                         <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
                           {video.Video_ID}
@@ -594,15 +601,17 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
 
                     <div className="">
                       <label className="text-sm font-medium text-gray-700 block mb-1">
-                        Source URL
+                        Social Media URL
                       </label>
                       <a
-                        href={video.Video_Path}
+                        href={video.SocialMedia_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 "
                       >
-                        <span className="break-words">{video.Video_Path}</span>
+                        <span className="break-words">
+                          {video.SocialMedia_URL}
+                        </span>
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -979,9 +988,16 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
 
                       <div className="space-y-4">
                         <div>
-                          <label className="text-sm font-medium text-gray-700 block mb-1">
-                            Video ID
-                          </label>
+                          <div className="flex flex-row justify-between">
+                            <label className="text-sm font-medium text-gray-700 block mb-1">
+                              Video ID
+                            </label>
+                            {video.is_repost && (
+                              <h3 className="text-sm bg-yellow-100 text-yellow-800 border-yellow-300 px-3 -mt-2 mb-1 py-1 rounded-full border ">
+                                Reposted
+                              </h3>
+                            )}
+                          </div>
                           <div className="flex items-center space-x-2">
                             <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
                               {video.Video_ID}
@@ -1002,16 +1018,16 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
 
                         <div className="">
                           <label className="text-sm font-medium text-gray-700 block mb-1">
-                            Source URL
+                            Social Media URL
                           </label>
                           <a
-                            href={video.Video_Path}
+                            href={video.SocialMedia_URL}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 "
                           >
                             <span className="break-words">
-                              {video.Video_Path}
+                              {video.SocialMedia_URL}
                             </span>
                             <svg
                               className="w-4 h-4"
@@ -1262,6 +1278,22 @@ function FilterSection({
             </select>
           </div>
 
+          {/* Search Task ID */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Search Task ID
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-md border border-[#FF2D99] outline-none p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter task ID..."
+              value={filters.taskId}
+              onChange={(e) =>
+                setFilters({ ...filters, taskId: e.target.value })
+              }
+            />
+          </div>
+
           {/* Coordinator Filter */}
           {role !== "Creator" && role !== "Co-ordinator" && (
             <div>
@@ -1284,8 +1316,23 @@ function FilterSection({
             </div>
           )}
 
+          {/* Active VideoId Filter Tag */}
+          {filters.VideoId && role == 'Creator' && (
+            <div className="flex items-center mb-4 space-x-2">
+              <span className="px-3 py-1 bg-[#EDE9FE] rounded-full text-sm font-medium">
+                Video ID: {filters.VideoId}
+              </span>
+              <button
+                onClick={() => setFilters({ ...filters, VideoId: "" })}
+                className="p-1 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <XMarkIcon className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          )}
+
           {/* Date Range Filters */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Start Date
             </label>
@@ -1317,9 +1364,9 @@ function FilterSection({
                 })
               }
             />
-          </div>
+          </div> */}
         </div>
-        {role === "Creator" && (
+        {/* {role === "Creator" && (
           <div className="ml-4 flex-shrink-0 hidden sm:block">
             <button
               onClick={onUploadClick}
@@ -1329,7 +1376,7 @@ function FilterSection({
               <span>Upload Video</span>
             </button>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Results Summary */}
@@ -1339,7 +1386,7 @@ function FilterSection({
           {filters.searchQuery && ` matching "${filters.searchQuery}"`}
         </div>
         {/* Upload Button for Creator */}
-        {role === "Creator" && (
+        {/* {role === "Creator" && (
           <div className="ml-4 flex-shrink-0 sm:hidden">
             <button
               onClick={onUploadClick}
@@ -1349,7 +1396,7 @@ function FilterSection({
               <span>Upload Video</span>
             </button>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
@@ -1373,11 +1420,39 @@ export default function ReelsSection() {
     status: "all",
     coordinator: "all",
     searchQuery: "",
+    taskId: "",
+    VideoId: "",
     dateRange: {
       start: "",
       end: "",
     },
   });
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // 1️⃣ On mount: pull video_id into filters, then remove it from the URL
+  useEffect(() => {
+    const vid = searchParams.get("video_id");
+    if (vid) {
+      setFilters((f) => ({ ...f, VideoId: vid }));
+
+      // remove from URL immediately
+      const next = new URLSearchParams(searchParams);
+      next.delete("video_id");
+      setSearchParams(next, { replace: true });
+    }
+  }, []); // run once on mount
+
+  // 2️⃣ Whenever filters.VideoId is cleared, make sure URL stays clean
+  useEffect(() => {
+    if (!filters.VideoId) {
+      const next = new URLSearchParams(searchParams);
+      if (next.has("video_id")) {
+        next.delete("video_id");
+        setSearchParams(next, { replace: true });
+      }
+    }
+  }, [filters.VideoId]);
 
   // Computed values
   const filteredVideos = useMemo(() => {
@@ -1387,6 +1462,16 @@ export default function ReelsSection() {
       if (
         filters.coordinator !== "all" &&
         video.Coordinator_username !== filters.coordinator
+      )
+        return false;
+      if (
+        filters.taskId &&
+        !video.Task_ID.toLowerCase().includes(filters.taskId.toLowerCase())
+      )
+        return false;
+      if (
+        filters.VideoId &&
+        !video.Video_ID.toLowerCase().includes(filters.VideoId.toLowerCase())
       )
         return false;
       if (
@@ -1780,7 +1865,7 @@ export default function ReelsSection() {
             </div>
           </>
         )}
-      </div>{" "}
+      </div>
       {/* Video Detail Modal */}
       <VideoDetailModal
         video={selectedVideo}

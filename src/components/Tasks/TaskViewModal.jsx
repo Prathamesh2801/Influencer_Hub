@@ -6,6 +6,7 @@ import {
   ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/outline";
 import { fetchAllReels } from "../../api/SuperAdmin/FetchAllReels";
+import { Frontend_URL } from "../../../config";
 
 export default function TaskViewModal({ isOpen, onClose, task }) {
   const [videos, setVideos] = useState([]);
@@ -104,8 +105,8 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
                     </div>
                     <div className="mt-2 sm:mt-0">
                       <a
-                        href={video.Video_Path}
-                        target="_blank"
+                        href={`${Frontend_URL}/dashboard?video_id=${video.Video_ID}`}
+                        // target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-pink-600 hover:text-pink-800 font-medium text-sm"
                       >
