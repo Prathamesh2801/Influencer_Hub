@@ -12,6 +12,12 @@ export async function getAllScores() {
     return response;
   } catch (error) {
     console.error("Failed to fetch credentials:", error);
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }

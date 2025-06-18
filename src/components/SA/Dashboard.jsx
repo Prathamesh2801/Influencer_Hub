@@ -492,18 +492,23 @@ export default function Dashboard() {
         vapidKey:
           "BG1OVKCIK8kznhlzxPYPKJmhY3t1jQeMnryB99bo_8xEZNlol0jb86ZzUCV-rg-jPqx6Ge4Pkz4MxBAJpDUwH4A",
       });
-      console.log("FCM Token:", token);
+      // console.log("FCM Token:", token);
       await fetchAllReels(token);
       setFcmToken(token);
       localStorage.setItem("fcmToken", token);
 
-      addToast(
-        "info",
-        "FCM Token Generated",
-        "Push notifications are now active"
-      );
+      // addToast(
+      //   "info",
+      //   "FCM Token Generated",
+      //   "Push notifications are now active"
+      // );
     } catch (error) {
       console.error("FCM token error:", error);
+      addToast(
+          "error",
+          error.response?.data?.Message,
+          "Failed to Fetch Data"
+        );
     }
   };
 

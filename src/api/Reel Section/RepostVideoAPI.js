@@ -39,14 +39,17 @@ export async function repostVideo(
       },
     });
 
-    // console.log('API Response:', response.data);
     return response;
   } catch (error) {
     // console.error('RepostVideoAPI Error:', error);
-    console.error('Error response:', error.response);
-    // console.error('Error status:', error.response?.status);
-    // console.error('Error data:', error.response?.data);
-    // localStorage.clear();
+    console.error("Error response:", error.response);
+
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     return error;
   }
 }

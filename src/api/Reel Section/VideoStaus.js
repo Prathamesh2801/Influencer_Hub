@@ -18,7 +18,13 @@ export async function UpdateVideoStatus(videoID, status) {
     return response;
   } catch (error) {
     console.error("Error in updating Video Staus : ", error);
-    localStorage.clear();
+    // localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     return error;
   }
 }

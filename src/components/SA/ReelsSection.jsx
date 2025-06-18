@@ -194,11 +194,12 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         // Refresh comments to get the latest
         fetchComments();
       } else {
-        toast.error(response.data?.Message || "Failed to add comment");
+        // toast.error(response.data?.Message || "Failed to add comment");
+        toast.error(response?.response?.data?.Message || "Failed to Add Comment");
       }
     } catch (error) {
       console.error("Error adding comment:", error);
-      toast.error("Failed to add comment");
+      toast.error(error.response?.data?.Message || "Failed to Add Comment");
     }
   };
 
@@ -240,7 +241,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
       } else {
         // Show error toast
         toast.error(
-          response?.data?.Message || "Failed to update video status",
+          response?.response?.data?.Message || "Failed to update video status",
           {
             position: "top-right",
             autoClose: 5000,
@@ -296,7 +297,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         }
         setScore("");
       } else {
-        toast.error(response?.data?.Message || "Failed to update score", {
+        toast.error(response?.response?.data?.Message || "Failed to update score", {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -782,7 +783,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                   )}
 
                   {/* Download button visible to all roles */}
-                  {userRole !== "Creator" && userRole !== "Co-ordinator" && (
+                  {/* {userRole !== "Creator" && userRole !== "Co-ordinator" && (
                     <button
                       className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                       onClick={() => window.open(video.Video_Path, "_blank")}
@@ -791,7 +792,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                       <DownloadIcon className="h-5 w-5" />
                       <span>Download</span>
                     </button>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>
@@ -1525,7 +1526,7 @@ export default function ReelsSection() {
       }
     } catch (err) {
       setError("Error loading videos: " + err.message);
-      navigate("/login");
+      toast.error(err.response?.data?.Message || "Error Fetch Reels");
 
       console.error("Error fetching reels:", err);
     } finally {

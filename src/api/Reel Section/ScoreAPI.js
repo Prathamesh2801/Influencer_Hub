@@ -6,7 +6,7 @@ export async function updateVideoScore(videoID, score) {
     const formData = new FormData();
     formData.append("Video_ID", videoID);
     formData.append("Score", score);
-    
+
     const response = await axios.post(
       `${API_URL}/Admin/UpdateScore.php`,
       formData,
@@ -19,7 +19,13 @@ export async function updateVideoScore(videoID, score) {
     return response;
   } catch (error) {
     console.error("Error updating video score:", error);
-    localStorage.clear();
+    // localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     return error;
   }
 }

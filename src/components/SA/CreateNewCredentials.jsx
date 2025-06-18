@@ -36,7 +36,8 @@ export default function CreateNewCredentials() {
         }
       } catch (error) {
         console.error("Failed to load coordinators:", error);
-        toast.error("Failed to load coordinators");
+        // toast.error("Failed to load coordinators");
+        toast.error(err.response.data.Message || "Failed to load coordinators");
       } finally {
         setIsLoading(false);
       }
@@ -94,13 +95,13 @@ export default function CreateNewCredentials() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!formData.username.trim()) {
       toast.error("Username is required");
       return;
     }
-    
+
     if (!formData.password.trim()) {
       toast.error("Password is required");
       return;
@@ -118,10 +119,10 @@ export default function CreateNewCredentials() {
         formData.role,
         formData.role === "Creator" ? formData.coordinator : null
       );
-      
+
       if (response.status === 200 || response.data) {
         toast.success("Credential created successfully!");
-        
+
         // Reset form
         setFormData({
           username: "",
@@ -143,9 +144,9 @@ export default function CreateNewCredentials() {
     } catch (error) {
       console.error("Error creating credential:", error);
       toast.error(
-        error.response?.data?.message || 
-        error.response?.data?.Message || 
-        "Failed to create credential"
+        error.response?.data?.message ||
+          error.response?.data?.Message ||
+          "Failed to create credential"
       );
     }
   };
@@ -161,7 +162,7 @@ export default function CreateNewCredentials() {
     setShowCoordinator(false);
     setFilteredCoordinators([]);
     setIsSearching(false);
-    
+
     // Navigate back to credentials list
     setTimeout(() => {
       navigate("/dashboard?tab=credentials&view=display");
@@ -292,17 +293,21 @@ export default function CreateNewCredentials() {
                     </div>
                   )}
 
-                  {isSearching && filteredCoordinators.length === 0 && formData.coordinator.trim() !== "" && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg p-2">
-                      <p className="text-sm text-gray-500">
-                        No matching coordinators found
-                      </p>
-                    </div>
-                  )}
+                  {isSearching &&
+                    filteredCoordinators.length === 0 &&
+                    formData.coordinator.trim() !== "" && (
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg p-2">
+                        <p className="text-sm text-gray-500">
+                          No matching coordinators found
+                        </p>
+                      </div>
+                    )}
 
                   {isLoading && (
                     <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg p-2">
-                      <p className="text-sm text-gray-500">Loading coordinators...</p>
+                      <p className="text-sm text-gray-500">
+                        Loading coordinators...
+                      </p>
                     </div>
                   )}
                 </div>
@@ -313,8 +318,8 @@ export default function CreateNewCredentials() {
       </div>
 
       <div className="mt-6 flex items-center justify-end gap-x-6">
-        <button 
-          type="button" 
+        <button
+          type="button"
           onClick={handleCancel}
           className="text-sm/6 font-semibold text-[#E4007C]"
         >

@@ -158,8 +158,9 @@ function TaskCreationModal({
       onClose();
     } catch (error) {
       toast.error(
-        editingTask ? "Failed to update task" : "Failed to create task"
+        error.response?.data?.Message || "Error Creating or Updating  Task"
       );
+
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -292,8 +293,6 @@ function TaskCreationModal({
   );
 }
 
-
-
 // Main TaskSection Component
 
 export default function TaskSection() {
@@ -307,8 +306,6 @@ export default function TaskSection() {
   const [pendingDelete, setPendingDelete] = useState(null);
   const [isRepostModalOpen, setIsRepostModalOpen] = useState(false);
   const [repostVideo, setRepostVideo] = useState(null);
-
-
 
   // Update handleTaskClick function
   const handleTaskClick = (taskData) => {
@@ -390,7 +387,7 @@ export default function TaskSection() {
       setTasks(tasks.filter((task) => task.id !== taskId));
       toast.success("Task deleted successfully!");
     } catch (error) {
-      toast.error("Failed to delete task");
+      toast.error(error.response?.data?.Message || "Failed to Delete Task");
       console.error(error);
     }
   };

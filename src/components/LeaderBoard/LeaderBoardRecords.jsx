@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAllScores } from "../../api/ScoreBoard/ScoreBoardAPI";
+import toast from "react-hot-toast";
 
 export default function LeaderBoardRecords() {
   const [scores, setScores] = useState([]);
@@ -13,6 +14,7 @@ export default function LeaderBoardRecords() {
           console.error("Failed to fetch scores:", response.data?.Message);
         }
       } catch (error) {
+        toast.error(error.response?.data?.Message || "Failed to Fetch Scores");
         console.error("API error:", error);
       }
     }
@@ -29,11 +31,9 @@ export default function LeaderBoardRecords() {
             Rank,name, videos, score .
           </p>
         </div>
-     
       </div>
       <div className="mt-8 flow-root rounded-xl border border-[#E4007C] p-5">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
-         
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8 ">
             <table className="min-w-full divide-y bg-[#FFC3E2] divide-gray-300 border-2 border-pink-300   ">
               <thead>

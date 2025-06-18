@@ -9,11 +9,16 @@ export async function getAllTask() {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    console.log("Task fetch : ",response)
+    console.log("Task fetch : ", response);
     return response;
   } catch (error) {
     console.error("Failed to fetch notifications:", error);
-    localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }
@@ -32,7 +37,12 @@ export async function getSpecificTask(taskID) {
     return response;
   } catch (error) {
     console.error("Failed to fetch notifications:", error);
-    localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }

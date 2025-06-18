@@ -52,6 +52,7 @@ export default function CredentialRecords() {
         }
       } catch (err) {
         setError("Failed to fetch credentials");
+        toast.error(err.response.data.Message || "Failed to fetch credentials")
         console.error("Error fetching credentials:", err);
       } finally {
         setLoading(false);
@@ -380,7 +381,7 @@ export default function CredentialRecords() {
               throw new Error(response.data.Message || "Failed to update password");
             }
           } catch (err) {
-            toast.error(err.message || "Failed to update password");
+            toast.error(err.response?.data?.Message || "Failed to update password");
             console.error("Password update error:", err);
           }
         }}

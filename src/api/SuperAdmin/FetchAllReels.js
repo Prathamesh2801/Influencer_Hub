@@ -18,6 +18,12 @@ export async function fetchAllReels(fcmtoken = null, Task_ID = null) {
   } catch (error) {
     console.error("Failed to fetch reels:", error);
     // localStorage.clear();
+      if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }

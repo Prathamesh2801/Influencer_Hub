@@ -5,7 +5,7 @@ export async function getComments(videoID) {
   try {
     const response = await axios.get(`${API_URL}/comment.php`, {
       params: {
-        Video_ID: videoID
+        Video_ID: videoID,
       },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -14,7 +14,12 @@ export async function getComments(videoID) {
     return response;
   } catch (error) {
     console.error("Error fetching comments:", error);
-    localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     return error;
   }
 }
@@ -24,7 +29,7 @@ export async function addComment(videoID, comment) {
     const formData = new FormData();
     formData.append("Video_ID", videoID);
     formData.append("Comment", comment);
-    
+
     const response = await axios.post(`${API_URL}/comment.php`, formData, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -33,7 +38,12 @@ export async function addComment(videoID, comment) {
     return response;
   } catch (error) {
     console.error("Error adding comment:", error);
-    localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     return error;
   }
 }

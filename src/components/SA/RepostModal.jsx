@@ -130,7 +130,7 @@ export default function RepostModal({
       } else {
         console.error("API Error Response:", response?.data);
         toast.error(
-          response?.data?.Message ||
+          response?.response?.data?.Message ||
             `Failed to ${isUpload ? "upload" : "repost"} video`
         );
       }

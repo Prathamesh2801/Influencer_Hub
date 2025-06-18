@@ -13,7 +13,12 @@ export async function getAllCredentials(role = null) {
     return response;
   } catch (error) {
     console.error("Failed to fetch credentials:", error);
-    localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }
@@ -28,20 +33,21 @@ export async function AuthLogin(username, password, role, co_ordinator = null) {
       formData.append("Coordinator_username", co_ordinator);
     }
 
-    const response = await axios.post(
-      `${API_URL}/Admin/user.php`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await axios.post(`${API_URL}/Admin/user.php`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     return response;
   } catch (error) {
     console.error("Login failed:", error);
-    localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     return error;
   }
 }
@@ -58,7 +64,14 @@ export async function deleteCredentials(username) {
     return response;
   } catch (error) {
     console.error("Failed to delete credentials:", error);
-    localStorage.clear();
+    // console.log(response.status)
+    // localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }
@@ -81,7 +94,13 @@ export async function updatePassword(username, newPassword) {
     return response;
   } catch (error) {
     console.error("Failed to update password:", error);
-    localStorage.clear();
+    // localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }

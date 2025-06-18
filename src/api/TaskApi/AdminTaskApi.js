@@ -19,7 +19,13 @@ export async function createTask(title, desc, sdate, edata, tvideo) {
     return response;
   } catch (error) {
     console.error("Failed to create notification:", error);
-    localStorage.clear();
+    // localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }
@@ -45,7 +51,13 @@ export async function updateTask(taskId, title, desc, sdate, edate, tvideo) {
     return response.data; // Return the response JSON
   } catch (error) {
     console.error("Failed to update task:", error);
-    localStorage.clear();
+    // localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }
@@ -64,7 +76,13 @@ export async function deleteTask(taskID) {
     return response;
   } catch (error) {
     console.error("Failed to fetch notifications:", error);
-    localStorage.clear();
+    // localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
     throw error;
   }
 }
