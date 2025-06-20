@@ -7,9 +7,15 @@ import { CheckIcon, DownloadIcon, XIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UpdateVideoStatus } from "../../api/Reel Section/VideoStaus";
-import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowUpTrayIcon,
+  XMarkIcon,
+  PencilIcon,
+} from "@heroicons/react/24/outline";
 import RepostModal from "./RepostModal";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import EditUrlModal from "../ReelSection/EditUrlModal";
+import { updateSocialMediaUrl } from "../../api/Reel Section/SocialVideoURL";
 
 // Video Card Component
 function VideoCard({ video, onClick }) {
@@ -138,6 +144,9 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
   const canComment = ["Admin", "Client"].includes(userRole);
   const [mobileView, setMobileView] = useState("comments"); // "comments" or "details"
 
+  const [isEditUrlModalOpen, setIsEditUrlModalOpen] = useState(false);
+  const [newSocialMediaUrl, setNewSocialMediaUrl] = useState("");
+
   // Fetch comments when modal opens
   useEffect(() => {
     if (video && isOpen) {
@@ -195,7 +204,9 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         fetchComments();
       } else {
         // toast.error(response.data?.Message || "Failed to add comment");
-        toast.error(response?.response?.data?.Message || "Failed to Add Comment");
+        toast.error(
+          response?.response?.data?.Message || "Failed to Add Comment"
+        );
       }
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -297,14 +308,17 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         }
         setScore("");
       } else {
-        toast.error(response?.response?.data?.Message || "Failed to update score", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        toast.error(
+          response?.response?.data?.Message || "Failed to update score",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
       }
     } catch (error) {
       console.error("Error updating score:", error);
@@ -358,6 +372,29 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         videoStatusText = "Unknown";
     }
   }
+
+  const handleUrlUpdate = async (newUrl) => {
+    try {
+      const response = await updateSocialMediaUrl(video.Video_ID, newUrl);
+      if (response.data?.Status) {
+        // Update the video object with new URL
+        video.SocialMedia_URL = newUrl;
+        toast.success("Social media URL updated successfully");
+
+        // Update parent component if callback exists
+        if (typeof onStatusUpdate === "function") {
+          onStatusUpdate(video.Video_ID, video.Status);
+        }
+      } else {
+        toast.error(
+          response?.response?.data?.Message || "Failed to update URL"
+        );
+      }
+    } catch (error) {
+      console.error("Error updating URL:", error);
+      toast.error(error.response?.data?.Message || "Failed to update URL");
+    }
+  };
 
   const handleRepostSuccess = () => {
     setIsRepostModalOpen(false);
@@ -604,29 +641,55 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                       <label className="text-sm font-medium text-gray-700 block mb-1">
                         Social Media URL
                       </label>
-                      <a
-                        href={video.SocialMedia_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 "
-                      >
-                        <span className="break-words">
-                          {video.SocialMedia_URL}
-                        </span>
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
+                      <div className="flex items-center space-x-2">
+                        {video.SocialMedia_URL ? (
+                          <>
+                            <a
+                              href={video.SocialMedia_URL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 flex-1"
+                            >
+                              <span className="break-words">
+                                {video.SocialMedia_URL}
+                              </span>
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                />
+                              </svg>
+                            </a>
+                            {userRole === "Creator" && (
+                              <button
+                                onClick={() => setIsEditUrlModalOpen(true)}
+                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                              >
+                                <PencilIcon className="h-5 w-5" />
+                              </button>
+                            )}
+                          </>
+                        ) : (
+                          <p className="text-gray-500 italic flex-1">
+                            No social media URL provided
+                          </p>
+                        )}
+                        {userRole === "Creator" && !video.SocialMedia_URL && (
+                          <button
+                            onClick={() => setIsEditUrlModalOpen(true)}
+                            className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-600"
+                          >
+                            Add URL
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -1022,29 +1085,56 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                           <label className="text-sm font-medium text-gray-700 block mb-1">
                             Social Media URL
                           </label>
-                          <a
-                            href={video.SocialMedia_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 "
-                          >
-                            <span className="break-words">
-                              {video.SocialMedia_URL}
-                            </span>
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                              />
-                            </svg>
-                          </a>
+                          <div className="flex items-center space-x-2">
+                            {video.SocialMedia_URL ? (
+                              <>
+                                <a
+                                  href={video.SocialMedia_URL}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 flex-1"
+                                >
+                                  <span className="break-words">
+                                    {video.SocialMedia_URL}
+                                  </span>
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                    />
+                                  </svg>
+                                </a>
+                                {userRole === "Creator" && (
+                                  <button
+                                    onClick={() => setIsEditUrlModalOpen(true)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                  >
+                                    <PencilIcon className="h-5 w-5" />
+                                  </button>
+                                )}
+                              </>
+                            ) : (
+                              <p className="text-gray-500 italic flex-1">
+                                No social media URL provided
+                              </p>
+                            )}
+                            {userRole === "Creator" &&
+                              !video.SocialMedia_URL && (
+                                <button
+                                  onClick={() => setIsEditUrlModalOpen(true)}
+                                  className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-600"
+                                >
+                                  Add URL
+                                </button>
+                              )}
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -1224,6 +1314,12 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         onClose={() => setIsRepostModalOpen(false)}
         onSuccess={handleRepostSuccess}
       />
+      <EditUrlModal
+        isOpen={isEditUrlModalOpen}
+        onClose={() => setIsEditUrlModalOpen(false)}
+        onSubmit={handleUrlUpdate}
+        initialUrl={video.SocialMedia_URL}
+      />
     </div>
   );
 }
@@ -1368,17 +1464,6 @@ function FilterSection({
             />
           </div> */}
         </div>
-        {/* {role === "Creator" && (
-          <div className="ml-4 flex-shrink-0 hidden sm:block">
-            <button
-              onClick={onUploadClick}
-              className="px-4 py-2 bg-[#E4007C] text-white rounded-lg hover:bg-[#F06292] transition-colors flex items-center space-x-2"
-            >
-              <ArrowUpTrayIcon className="h-5 w-5" />
-              <span>Upload Video</span>
-            </button>
-          </div>
-        )} */}
       </div>
 
       {/* Results Summary */}
@@ -1387,18 +1472,6 @@ function FilterSection({
           Showing {filteredCount} out of {totalVideos} videos
           {filters.searchQuery && ` matching "${filters.searchQuery}"`}
         </div>
-        {/* Upload Button for Creator */}
-        {/* {role === "Creator" && (
-          <div className="ml-4 flex-shrink-0 sm:hidden">
-            <button
-              onClick={onUploadClick}
-              className="px-4 py-2 bg-[#E4007C] text-white rounded-lg hover:bg-[#F06292] transition-colors flex items-center space-x-2"
-            >
-              <ArrowUpTrayIcon className="h-5 w-5" />
-              <span>Upload Video</span>
-            </button>
-          </div>
-        )} */}
       </div>
     </div>
   );

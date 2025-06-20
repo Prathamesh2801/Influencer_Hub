@@ -12,7 +12,13 @@ export async function getAllNotifications() {
     return response;
   } catch (error) {
     console.error("Failed to fetch notifications:", error);
-    localStorage.clear();
+    if (error.response?.status === 401) {
+      // Clear localStorage and redirect to login
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
     throw error;
   }
 }
@@ -31,7 +37,13 @@ export async function getSpecificNotifications(id) {
     return response;
   } catch (error) {
     console.error("Failed to fetch specific notification:", error);
-    localStorage.clear();
+    if (error.response?.status === 401) {
+      // Clear localStorage and redirect to login
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
     throw error;
   }
 }
@@ -43,20 +55,22 @@ export async function createNotification(title, message) {
     formData.append("Message", message);
 
     // Fixed: Changed from axios.get to axios.post
-    const response = await axios.post(
-      `${API_URL}/notification.php`,
-      formData,
-      {
-        headers: {
-          // Remove Content-Type to let browser set it for FormData
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await axios.post(`${API_URL}/notification.php`, formData, {
+      headers: {
+        // Remove Content-Type to let browser set it for FormData
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     return response;
   } catch (error) {
     console.error("Failed to create notification:", error);
-    localStorage.clear();
+    if (error.response?.status === 401) {
+      // Clear localStorage and redirect to login
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
     throw error;
   }
 }
@@ -81,7 +95,13 @@ export async function updateNotification(SR_NO, Title, Message) {
     return response.data;
   } catch (error) {
     console.error("Failed to update notification:", error);
-    localStorage.clear();
+    if (error.response?.status === 401) {
+      // Clear localStorage and redirect to login
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
     throw error;
   }
 }
@@ -100,7 +120,13 @@ export async function deleteNotification(id) {
     return response;
   } catch (error) {
     console.error("Failed to delete notification:", error);
-    localStorage.clear();
+    if (error.response?.status === 401) {
+      // Clear localStorage and redirect to login
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
     throw error;
   }
 }

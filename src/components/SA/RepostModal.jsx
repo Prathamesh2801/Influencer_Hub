@@ -272,7 +272,7 @@ export default function RepostModal({
           )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Social Media URL <span className="text-red-500">*</span>
+              Social Media URL <span className="text-blue-400">( Optional )</span>
             </label>
             <input
               type="url"

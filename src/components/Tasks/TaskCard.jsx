@@ -1,5 +1,4 @@
 import {
-  PlusIcon,
   PlayIcon,
   CalendarIcon,
   VideoCameraIcon,
@@ -9,7 +8,6 @@ import {
   TrophyIcon,
   UserGroupIcon,
   EyeIcon,
-  XMarkIcon,
   PencilIcon,
   TrashIcon,
   CloudArrowUpIcon,
@@ -95,10 +93,6 @@ export default function TaskCard({
     onViewTask(task);
   };
 
-  // const handleUpload = (e) => {
-  //   e.stopPropagation();
-  //   onTaskClick(task);
-  // };
   // In TaskCard component, update/replace the handleUpload function
   const handleRepostClick = (e) => {
     e.stopPropagation();
@@ -145,7 +139,6 @@ export default function TaskCard({
 
       <h3 className="text-xl font-bold text-gray-900 mb-2">{task.title}</h3>
       <p className="text-gray-600 mb-4 line-clamp-2">{task.description}</p>
-     
 
       <div className="space-y-3">
         {userRole == "creator" && (
@@ -205,6 +198,7 @@ export default function TaskCard({
         </div>
 
         {/* Action Buttons */}
+
         <div className="flex gap-2">
           {userRole === "admin" && (
             <>
@@ -216,13 +210,6 @@ export default function TaskCard({
                 Edit
               </button>
               <button
-                onClick={handleView}
-                className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-              >
-                <EyeIcon className="w-3 h-3" />
-                View
-              </button>
-              <button
                 onClick={handleDelete}
                 className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
               >
@@ -231,27 +218,28 @@ export default function TaskCard({
               </button>
             </>
           )}
-          {userRole === "creator" && (
-            <>
-              {!isOverdue && task.uploadedVideos < task.totalVideos && (
-                <button
-                  onClick={handleRepostClick}
-                  disabled={isOverdue}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <CloudArrowUpIcon className="w-4 h-4" />
-                  Upload Video
-                </button>
-              )}
+
+          {userRole === "creator" &&
+            !isOverdue &&
+            task.uploadedVideos < task.totalVideos && (
               <button
-                onClick={handleView}
-                className="w-full flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                onClick={handleRepostClick}
+                disabled={isOverdue}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
               >
-                <EyeIcon className="w-3 h-3" />
-                View
+                <CloudArrowUpIcon className="w-4 h-4" />
+                Upload Video
               </button>
-            </>
-          )}
+            )}
+
+          {/* View Button - Visible for all roles */}
+          <button
+            onClick={handleView}
+            className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+          >
+            <EyeIcon className="w-3 h-3" />
+            View
+          </button>
         </div>
       </div>
     </div>

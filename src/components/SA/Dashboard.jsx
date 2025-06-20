@@ -504,11 +504,11 @@ export default function Dashboard() {
       // );
     } catch (error) {
       console.error("FCM token error:", error);
-      addToast(
-          "error",
-          error.response?.data?.Message,
-          "Failed to Fetch Data"
-        );
+      // addToast(
+      //     "error",
+      //     error.response?.data?.Message,
+      //     "Failed to Fetch Data"
+      //   );
     }
   };
 
@@ -568,7 +568,7 @@ export default function Dashboard() {
     },
 
     {
-      name: "Scoreboard",
+      name: "LeaderBoard",
       href: "#/dashboard?tab=leaderboard",
       icon: ChartBarIcon,
       current: activeTab === "leaderboard",

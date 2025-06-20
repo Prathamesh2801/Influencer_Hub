@@ -5,6 +5,7 @@ import {
   XMarkIcon,
   PencilIcon,
   TrashIcon,
+  BellAlertIcon,
 } from "@heroicons/react/24/outline";
 import {
   getAllNotifications,
@@ -229,10 +230,10 @@ export default function NotificationSection() {
     <>
       <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold text-[#E4007C]">
+          <h1 className="text-3xl font-bold text-[#E4007C]">
             Notifications
           </h1>
-          <p className="mt-2 text-sm text-[#FF2D99]">
+          <p className="mt-2 text-md text-[#FF2D99]">
             Stay updated with your latest activities, feedback, and program
             updates.
           </p>
@@ -252,8 +253,12 @@ export default function NotificationSection() {
       </div>
 
       {notifications.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">No notifications available</p>
+        <div className="text-center py-12">
+          <BellAlertIcon className="w-24 h-24 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            No Notification yet
+          </h3>
+          <p className="text-gray-500">No Notifications available at the moment.</p>
         </div>
       ) : (
         <div className="space-y-4">

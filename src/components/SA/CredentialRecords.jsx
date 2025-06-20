@@ -389,7 +389,7 @@ export default function CredentialRecords() {
       />
 
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+      <div className="flex flex-col sm:flex-row space-y-5 items-center justify-between mt-6 pt-4 border-t border-gray-200">
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <span>
             Showing{" "}

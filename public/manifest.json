@@ -1,36 +1,35 @@
 {
-  "name": "Influencer Hub",
-  "short_name": "InfluencerHub",
+  "name": "Nykaa Core Microsite",
+  "short_name": "Nykaa Core Microsite",
   "description": "A platform for managing influencer content and notifications",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "icons": [
-  {
-    "src": "/icons/Square44x44Logo.scale-100.png",
-    "sizes": "44x44",
-    "type": "image/png",
-    "purpose": "any maskable"
-  },
-  {
-    "src": "/icons/Square150x150Logo.scale-100.png",
-    "sizes": "150x150",
-    "type": "image/png",
-    "purpose": "any maskable"
-  },
-  {
-    "src": "/icons/StoreLogo.scale-400.png",
-    "sizes": "200x200",
-    "type": "image/png",
-    "purpose": "any maskable"
-  },
-  {
-    "src": "/icons/LargeTile.scale-400.png",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "any maskable"
-  }
-]
-
+    {
+      "src": "/icons/Square44x44Logo.scale-100.png",
+      "sizes": "44x44",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/Square150x150Logo.scale-100.png",
+      "sizes": "150x150",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/StoreLogo.scale-400.png",
+      "sizes": "200x200",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/LargeTile.scale-400.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }

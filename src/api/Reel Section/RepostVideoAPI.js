@@ -4,7 +4,7 @@ import { API_URL } from "../../../config";
 export async function repostVideo(
   videoId = null,
   videoFile,
-  socialURL,
+  socialURL = null,
   taskID = null
 ) {
   console.log("RepostVideoAPI called with:", {
@@ -26,7 +26,9 @@ export async function repostVideo(
     }
     // console.log('Adding video file to formData');
     formData.append("video", videoFile);
-    formData.append("SocialMedia_URL", socialURL);
+    if (socialURL) {
+      formData.append("SocialMedia_URL", socialURL);
+    }
 
     const token = localStorage.getItem("token");
     // console.log('Using token:', token ? 'Token exists' : 'No token found');
