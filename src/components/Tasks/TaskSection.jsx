@@ -13,10 +13,11 @@ import { Toaster, toast } from "react-hot-toast";
 import { getAllTask, getSpecificTask } from "../../api/TaskApi/UserSideTaskApi";
 import { deleteTask } from "../../api/TaskApi/AdminTaskApi";
 import ConfirmModal from "../helper/ConfirmModal";
-import RepostModal from "../SA/RepostModal";
+
 import TaskViewModal from "./TaskViewModal";
 import TaskCard from "./TaskCard";
 import TaskCreationModal from "./TaskCreationModal";
+import RepostModal from "../ReelSection/RepostModal";
 
 // Main TaskSection Component
 
@@ -63,13 +64,11 @@ export default function TaskSection() {
         return (
           task.id.toString().toLowerCase().includes(searchTerm) ||
           task.title.toLowerCase().includes(searchTerm) ||
-          // task.description.toLowerCase().includes(searchTerm) ||
-          // task.totalVideos.toString().toLowerCase().includes(searchTerm) ||
-          // task.uploadedVideos.toString().toLowerCase().includes(searchTerm) ||
           task.startDate.toLowerCase().includes(searchTerm) ||
           task.endDate.toLowerCase().includes(searchTerm) ||
           task.status.toLowerCase().includes(searchTerm) ||
-          task.createdBy.toLowerCase().includes(searchTerm)
+          task.createdBy.toLowerCase().includes(searchTerm) ||
+          task.userType.toLowerCase().includes(searchTerm)
         );
       });
       setFilteredTasks(filtered);
@@ -94,6 +93,8 @@ export default function TaskSection() {
         endDate: task.Task_EndDate,
         status: task.Status?.toLowerCase() || "pending",
         createdBy: task.Created_By,
+        referenceLink: task.Reference_Link,
+        userType: task.User_Type,
       }));
 
       console.log("Formatted Task : ", formattedTasks);
@@ -220,7 +221,9 @@ export default function TaskSection() {
             </h1>
             <p className="text-sm sm:text-base text-gray-600">
               Welcome back! You're logged in as{" "}
-              <span className="font-semibold capitalize text-[#EF3F8F]">{userRole}</span>
+              <span className="font-semibold capitalize text-[#EF3F8F]">
+                {userRole}
+              </span>
             </p>
           </div>
 
@@ -253,7 +256,7 @@ export default function TaskSection() {
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="bg-[#E80071] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:bg-[#EF3F8F] transition-colors flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base whitespace-nowrap"
-            >
+              >
                 <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 Create Task
               </button>

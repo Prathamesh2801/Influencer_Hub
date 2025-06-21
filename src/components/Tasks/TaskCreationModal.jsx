@@ -17,6 +17,8 @@ export default function TaskCreationModal({
     totalVideos: 1,
     startDate: "",
     endDate: "",
+    referenceLink: "",
+    creatorType: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,6 +38,8 @@ export default function TaskCreationModal({
         totalVideos: editingTask.Total_Video || 1,
         startDate: formatDateForInput(editingTask.Task_StartDate),
         endDate: formatDateForInput(editingTask.Task_EndDate),
+        referenceLink: editingTask.Reference_Link || "",
+        creatorType: editingTask.User_Type || "",
       });
     } else if (!editingTask && isOpen) {
       // Reset form for new task
@@ -45,6 +49,8 @@ export default function TaskCreationModal({
         totalVideos: 1,
         startDate: "",
         endDate: "",
+        referenceLink: "",
+        creatorType: "",
       });
     }
   }, [editingTask, isOpen]);
@@ -80,7 +86,9 @@ export default function TaskCreationModal({
           formData.description,
           formattedStart,
           formattedEnd,
-          formData.totalVideos
+          formData.totalVideos,
+          formData.referenceLink,
+          formData.creatorType
         );
 
         const updatedTask = {
@@ -88,6 +96,8 @@ export default function TaskCreationModal({
           title: formData.title,
           description: formData.description,
           totalVideos: formData.totalVideos,
+          referenceLink: formData.referenceLink,
+          creatorType: formData.creatorType,
           startDate: formattedStart,
           endDate: formattedEnd,
         };
@@ -101,7 +111,9 @@ export default function TaskCreationModal({
           formData.description,
           formattedStart,
           formattedEnd,
-          formData.totalVideos
+          formData.totalVideos,
+          formData.referenceLink,
+          formData.creatorType
         );
 
         const taskID = response?.data?.Task_ID || Date.now();
@@ -125,6 +137,8 @@ export default function TaskCreationModal({
         title: "",
         description: "",
         totalVideos: 1,
+        referenceLink: "",
+        creatorType: "",
         startDate: "",
         endDate: "",
       });
@@ -140,6 +154,11 @@ export default function TaskCreationModal({
       setIsLoading(false);
     }
   };
+
+  const isCoreChecked =
+    formData.creatorType === "Core" || formData.creatorType === "All";
+  const isPremiumChecked =
+    formData.creatorType === "Premium" || formData.creatorType === "All";
 
   if (!isOpen) return null;
 
@@ -206,6 +225,70 @@ export default function TaskCreationModal({
                 }
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Reference Link
+              </label>
+              <input
+                type="url"
+                value={formData.referenceLink}
+                onChange={(e) =>
+                  setFormData({ ...formData, referenceLink: e.target.value })
+                }
+                placeholder="https://example.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Creator Type
+              </label>
+              <div className="flex gap-6">
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={isCoreChecked}
+                    onChange={(e) => {
+                      const premium = isPremiumChecked;
+                      const core = e.target.checked;
+
+                      let newType = "";
+                      if (core && premium) newType = "All";
+                      else if (core) newType = "Core";
+                      else if (premium) newType = "Premium";
+                      else newType = "";
+
+                      setFormData({ ...formData, creatorType: newType });
+                    }}
+                    className="form-checkbox h-5 w-5 text-blue-600"
+                  />
+                  <span className="ml-2 text-gray-700">Core</span>
+                </label>
+
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={isPremiumChecked}
+                    onChange={(e) => {
+                      const core = isCoreChecked;
+                      const premium = e.target.checked;
+
+                      let newType = "";
+                      if (core && premium) newType = "All";
+                      else if (core) newType = "Core";
+                      else if (premium) newType = "Premium";
+                      else newType = "";
+
+                      setFormData({ ...formData, creatorType: newType });
+                    }}
+                    className="form-checkbox h-5 w-5 text-blue-600"
+                  />
+                  <span className="ml-2 text-gray-700">Premium</span>
+                </label>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

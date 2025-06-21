@@ -1,15 +1,20 @@
 import axios from "axios";
 import { API_URL } from "../../../config";
 
-export async function getAllCredentials(role = null) {
+export async function getAllCredentials(role = null, userType = null) {
   try {
+    const params = {
+      ...(role && { role }),
+      ...(userType && { User_Type: userType }),
+    };
     const response = await axios.get(`${API_URL}/Admin/user.php`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      params: role ? { role } : {},
+      params,
     });
+    // console.log('hii',response)
     return response;
   } catch (error) {
     console.error("Failed to fetch credentials:", error);
@@ -23,7 +28,13 @@ export async function getAllCredentials(role = null) {
   }
 }
 
-export async function AuthLogin(username, password, role, co_ordinator = null) {
+export async function AuthLogin(
+  username,
+  password,
+  role,
+  co_ordinator = null,
+  User_Type = null
+) {
   try {
     const formData = new FormData();
     formData.append("Username", username);
@@ -31,6 +42,10 @@ export async function AuthLogin(username, password, role, co_ordinator = null) {
     formData.append("Role", role);
     if (co_ordinator) {
       formData.append("Coordinator_username", co_ordinator);
+    }
+    if (role === "Co-ordinator" || role === "Creator") {
+      console.log('hii', User_Type);
+      formData.append("User_Type", User_Type);
     }
 
     const response = await axios.post(`${API_URL}/Admin/user.php`, formData, {

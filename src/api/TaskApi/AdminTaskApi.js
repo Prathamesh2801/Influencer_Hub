@@ -1,6 +1,14 @@
 import axios from "axios";
 import { API_URL } from "../../../config";
-export async function createTask(title, desc, sdate, edata, tvideo) {
+export async function createTask(
+  title,
+  desc,
+  sdate,
+  edata,
+  tvideo,
+  referenceLink = null,
+  userType
+) {
   try {
     const formData = new FormData();
     formData.append("Task_Title", title);
@@ -8,6 +16,10 @@ export async function createTask(title, desc, sdate, edata, tvideo) {
     formData.append("Task_StartDate", sdate);
     formData.append("Task_EndDate", edata);
     formData.append("Total_Video", tvideo);
+    if (referenceLink) {
+      formData.append("Reference_Link", referenceLink);
+    }
+    formData.append("User_Type", userType);
 
     // Fixed: Changed from axios.get to axios.post
     const response = await axios.post(`${API_URL}/Admin/task.php`, formData, {
@@ -30,7 +42,16 @@ export async function createTask(title, desc, sdate, edata, tvideo) {
   }
 }
 
-export async function updateTask(taskId, title, desc, sdate, edate, tvideo) {
+export async function updateTask(
+  taskId,
+  title,
+  desc,
+  sdate,
+  edate,
+  tvideo,
+  referenceLink = null,
+  userType
+) {
   try {
     const payload = {
       Task_ID: taskId,
@@ -39,6 +60,8 @@ export async function updateTask(taskId, title, desc, sdate, edate, tvideo) {
       Total_Video: tvideo,
       Task_StartDate: sdate,
       Task_EndDate: edate,
+      Reference_Link: referenceLink,
+      User_Type: userType,
     };
 
     const response = await axios.put(`${API_URL}/Admin/task.php`, payload, {
@@ -47,7 +70,7 @@ export async function updateTask(taskId, title, desc, sdate, edate, tvideo) {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-
+    console.log("Edit : ", response.data);
     return response.data; // Return the response JSON
   } catch (error) {
     console.error("Failed to update task:", error);

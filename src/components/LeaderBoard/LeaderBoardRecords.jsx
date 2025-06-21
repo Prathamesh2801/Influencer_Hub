@@ -1,167 +1,574 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { getAllScores } from "../../api/ScoreBoard/ScoreBoardAPI"
-import toast from "react-hot-toast"
-import { AcademicCapIcon, TrophyIcon } from "@heroicons/react/24/outline"
+import { useState, useMemo, useEffect } from "react";
+import { getAllScores } from "../../api/ScoreBoard/ScoreBoardAPI";
+import toast from "react-hot-toast";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { DownloadIcon } from "lucide-react";
 
-export default function LeaderBoardBarChartRace() {
-  const [scores, setScores] = useState([])
-  const [animatedScores, setAnimatedScores] = useState([])
-  const [isAnimating, setIsAnimating] = useState(false)
+// Simple UI components for Vite/React
+const Button = ({
+  children,
+  variant = "default",
+  size = "default",
+  onClick,
+  disabled,
+  className = "",
+}) => {
+  const baseClasses =
+    "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
-  useEffect(() => {
-    async function fetchScores() {
-      try {
-        const response = await getAllScores()
-        if (response.data?.Status) {
-          const sortedScores = response.data.Data.sort((a, b) => b.total_score - a.total_score)
-          setScores(sortedScores)
+  const variants = {
+    default: "bg-pink-500 text-white hover:bg-pink-600 focus:ring-pink-500",
+    outline:
+      "border border-pink-300 text-pink-600 hover:bg-pink-50 focus:ring-pink-500",
+  };
 
-          // Initialize animated scores with 0 values for animation
-          setAnimatedScores(sortedScores.map((score) => ({ ...score, animatedScore: 0 })))
+  const sizes = {
+    default: "h-10 py-2 px-4",
+    sm: "h-8 px-3 text-sm",
+  };
 
-          // Start animation after a brief delay
-          setTimeout(() => {
-            setIsAnimating(true)
-            setAnimatedScores(sortedScores.map((score) => ({ ...score, animatedScore: score.total_score })))
-          }, 300)
-        } else {
-          console.error("Failed to fetch scores:", response.data?.Message)
-        }
-      } catch (error) {
-        toast.error(error.response?.data?.Message || "Failed to Fetch Scores")
-        console.error("API error:", error)
+  return (
+    <button
+      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  );
+};
+
+const Input = ({
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  className = "",
+}) => {
+  return (
+    <input
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      className={`flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+    />
+  );
+};
+
+const Card = ({ children, className = "" }) => {
+  return (
+    <div
+      className={`rounded-lg border border-gray-200 bg-white shadow-sm ${className}`}
+    >
+      {children}
+    </div>
+  );
+};
+
+const CardContent = ({ children, className = "" }) => {
+  return <div className={`p-6 ${className}`}>{children}</div>;
+};
+
+// Icons as simple SVG components
+const SearchIcon = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+    />
+  </svg>
+);
+
+const ChevronLeftIcon = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 19l-7-7 7-7"
+    />
+  </svg>
+);
+
+const ChevronRightIcon = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 5l7 7-7 7"
+    />
+  </svg>
+);
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center py-12">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+  </div>
+);
+
+const TrophyIcon = ({ className = "" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+    />
+  </svg>
+);
+
+export default function LeaderBoardRecords() {
+  const [activeFilter, setActiveFilter] = useState("All List");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [creators, setCreators] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const itemsPerPage = 10;
+  const userRole = localStorage.getItem("Role");
+
+  // Download entire leaderboard as Excel
+  const handleDownloadExcel = () => {
+    const data = creators.map(({ rank, name, score }) => ({
+      Rank: rank,
+      Creator: name,
+      Score: score,
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Leaderboard");
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([wbout], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, "leaderboard.xlsx");
+  };
+  // Filter configuration
+  const filters = [
+    { label: "All List", value: null },
+    { label: "Premium 50", value: "Premium" },
+    { label: "Core 250", value: "Core" },
+  ];
+
+  // Fetch data from API
+  const fetchLeaderboardData = async (userType = null) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getAllScores(userType);
+
+      if (response.data?.Status) {
+        // Transform API data to include avatars
+        const transformedData = response.data.Data.map((creator) => ({
+          ...creator,
+          id: creator.rank,
+          name: creator.username,
+          score: creator.total_score,
+          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            creator.username
+          )}&background=ec4899&color=fff&size=40`,
+        }));
+        setCreators(transformedData);
+      } else {
+        setError(response.data?.Message || "Failed to fetch leaderboard data");
+        toast.error(
+          response.data?.Message || "Failed to fetch leaderboard data"
+        );
       }
+    } catch (error) {
+      console.error("API error:", error);
+      setError(
+        error.response?.data?.Message || "Failed to fetch leaderboard data"
+      );
+      toast.error(
+        error.response?.data?.Message || "Failed to fetch leaderboard data"
+      );
+    } finally {
+      setLoading(false);
     }
+  };
 
-    fetchScores()
-  }, [])
+  // Initial data fetch
+  useEffect(() => {
+    fetchLeaderboardData();
+  }, []);
 
-  const maxScore = Math.max(...scores.map((s) => s.total_score), 1)
+  // Handle filter change
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter.label);
+    setCurrentPage(1);
+    setSearchTerm("");
+    fetchLeaderboardData(filter.value);
+  };
 
-  const getRankColor = (rank) => {
-    switch (rank) {
-      case 1:
-        return "from-yellow-400 to-yellow-600"
-      case 2:
-        return "from-gray-300 to-gray-500"
-      case 3:
-        return "from-amber-600 to-amber-800"
-      default:
-        return "from-[#E4007C] to-[#FF2D99]"
-    }
+  // Get top 10 creators for bar chart
+  const top10Creators = creators.slice(0, 10);
+  const maxScore = Math.max(...top10Creators.map((c) => c.score), 1);
+
+  // Filter and paginate remaining creators (after top 10)
+  const remainingCreators = creators.slice(10);
+
+  const filteredCreators = useMemo(() => {
+    return remainingCreators.filter((creator) =>
+      creator.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [remainingCreators, searchTerm]);
+
+  const totalPages = Math.ceil(filteredCreators.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedCreators = filteredCreators.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center space-y-2 mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+              Creator Leaderboard
+            </h1>
+            <p className="text-gray-600">
+              Top performing creators and their scores
+            </p>
+          </div>
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
   }
 
-  const getRankIcon = (rank) => {
-    if (rank <= 3) {
-      return <TrophyIcon className="w-5 h-5 text-white" />
-    }
-    return <span className="text-white font-bold text-sm">#{rank}</span>
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center space-y-2 mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+              Creator Leaderboard
+            </h1>
+            <p className="text-gray-600">
+              Top performing creators and their scores
+            </p>
+          </div>
+          <Card className="border-red-200 bg-red-50">
+            <CardContent>
+              <div className="text-center py-12">
+                <div className="text-red-500 text-xl mb-4">⚠️</div>
+                <h3 className="text-lg font-semibold text-red-800 mb-2">
+                  Error Loading Leaderboard
+                </h3>
+                <p className="text-red-600 mb-4">{error}</p>
+                <Button
+                  onClick={() => fetchLeaderboardData()}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  Try Again
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center mb-8">
-        <div className="sm:flex-auto">
-          <h1 className="text-3xl font-bold tracking-wide text-[#E4007C] flex items-center gap-3">
-            <TrophyIcon className="w-8 h-8" />
-            LeaderBoard
-          </h1>
-          <p className="mt-2 text-md text-[#FF2D99]">
-            Live leaderboard showing top performers with animated score visualization
-          </p>
-        </div>
-      </div>
-
-      {scores.length === 0 ? (
-        <div className="text-center py-12">
-          <AcademicCapIcon className="w-24 h-24 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">No Scores yet</h3>
-          <p className="text-gray-500">No Scores available at the moment.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {animatedScores.map((user, index) => (
-            <div
-              key={user.username}
-              // className="relative bg-white rounded-xl border-2 border-[#FFC3E2] p-4 shadow-lg hover:shadow-xl transition-all duration-300"
-              style={{
-                animationDelay: `${index * 100}ms`,
-                animation: isAnimating ? "slideInUp 0.6s ease-out forwards" : "none",
-              }}
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+              Creator Leaderboard
+            </h1>
+            <p className="text-gray-600">
+              Top performing creators and their scores
+            </p>
+          </div>
+          {(userRole === "Admin" || userRole === "Client") && (
+            <Button
+              variant="default"
+              onClick={handleDownloadExcel}
+              className="rounded-full flex items-center"
             >
-              {/* Rank Badge */}
-              {/* <div
-                className={`absolute -top-2 -left-2 w-10 h-10 rounded-full bg-gradient-to-r ${getRankColor(user.rank)} flex items-center justify-center shadow-lg z-10`}
-              >
-                {getRankIcon(user.rank)}
-              </div> */}
-
-              {/* User Info */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 ml-6 sm:ml-8">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{user.username}</h3>
-                  <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 bg-[#FF2D99] rounded-full"></span>
-                      Videos: {user.total_videos}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 bg-[#E4007C] rounded-full"></span>
-                      Rank: #{user.rank}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Score Display */}
-                <div className="text-right mt-2 sm:mt-0">
-                  <div className="text-2xl font-bold text-[#E4007C]">{Math.round(user.animatedScore || 0)}</div>
-                  <div className="text-xs text-gray-500">points</div>
-                </div>
-              </div>
-
-              {/* Animated Progress Bar */}
-              <div className="relative">
-                <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#E4007C] to-[#FF2D99] rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
-                    style={{
-                      width: `${((user.animatedScore || 0) / maxScore) * 100}%`,
-                      minWidth: user.animatedScore > 0 ? "60px" : "0px",
-                    }}
-                  >
-                    {/* {user.animatedScore > 0 && (
-                      <span className="text-white text-xs font-semibold">
-                        {Math.round(((user.animatedScore || 0) / maxScore) * 100)}%
-                      </span>
-                    )} */}
-                  </div>
-                </div>
-              </div>
-
-              {/* Mobile-friendly additional info */}
-              <div className="mt-3 flex justify-between items-center text-xs text-gray-500 sm:hidden">
-                <span>Position: #{user.rank}</span>
-                <span>{user.total_videos} videos</span>
-              </div>
-            </div>
-          ))}
+              <DownloadIcon className="w-5 h-5 mr-2" /> Download Excel
+            </Button>
+          )}
         </div>
-      )}
 
-      <style jsx>{`
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
+        {/* Filter Buttons */}
+        {(userRole === "Admin" || userRole === "Client") && (
+          <div className="flex flex-wrap justify-center gap-2">
+            {filters.map((filter) => (
+              <Button
+                key={filter.label}
+                variant={activeFilter === filter.label ? "default" : "outline"}
+                onClick={() => handleFilterChange(filter)}
+                className="rounded-full px-6 py-2"
+                disabled={loading}
+              >
+                {filter.label}
+              </Button>
+            ))}
+          </div>
+        )}
+
+        {/* Top 10 Bar Chart */}
+        {top10Creators.length > 0 && (
+          <Card className="border-pink-200 shadow-lg">
+            <CardContent>
+              <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">
+                Top {Math.min(10, creators.length)} Creators
+              </h2>
+              <div className="space-y-3">
+                {top10Creators.map((creator) => (
+                  <div key={creator.id} className="flex items-center gap-3">
+                    {/* Rank */}
+                    <div className="w-8 text-sm font-medium text-gray-600 text-right">
+                      #{creator.rank}
+                    </div>
+
+                    {/* Avatar */}
+                    <img
+                      src={creator.avatar || "/placeholder.svg"}
+                      alt={creator.name}
+                      className="w-8 h-8 rounded-full border-2 border-pink-200"
+                    />
+
+                    {/* Name */}
+                    <div className="w-24 md:w-32 text-sm font-medium text-gray-700 truncate">
+                      {creator.name}
+                    </div>
+
+                    {/* Bar */}
+                    <div className="flex-1 relative">
+                      <div className="h-8 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-pink-400 to-purple-500 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
+                          style={{
+                            width: `${(creator.score / maxScore) * 100}%`,
+                            minWidth: "40px",
+                          }}
+                        >
+                          <span className="text-white text-xs font-semibold">
+                            {creator.score}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Videos count */}
+                    <div className="hidden md:block text-xs text-gray-500 w-16 text-right">
+                      {creator.total_videos} videos
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Search Bar - Only show if there are creators beyond top 10 */}
+        {remainingCreators.length > 0 && (
+          <div className="relative max-w-md mx-auto">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              type="text"
+              placeholder="Search creators..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-10 rounded-full border-pink-300 focus:border-pink-500 focus:ring-pink-500"
+            />
+          </div>
+        )}
+
+        {/* Creators Table - Only show if there are creators beyond top 10 */}
+        {remainingCreators.length > 0 && (
+          <Card className="border-pink-200 shadow-lg">
+            <CardContent className="p-0">
+              {/* Table Header */}
+              <div className="bg-pink-100 px-6 py-4 border-b border-pink-200">
+                <div className="grid grid-cols-4 gap-4 font-semibold text-pink-800">
+                  <div>Rank</div>
+                  <div>Creator</div>
+                  <div className="text-center">Videos</div>
+                  <div className="text-right">Score</div>
+                </div>
+              </div>
+
+              {/* Table Body */}
+              <div className="divide-y divide-pink-100">
+                {paginatedCreators.map((creator) => (
+                  <div
+                    key={creator.id}
+                    className="px-6 py-4 hover:bg-pink-50 transition-colors"
+                  >
+                    <div className="grid grid-cols-4 gap-4 items-center">
+                      {/* Rank */}
+                      <div className="font-medium text-gray-900">
+                        #{creator.rank}
+                      </div>
+
+                      {/* Creator */}
+                      <div className="flex items-center gap-3">
+                        {/* <img
+                          src={creator.avatar || "/placeholder.svg"}
+                          alt={creator.name}
+                          className="w-10 h-10 rounded-full border-2 border-pink-200"
+                        /> */}
+                        <span className="font-medium text-gray-900 truncate">
+                          {creator.name}
+                        </span>
+                      </div>
+
+                      {/* Videos */}
+                      <div className="text-center text-gray-600">
+                        {creator.total_videos}
+                      </div>
+
+                      {/* Score */}
+                      <div className="text-right font-bold text-pink-600">
+                        {creator.score}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Empty State */}
+              {paginatedCreators.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">
+                    No creators found matching your search.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Pagination - Only show if needed */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="border-pink-300 text-pink-600 hover:bg-pink-50"
+            >
+              <ChevronLeftIcon className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="border-pink-300 text-pink-600 hover:bg-pink-50"
+            >
+              Next
+              <ChevronRightIcon className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        )}
+
+        {/* Stats */}
+        {creators.length > 0 && (
+          <div className="text-center text-sm text-gray-600">
+            {remainingCreators.length > 0 ? (
+              <>
+                Showing {startIndex + 1}-
+                {Math.min(startIndex + itemsPerPage, filteredCreators.length)}{" "}
+                of {filteredCreators.length} creators
+                {searchTerm && ` matching "${searchTerm}"`}
+                <br />
+                Total creators: {creators.length}
+              </>
+            ) : (
+              `Total creators: ${creators.length}`
+            )}
+          </div>
+        )}
+
+        {/* No Data State */}
+        {creators.length === 0 && !loading && !error && (
+          <Card className="border-gray-200">
+            <CardContent>
+              <div className="text-center py-12">
+                <TrophyIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                  No Creators Found
+                </h3>
+                <p className="text-gray-500">
+                  No creators available for the selected filter.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
-  )
+  );
 }

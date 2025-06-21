@@ -9,9 +9,11 @@ export default function CreateNewCredentials() {
     username: "",
     password: "",
     role: "Admin",
+    userType: "",
     coordinator: "",
   });
 
+  const [showUserType, setShowUserType] = useState(false);
   const [showCoordinator, setShowCoordinator] = useState(false);
   const [coordinators, setCoordinators] = useState([]);
   const [filteredCoordinators, setFilteredCoordinators] = useState([]);
@@ -50,10 +52,15 @@ export default function CreateNewCredentials() {
     const { name, value } = e.target;
 
     if (name === "role") {
+      // const needsUserType = value === "Creator" || value === "Co‑ordinator";
+      const needsUserType = value === "Creator" || value === "Co-ordinator";
+      setShowUserType(needsUserType);
       setShowCoordinator(value === "Creator");
+      setShowCoordinator(false);
       setFormData({
         ...formData,
         [name]: value,
+        userType: "",
         coordinator: "", // Reset coordinator when role changes
       });
       setFilteredCoordinators([]);
@@ -117,7 +124,12 @@ export default function CreateNewCredentials() {
         formData.username,
         formData.password,
         formData.role,
-        formData.role === "Creator" ? formData.coordinator : null
+        // only Creators (or Coordinators?) need a co-ordinator param
+        formData.role === "Creator" ? formData.coordinator : null,
+        // always send userType when role is Creator or Co-ordinator
+        formData.role === "Creator" || formData.role === "Co-ordinator"
+          ? formData.userType
+          : null
       );
 
       if (response.status === 200 || response.data) {
@@ -139,14 +151,19 @@ export default function CreateNewCredentials() {
           navigate("/dashboard?tab=credentials&view=display");
         }, 500);
       } else {
-        toast.error("Failed to create credential");
+        toast.error(
+          response?.response?.data?.message ||
+            response?.response?.data?.Message ||
+            "Failed to create credential "
+        );
+        // toast.error("Failed to create credential");
       }
     } catch (error) {
       console.error("Error creating credential:", error);
       toast.error(
         error.response?.data?.message ||
           error.response?.data?.Message ||
-          "Failed to create credential"
+          "Failed to create credential "
       );
     }
   };
@@ -253,7 +270,37 @@ export default function CreateNewCredentials() {
               </div>
             </div>
 
-            {showCoordinator && (
+            {showUserType && (
+              <div className="sm:col-span-4">
+                <label className="block text-sm font-medium text-[#E4007C]">
+                  User Type
+                </label>
+                <select
+                  name="userType"
+                  value={formData.userType}
+                  onChange={async (e) => {
+                    const ut = e.target.value;
+                    setFormData((f) => ({ ...f, userType: ut }));
+                    // fetch coordinators filtered by type:
+                    setIsLoading(true);
+                    const res = await getAllCredentials("Co-ordinator", ut);
+                    const names = res.data.Data.map(
+                      (c) => c.Username || c.username
+                    );
+                    setCoordinators(names);
+                    setShowCoordinator(true);
+                    setIsLoading(false);
+                  }}
+                  className="mt-2 w-full rounded-md border border-gray-300 p-2"
+                >
+                  <option value="">Select user type…</option>
+                  <option value="Core">Core</option>
+                  <option value="Premium">Premium</option>
+                </select>
+              </div>
+            )}
+
+            {showCoordinator && formData.userType && (
               <div className="sm:col-span-4">
                 <label
                   htmlFor="coordinator"

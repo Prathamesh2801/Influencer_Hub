@@ -50,6 +50,10 @@ export default function NotificationSection() {
   const [formData, setFormData] = useState({
     title: "",
     message: "",
+    userTypes: {
+      core: false,
+      premium: false,
+    },
   });
 
   useEffect(() => {
@@ -76,7 +80,14 @@ export default function NotificationSection() {
 
   const openCreateModal = () => {
     setModalMode("create");
-    setFormData({ title: "", message: "" });
+    setFormData({
+      title: "",
+      message: "",
+      userTypes: {
+        core: false,
+        premium: false,
+      },
+    });
     setSelectedNotification(null);
     setIsModalOpen(true);
   };
@@ -88,11 +99,21 @@ export default function NotificationSection() {
 
       if (response.data.Status && response.data.Data) {
         const specificNotification = response.data.Data;
+        const userTypes = {
+          core:
+            specificNotification.user_type === "Core" ||
+            specificNotification.user_type === "All",
+          premium:
+            specificNotification.user_type === "Premium" ||
+            specificNotification.user_type === "All",
+        };
+
         setModalMode("edit");
         setSelectedNotification(specificNotification);
         setFormData({
           title: specificNotification.title || "",
           message: specificNotification.message || "",
+          userTypes,
         });
         setIsModalOpen(true);
       } else {
@@ -109,7 +130,14 @@ export default function NotificationSection() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedNotification(null);
-    setFormData({ title: "", message: "" });
+    setFormData({
+      title: "",
+      message: "",
+      userTypes: {
+        core: false,
+        premium: false,
+      },
+    });
   };
 
   const handleInputChange = (e) => {
@@ -120,12 +148,30 @@ export default function NotificationSection() {
     }));
   };
 
+  const handleCheckboxChange = (type) => {
+    setFormData((prev) => ({
+      ...prev,
+      userTypes: {
+        ...prev.userTypes,
+        [type]: !prev.userTypes[type],
+      },
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.title.trim() || !formData.message.trim()) {
       toast.error("Please fill in all fields");
       return;
+    }
+    let userType = "";
+    if (formData.userTypes.core && formData.userTypes.premium) {
+      userType = "All";
+    } else if (formData.userTypes.core) {
+      userType = "Core";
+    } else if (formData.userTypes.premium) {
+      userType = "Premium";
     }
 
     try {
@@ -134,7 +180,8 @@ export default function NotificationSection() {
       if (modalMode === "create") {
         const response = await createNotification(
           formData.title,
-          formData.message
+          formData.message,
+          userType
         );
         if (response.data.Status) {
           toast.success(
@@ -149,7 +196,8 @@ export default function NotificationSection() {
         const response = await updateNotification(
           selectedNotification.id,
           formData.title,
-          formData.message
+          formData.message,
+          userType
         );
         if (response.Status) {
           toast.success(
@@ -230,9 +278,7 @@ export default function NotificationSection() {
     <>
       <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div className="sm:flex-auto">
-          <h1 className="text-3xl font-bold text-[#E4007C]">
-            Notifications
-          </h1>
+          <h1 className="text-3xl font-bold text-[#E4007C]">Notifications</h1>
           <p className="mt-2 text-md text-[#FF2D99]">
             Stay updated with your latest activities, feedback, and program
             updates.
@@ -258,7 +304,9 @@ export default function NotificationSection() {
           <h3 className="text-xl font-semibold text-gray-600 mb-2">
             No Notification yet
           </h3>
-          <p className="text-gray-500">No Notifications available at the moment.</p>
+          <p className="text-gray-500">
+            No Notifications available at the moment.
+          </p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -308,7 +356,7 @@ export default function NotificationSection() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed w-full inset-0 z-50 overflow-y-auto">
-         <div className="flex  min-h-full items-center justify-center p-4 text-center sm:p-0">
+          <div className="flex  min-h-full items-center justify-center p-4 text-center sm:p-0">
             <div
               className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
               onClick={closeModal}
@@ -373,6 +421,44 @@ export default function NotificationSection() {
                       />
                     </div>
 
+                    <div>
+                      <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
+                        Creator Type
+                      </label>
+                      <div className="space-y-2 grid grid-cols-2">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id="core"
+                            checked={formData.userTypes.core}
+                            onChange={() => handleCheckboxChange("core")}
+                            className="h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-pink-600"
+                          />
+                          <label
+                            htmlFor="core"
+                            className="ml-2 text-sm text-gray-900"
+                          >
+                            Core
+                          </label>
+                        </div>
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id="premium"
+                            checked={formData.userTypes.premium}
+                            onChange={() => handleCheckboxChange("premium")}
+                            className="h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-pink-600"
+                          />
+                          <label
+                            htmlFor="premium"
+                            className="ml-2 text-sm text-gray-900"
+                          >
+                            Premium
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="mt-5  grid grid-flow-row-dense grid-cols-2 gap-3">
                       <button
                         type="submit"
@@ -414,7 +500,6 @@ export default function NotificationSection() {
                         onClick={closeModal}
                         disabled={formLoading}
                       >
-                          
                         Cancel
                       </button>
                     </div>

@@ -48,11 +48,14 @@ export async function getSpecificNotifications(id) {
   }
 }
 
-export async function createNotification(title, message) {
+export async function createNotification(title, message, userType = null) {
   try {
     const formData = new FormData();
     formData.append("Title", title);
     formData.append("Message", message);
+    if (userType) {
+      formData.append("User_Type", userType);
+    }
 
     // Fixed: Changed from axios.get to axios.post
     const response = await axios.post(`${API_URL}/notification.php`, formData, {
@@ -75,7 +78,12 @@ export async function createNotification(title, message) {
   }
 }
 
-export async function updateNotification(SR_NO, Title, Message) {
+export async function updateNotification(
+  SR_NO,
+  Title,
+  Message,
+  userType = null
+) {
   try {
     const response = await axios.put(
       `${API_URL}/notification.php`,
@@ -83,6 +91,7 @@ export async function updateNotification(SR_NO, Title, Message) {
         SR_NO: SR_NO,
         Title: Title,
         Message: Message,
+        User_Type: userType,
       },
       {
         headers: {

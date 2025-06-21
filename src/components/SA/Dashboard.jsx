@@ -27,7 +27,7 @@ import Logo from "../../assets/img/logo.png";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { useLocation, useNavigate } from "react-router-dom";
 import CredentialSection from "./CredentialSection";
-import ReelsSection from "./ReelsSection";
+
 import { LogOutIcon, UsersIcon, Download, X, Share } from "lucide-react";
 import LeaderBoardRecords from "../LeaderBoard/LeaderBoardRecords";
 import NotificationSection from "../Notifications/NotificationSection";
@@ -38,6 +38,7 @@ import { v4 as uuidv4 } from "uuid";
 import { fetchAllReels } from "../../api/SuperAdmin/FetchAllReels";
 import TaskSection from "../Tasks/TaskSection";
 import ProfileSection from "../ProfileSection/ProfileSection";
+import ReelsSection from "../ReelSection/ReelsSection";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");

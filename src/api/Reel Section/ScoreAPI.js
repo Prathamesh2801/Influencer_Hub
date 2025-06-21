@@ -1,11 +1,18 @@
 import axios from "axios";
 import { API_URL } from "../../../config";
 
-export async function updateVideoScore(videoID, score) {
+export async function updateVideoScore(
+  videoID,
+  Creativity = 0,
+  Punctuality = 0,
+  Content = 0
+) {
   try {
     const formData = new FormData();
     formData.append("Video_ID", videoID);
-    formData.append("Score", score);
+    formData.append("Creativity", Creativity);
+    formData.append("Punctuality", Punctuality);
+    formData.append("Content", Content);
 
     const response = await axios.post(
       `${API_URL}/Admin/UpdateScore.php`,

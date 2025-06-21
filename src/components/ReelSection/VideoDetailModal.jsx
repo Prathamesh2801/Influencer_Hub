@@ -1,156 +1,53 @@
-import { useEffect, useState, useMemo } from "react";
-import { fetchAllReels } from "../../api/SuperAdmin/FetchAllReels";
+"use client";
+
+import { useEffect, useState } from "react";
 import { getComments, addComment } from "../../api/Reel Section/CommentAPI";
 import { updateVideoScore } from "../../api/Reel Section/ScoreAPI";
-import { EyeIcon, PlayIcon } from "@heroicons/react/24/solid";
-import { CheckIcon, DownloadIcon, XIcon } from "lucide-react";
+import { ArrowTopRightOnSquareIcon, EyeIcon } from "@heroicons/react/24/solid";
+import { CheckIcon, XIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UpdateVideoStatus } from "../../api/Reel Section/VideoStaus";
-import {
-  ArrowUpTrayIcon,
-  XMarkIcon,
-  PencilIcon,
-} from "@heroicons/react/24/outline";
-import RepostModal from "./RepostModal";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowUpTrayIcon, PencilIcon } from "@heroicons/react/24/outline";
+
 import EditUrlModal from "../ReelSection/EditUrlModal";
 import { updateSocialMediaUrl } from "../../api/Reel Section/SocialVideoURL";
+import RepostModal from "./RepostModal";
+import AnalyticsModal from "./AnalyticsModal";
 
-// Video Card Component
-function VideoCard({ video, onClick }) {
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  let videoStatusBadgeColor;
-  let videoStatusText;
-  switch (video.Status) {
-    case 0:
-      videoStatusBadgeColor = "bg-yellow-100 text-yellow-800 border-yellow-300";
-      videoStatusText = "Pending";
-      break;
-    case 1:
-      videoStatusBadgeColor = "bg-blue-100 text-blue-800 border-blue-300";
-      videoStatusText = "Review";
-      break;
-    case 2:
-      videoStatusBadgeColor = "bg-green-100 text-green-800 border-green-300";
-      videoStatusText = "Approved";
-      break;
-    case 3:
-      videoStatusBadgeColor = "bg-red-100 text-red-800 border-red-300";
-      videoStatusText = "Rejected";
-      break;
-  }
-
-  return (
-    <div
-      className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1"
-      onClick={() => onClick(video)}
-    >
-      {/* Video Thumbnail Container */}
-      <div className="relative aspect-video bg-gray-900 group">
-        <video
-          className="w-full h-full object-cover"
-          preload="metadata"
-          muted
-          controls={false}
-          playsInline
-          onLoadedMetadata={(e) => {
-            e.currentTarget.currentTime = 1; // Move to 1s for a better frame
-          }}
-        >
-          <source src={video.Video_Path} type="video/mp4" />
-        </video>
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-            <PlayIcon className="w-7 h-7 text-gray-800" />
-          </div>
-        </div>
-
-        {/* Status Badge */}
-        <div className="absolute top-3 right-3 z-10">
-          <span
-            className={`px-3 py-1 text-xs font-medium rounded-full border ${videoStatusBadgeColor} shadow-sm`}
-          >
-            {videoStatusText}
-          </span>
-        </div>
-
-        {/* Duration Badge (if needed) */}
-        <div className="absolute bottom-3 right-3 z-10">
-          <span className="px-2 py-1 text-xs font-medium bg-black/70 text-white rounded-md">
-            Posted {formatDate(video.Created_AT)}
-          </span>
-        </div>
-      </div>
-
-      {/* Video Info */}
-      <div className="p-4">
-        <div className="flex items-start space-x-3">
-          {/* User Avatar */}
-          <div className="relative">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span className="text-white font-bold text-lg">
-                {video.Username.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
-              <span className="text-white text-xs font-bold">
-                {video.Coordinator_username?.charAt(0).toUpperCase() || "C"}
-              </span>
-            </div>
-          </div>
-
-          {/* Video Details */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">
-              Video by {video.Username}
-            </h3>
-            <p className="text-sm text-gray-500 mt-0.5">
-              Coordinator: {video.Coordinator_username}
-            </p>
-            <div className="mt-1 flex items-center text-xs text-gray-500 space-x-2">
-              <span className="flex items-center">
-                ID: {video.Video_ID.split(".")[0].slice(-8)}
-              </span>
-              <span>•</span>
-              <span>Updated: {formatDate(video.Update_AT)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Video Detail Modal Component
-
-function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
+export default function VideoDetailModal({
+  video,
+  isOpen,
+  onClose,
+  onStatusUpdate,
+}) {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState("");
   const [submittingScore, setSubmittingScore] = useState(false);
   const [isRepostModalOpen, setIsRepostModalOpen] = useState(false);
+  const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
   const userRole = localStorage.getItem("Role");
   const canComment = ["Admin", "Client"].includes(userRole);
   const [mobileView, setMobileView] = useState("comments"); // "comments" or "details"
 
   const [isEditUrlModalOpen, setIsEditUrlModalOpen] = useState(false);
-  const [newSocialMediaUrl, setNewSocialMediaUrl] = useState("");
+  const [ratings, setRatings] = useState({
+    punctuality: 0,
+    creativity: 0,
+    content: 0,
+  });
 
   // Fetch comments when modal opens
   useEffect(() => {
     if (video && isOpen) {
       fetchComments();
+      setRatings({
+        creativity: video.Creativity ?? 0,
+        punctuality: video.Punctuality ?? 0,
+        content: video.Content ?? 0,
+      });
     }
   }, [video, isOpen]);
 
@@ -282,54 +179,41 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
     }
   };
 
+  const handleRatingChange = (category, rating) => {
+    setRatings((prev) => ({
+      ...prev,
+      [category]: rating,
+    }));
+  };
   const handleScoreSubmit = async () => {
-    if (!score || submittingScore) return;
+    if (submittingScore) return;
 
     try {
       setSubmittingScore(true);
-      const response = await updateVideoScore(video.Video_ID, score);
+      const response = await updateVideoScore(
+        video.Video_ID,
+        ratings.creativity,
+        ratings.punctuality,
+        ratings.content
+      );
 
       if (response?.data?.Status) {
-        toast.success("Score updated successfully", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        toast.success("Score updated successfully");
+        video.Creativity = ratings.creativity;
+        video.Punctuality = ratings.punctuality;
+        video.Content = ratings.content;
+        setScore(ratings.creativity + ratings.punctuality + ratings.content);
 
-        // Update the local video object with new score
-        video.Score = score;
-
-        // Update parent component if callback exists
         if (typeof onStatusUpdate === "function") {
-          onStatusUpdate(video.Video_ID, video.Status, score);
+          onStatusUpdate(video.Video_ID, video.Status);
         }
-        setScore("");
       } else {
         toast.error(
-          response?.response?.data?.Message || "Failed to update score",
-          {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          }
+          response?.response?.data?.Message || "Failed to update score"
         );
       }
     } catch (error) {
-      console.error("Error updating score:", error);
-      toast.error("Failed to update score", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error("Failed to update score");
     } finally {
       setSubmittingScore(false);
     }
@@ -401,6 +285,41 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
     onClose();
     // getAllReels(); // Refresh the video list
   };
+
+  const RatingComponent = ({ category, label, value, onChange }) => {
+    return (
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700 block">
+          {label}
+        </label>
+        <div className="flex items-center space-x-2">
+          {[1, 2, 3, 4, 5].map((rating) => (
+            <button
+              key={rating}
+              type="button"
+              onClick={() => onChange(category, rating)}
+              className={`w-8 h-8 rounded-full border-2 font-semibold text-sm transition-all duration-200 ${
+                value >= rating
+                  ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                  : "bg-white text-gray-400 border-gray-300 hover:border-blue-400 hover:text-blue-600"
+              }`}
+            >
+              {rating}
+            </button>
+          ))}
+          <span className="text-sm text-gray-500 ml-2">
+            {value > 0 ? `${value}/5` : "Not rated"}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const isSubmitDisabled =
+    !ratings.punctuality ||
+    !ratings.creativity ||
+    !ratings.content ||
+    submittingScore;
 
   if (!isOpen || !video) return null;
 
@@ -599,10 +518,10 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                     <h3 className="text-lg font-semibold text-gray-900">
                       Video Details
                     </h3>
-                    {userRole !== "Admin" && (
+                    {userRole !== "Admin" && userRole !== "Client" && (
                       <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
                         {video.Score
-                          ? `Score :  ${video.Score}`
+                          ? `Score :  ${score || video.Score}`
                           : "No score assigned yet"}
                       </h3>
                     )}
@@ -713,50 +632,72 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                   </div>
                 </div>
                 {/* Admin Score Input */}
-                {userRole === "Admin" && video.Status !== 2 && (
-                  <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                        Admin Actions
-                      </h3>
-                      <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
-                        {video.Score
-                          ? `Score :  ${video.Score}`
-                          : "No score assigned yet"}
-                      </h3>
-                    </div>
-                    <div className="flex items-end gap-4">
-                      <div className=" flex-1 ">
-                        <div className="flex flex-1 space-x-4">
-                          <div className="flex-1">
-                            <label className="text-sm font-medium text-gray-700 block mb-2">
-                              Score (0-100)
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              max="100"
-                              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="Enter score..."
-                              value={score}
-                              onChange={(e) => {
-                                const value = Number.parseInt(e.target.value);
-                                if (
-                                  !isNaN(value) &&
-                                  value >= 0 &&
-                                  value <= 100
-                                ) {
-                                  setScore(value);
-                                } else if (e.target.value === "") {
-                                  setScore("");
-                                }
-                              }}
-                            />
-                          </div>{" "}
+                <div className="max-w-2xl mx-auto p-4">
+                  {(userRole === "Admin" || userRole === "Client") && (
+                    <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Admin Actions
+                        </h3>
+                        <div className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
+                          {video.Score
+                            ? `Score: ${score || video.Score}`
+                            : "No score assigned yet"}
+                        </div>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div className="grid gap-6">
+                          <RatingComponent
+                            category="punctuality"
+                            label="Consistency"
+                            value={ratings.punctuality}
+                            onChange={handleRatingChange}
+                          />
+                          <RatingComponent
+                            category="creativity"
+                            label="Creativity"
+                            value={ratings.creativity}
+                            onChange={handleRatingChange}
+                          />
+                          <RatingComponent
+                            category="content"
+                            label="Content Quality"
+                            value={ratings.content}
+                            onChange={handleRatingChange}
+                          />
+                        </div>
+
+                        {/* Score Preview */}
+                        {(ratings.punctuality > 0 ||
+                          ratings.creativity > 0 ||
+                          ratings.content > 0) && (
+                          <div className="bg-gray-50 rounded-lg p-4 border">
+                            <div className="flex items-center justify-between">
+                              <div className="space-y-1">
+                                <h4 className="text-sm font-medium text-gray-700">
+                                  Score Preview
+                                </h4>
+                                <div className="flex items-center space-x-4 text-xs text-gray-600">
+                                  <span>
+                                    Punctuality: {ratings.punctuality}/5
+                                  </span>
+                                  <span>
+                                    Creativity: {ratings.creativity}/5
+                                  </span>
+                                  <span>
+                                    Content Quality: {ratings.content}/5
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex justify-end">
                           <button
                             onClick={handleScoreSubmit}
-                            disabled={!score || submittingScore}
-                            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+                            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
                           >
                             {submittingScore ? (
                               <>
@@ -779,7 +720,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                   />
                                 </svg>
-                                <span>Updating...</span>
+                                <span>Submitting...</span>
                               </>
                             ) : (
                               <span>Submit Score</span>
@@ -788,9 +729,8 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
-
+                  )}
+                </div>
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
                   {userRole === "Admin" && (
@@ -844,18 +784,16 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                       <span>Repost the video</span>
                     </button>
                   )}
-
-                  {/* Download button visible to all roles */}
-                  {/* {userRole !== "Creator" && userRole !== "Co-ordinator" && (
+                  {video.Status === 2 && (
                     <button
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
-                      onClick={() => window.open(video.Video_Path, "_blank")}
+                      className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2"
                       disabled={loading}
+                      onClick={() => setIsAnalyticsModalOpen(true)}
                     >
-                      <DownloadIcon className="h-5 w-5" />
-                      <span>Download</span>
+                      <ArrowTopRightOnSquareIcon className="h-5 w-5" />
+                      <span>Insights</span>
                     </button>
-                  )} */}
+                  )}
                 </div>
               </div>
             </div>
@@ -1042,10 +980,10 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                         <h3 className="text-lg font-semibold text-gray-900">
                           Video Details
                         </h3>
-                        {userRole !== "Admin" && (
+                        {(userRole !== "Admin" || userRole !== "Client") && (
                           <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
                             {video.Score
-                              ? `Score :  ${video.Score}`
+                              ? `Score :  ${score || video.Score}`
                               : "No score assigned yet"}
                           </h3>
                         )}
@@ -1158,52 +1096,75 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                       </div>
                     </div>
                     {/* Admin Score Input */}
-                    {userRole === "Admin" && video.Status !== 2 && (
-                      <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            Admin Actions
-                          </h3>
-                          <h3 className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300">
-                            {video.Score
-                              ? `Score :  ${video.Score}`
-                              : "No score assigned yet"}
-                          </h3>
-                        </div>
-                        <div className="flex items-end gap-4">
-                          <div className=" flex-1 ">
-                            <div className="flex flex-1 space-x-4">
-                              <div className="flex-1">
-                                <label className="text-sm font-medium text-gray-700 block mb-2">
-                                  Score (0-100)
-                                </label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  className="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                                  placeholder="Enter score..."
-                                  value={score}
-                                  onChange={(e) => {
-                                    const value = Number.parseInt(
-                                      e.target.value
-                                    );
-                                    if (
-                                      !isNaN(value) &&
-                                      value >= 0 &&
-                                      value <= 100
-                                    ) {
-                                      setScore(value);
-                                    } else if (e.target.value === "") {
-                                      setScore("");
-                                    }
-                                  }}
-                                />
-                              </div>{" "}
+                    <div className="max-w-2xl w-full mx-auto px-4 sm:px-6 py-4">
+                      {(userRole === "Admin" || userRole === "Client") && (
+                        <div className="bg-white border border-[#E4007C] rounded-xl shadow-sm p-4 sm:p-6">
+                          {/* Header */}
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              Admin Actions
+                            </h3>
+                            <div className="text-sm bg-green-200 text-gray-800 px-3 py-1 rounded-full border border-gray-300 text-center">
+                              {video.Score
+                                ? `Score: ${score || video.Score}`
+                                : "No score assigned yet"}
+                            </div>
+                          </div>
+
+                          {/* Rating Inputs */}
+                          <div className="space-y-4 sm:space-y-6">
+                            <div className="grid gap-4">
+                              <RatingComponent
+                                category="punctuality"
+                                label="Consistency"
+                                value={ratings.punctuality}
+                                onChange={handleRatingChange}
+                              />
+                              <RatingComponent
+                                category="creativity"
+                                label="Creativity"
+                                value={ratings.creativity}
+                                onChange={handleRatingChange}
+                              />
+                              <RatingComponent
+                                category="content"
+                                label="Content Quality"
+                                value={ratings.content}
+                                onChange={handleRatingChange}
+                              />
+                            </div>
+
+                            {/* Score Preview */}
+                            {(ratings.punctuality > 0 ||
+                              ratings.creativity > 0 ||
+                              ratings.content > 0) && (
+                              <div className="bg-gray-50 rounded-lg p-4 border text-sm sm:text-base">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+                                  <div className="space-y-1">
+                                    <h4 className="font-medium text-gray-700">
+                                      Score Preview
+                                    </h4>
+                                    <div className="flex flex-col sm:flex-row sm:space-x-4 text-gray-600">
+                                      <span>
+                                        Punctuality: {ratings.punctuality}/5
+                                      </span>
+                                      <span>
+                                        Creativity: {ratings.creativity}/5
+                                      </span>
+                                      <span>
+                                        Content Quality: {ratings.content}/5
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Submit Button */}
+                            <div className="flex justify-end">
                               <button
                                 onClick={handleScoreSubmit}
-                                disabled={!score || submittingScore}
-                                className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+                                className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center space-x-2"
                               >
                                 {submittingScore ? (
                                   <>
@@ -1226,7 +1187,7 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                       />
                                     </svg>
-                                    <span>Updating...</span>
+                                    <span>Submitting...</span>
                                   </>
                                 ) : (
                                   <span>Submit Score</span>
@@ -1235,8 +1196,8 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
 
                     {/* Action Buttons */}
                     <div className="flex space-x-3">
@@ -1292,15 +1253,17 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
                         </button>
                       )}
                     </div>
-                    {/* Download button visible to all roles */}
-                    <button
-                      className="flex-1 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
-                      onClick={() => window.open(video.Video_Path, "_blank")}
-                      disabled={loading}
-                    >
-                      <DownloadIcon className="h-5 w-5" />
-                      <span>Download </span>
-                    </button>
+                    {/* Analytics button visible to all roles */}
+                    {video.Status === 2 && (
+                      <button
+                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2"
+                        disabled={loading}
+                        onClick={() => setIsAnalyticsModalOpen(true)}
+                      >
+                        <ArrowTopRightOnSquareIcon className="h-5 w-5" />
+                        <span>Insights</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -1314,644 +1277,16 @@ function VideoDetailModal({ video, isOpen, onClose, onStatusUpdate }) {
         onClose={() => setIsRepostModalOpen(false)}
         onSuccess={handleRepostSuccess}
       />
+      <AnalyticsModal
+        video={video}
+        isOpen={isAnalyticsModalOpen}
+        onClose={() => setIsAnalyticsModalOpen(false)}
+      />
       <EditUrlModal
         isOpen={isEditUrlModalOpen}
         onClose={() => setIsEditUrlModalOpen(false)}
         onSubmit={handleUrlUpdate}
         initialUrl={video.SocialMedia_URL}
-      />
-    </div>
-  );
-}
-
-// Filter Section Component
-function FilterSection({
-  filters,
-  setFilters,
-  coordinators,
-  totalVideos,
-  filteredCount,
-  role,
-  onUploadClick,
-}) {
-  return (
-    <div className="bg-[#FFF1F7] border border-[#FF2D99]  rounded-lg shadow-sm p-4 mb-6">
-      <div className="flex justify-between items-center mb-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 flex-1">
-          {/* Search Input */}
-          {role !== "Creator" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Search Creator
-              </label>
-              <input
-                type="text"
-                className="w-full rounded-md border border-[#FF2D99] outline-none p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Search by username..."
-                value={filters.searchQuery}
-                onChange={(e) =>
-                  setFilters({ ...filters, searchQuery: e.target.value })
-                }
-              />
-            </div>
-          )}
-
-          {/* Status Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              className="w-full rounded-md border border-[#FF2D99] p-2 outline-none text-sm focus:ring-blue-500 focus:border-blue-500"
-              value={filters.status}
-              onChange={(e) =>
-                setFilters({ ...filters, status: e.target.value })
-              }
-            >
-              <option value="all">All Status</option>
-              <option value="0">Pending</option>
-              <option value="1">Review</option>
-              <option value="2">Approved</option>
-              <option value="3">Rejected</option>
-            </select>
-          </div>
-
-          {/* Search Task ID */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search Task ID
-            </label>
-            <input
-              type="text"
-              className="w-full rounded-md border border-[#FF2D99] outline-none p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter task ID..."
-              value={filters.taskId}
-              onChange={(e) =>
-                setFilters({ ...filters, taskId: e.target.value })
-              }
-            />
-          </div>
-
-          {/* Coordinator Filter */}
-          {role !== "Creator" && role !== "Co-ordinator" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Coordinator
-              </label>
-              <select
-                className="w-full rounded-md border border-[#FF2D99] p-2 outline-none text-sm focus:ring-blue-500 focus:border-blue-500"
-                value={filters.coordinator}
-                onChange={(e) =>
-                  setFilters({ ...filters, coordinator: e.target.value })
-                }
-              >
-                {coordinators.map((coord) => (
-                  <option key={coord} value={coord}>
-                    {coord === "all" ? "All Coordinators" : coord}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Active VideoId Filter Tag */}
-          {filters.VideoId && role == "Creator" && (
-            <div className="flex items-center mb-4 space-x-2">
-              <span className="px-3 py-1 bg-[#EDE9FE] rounded-full text-sm font-medium">
-                Video ID: {filters.VideoId}
-              </span>
-              <button
-                onClick={() => setFilters({ ...filters, VideoId: "" })}
-                className="p-1 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                <XMarkIcon className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
-          )}
-
-          {/* Date Range Filters */}
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Date
-            </label>
-            <input
-              type="date"
-              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm outline-none focus:ring-blue-500 focus:border-blue-500"
-              value={filters.dateRange.start}
-              onChange={(e) =>
-                setFilters({
-                  ...filters,
-                  dateRange: { ...filters.dateRange, start: e.target.value },
-                })
-              }
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              End Date
-            </label>
-            <input
-              type="date"
-              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm outline-none focus:ring-blue-500 focus:border-blue-500"
-              value={filters.dateRange.end}
-              onChange={(e) =>
-                setFilters({
-                  ...filters,
-                  dateRange: { ...filters.dateRange, end: e.target.value },
-                })
-              }
-            />
-          </div> */}
-        </div>
-      </div>
-
-      {/* Results Summary */}
-      <div className="mt-4 pt-3 border-t border-gray-200 flex ">
-        <div className="text-sm text-[#FF2D99] font-semibold">
-          Showing {filteredCount} out of {totalVideos} videos
-          {filters.searchQuery && ` matching "${filters.searchQuery}"`}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Main ReelsSection Component
-export default function ReelsSection() {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const userRole = localStorage.getItem("Role");
-  const navigate = useNavigate();
-
-  // New states for filtering and pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [videosPerPage] = useState(9);
-  const [filters, setFilters] = useState({
-    status: "all",
-    coordinator: "all",
-    searchQuery: "",
-    taskId: "",
-    VideoId: "",
-    dateRange: {
-      start: "",
-      end: "",
-    },
-  });
-
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  // 1️⃣ On mount: pull video_id into filters, then remove it from the URL
-  useEffect(() => {
-    const vid = searchParams.get("video_id");
-    if (vid) {
-      setFilters((f) => ({ ...f, VideoId: vid }));
-
-      // remove from URL immediately
-      const next = new URLSearchParams(searchParams);
-      next.delete("video_id");
-      setSearchParams(next, { replace: true });
-    }
-  }, []); // run once on mount
-
-  // 2️⃣ Whenever filters.VideoId is cleared, make sure URL stays clean
-  useEffect(() => {
-    if (!filters.VideoId) {
-      const next = new URLSearchParams(searchParams);
-      if (next.has("video_id")) {
-        next.delete("video_id");
-        setSearchParams(next, { replace: true });
-      }
-    }
-  }, [filters.VideoId]);
-
-  // Computed values
-  const filteredVideos = useMemo(() => {
-    return videos.filter((video) => {
-      if (filters.status !== "all" && video.Status !== parseInt(filters.status))
-        return false;
-      if (
-        filters.coordinator !== "all" &&
-        video.Coordinator_username !== filters.coordinator
-      )
-        return false;
-      if (
-        filters.taskId &&
-        !video.Task_ID.toLowerCase().includes(filters.taskId.toLowerCase())
-      )
-        return false;
-      if (
-        filters.VideoId &&
-        !video.Video_ID.toLowerCase().includes(filters.VideoId.toLowerCase())
-      )
-        return false;
-      if (
-        filters.searchQuery &&
-        !video.Username.toLowerCase().includes(
-          filters.searchQuery.toLowerCase()
-        )
-      )
-        return false;
-      if (
-        filters.dateRange.start &&
-        new Date(video.Created_AT) < new Date(filters.dateRange.start)
-      )
-        return false;
-      if (
-        filters.dateRange.end &&
-        new Date(video.Created_AT) > new Date(filters.dateRange.end)
-      )
-        return false;
-      return true;
-    });
-  }, [videos, filters]);
-
-  // Get unique coordinators for filter options
-  const coordinators = useMemo(() => {
-    const unique = [
-      ...new Set(videos.map((video) => video.Coordinator_username)),
-    ];
-    return ["all", ...unique];
-  }, [videos]);
-
-  // Pagination logic
-  const indexOfLastVideo = currentPage * videosPerPage;
-  const indexOfFirstVideo = indexOfLastVideo - videosPerPage;
-  const currentVideos = filteredVideos.slice(
-    indexOfFirstVideo,
-    indexOfLastVideo
-  );
-  const totalPages = Math.ceil(filteredVideos.length / videosPerPage);
-
-  async function getAllReels() {
-    try {
-      setLoading(true);
-      const response = await fetchAllReels(localStorage.getItem("fcmToken"));
-
-      if (response.data && response.data.Status) {
-        setVideos(response.data.Data || []);
-      } else {
-        setError("Failed to fetch videos");
-      }
-    } catch (err) {
-      setError("Error loading videos: " + err.message);
-      toast.error(err.response?.data?.Message || "Error Fetch Reels");
-
-      console.error("Error fetching reels:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    getAllReels();
-  }, []);
-
-  const handleVideoClick = (video) => {
-    setSelectedVideo(video);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedVideo(null);
-    getAllReels(); // Refresh the video list
-  };
-
-  const handleUploadSuccess = () => {
-    setIsUploadModalOpen(false);
-    getAllReels(); // Refresh the video list
-  };
-
-  const handleRepostSuccess = () => {
-    setIsRepostModalOpen(false);
-    getAllReels(); // Refresh the video list
-  };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleDateRangeChange = (startOrEnd, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      dateRange: {
-        ...prev.dateRange,
-        [startOrEnd]: value,
-      },
-    }));
-  };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  const handleVideoUpdate = (videoId, newStatus, newScore = null) => {
-    setVideos((prevVideos) =>
-      prevVideos.map((video) => {
-        if (video.Video_ID === videoId) {
-          return {
-            ...video,
-            Status: newStatus !== undefined ? newStatus : video.Status,
-            Score: newScore !== null ? newScore : video.Score,
-          };
-        }
-        return video;
-      })
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading videos...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <p className="text-red-600 font-medium">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-[#E4007C]">
-                Video Management
-              </h1>
-              <p className="text-[#F06292] mt-1">
-                Manage and review submitted videos
-              </p>
-            </div>
-            {/* <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">
-                {filteredVideos.length} video
-                {filteredVideos.length !== 1 ? "s" : ""} found
-              </span>
-            </div> */}
-          </div>
-        </div>
-      </div>
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters */}
-        <FilterSection
-          filters={filters}
-          setFilters={setFilters}
-          coordinators={coordinators}
-          totalVideos={videos.length}
-          filteredCount={filteredVideos.length}
-          role={userRole}
-          onUploadClick={() => setIsUploadModalOpen(true)}
-        />
-
-        {/* Video Grid */}
-        {currentVideos.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No videos found
-            </h3>
-            <p className="text-gray-500">
-              {videos.length === 0
-                ? "There are no videos to display at this time."
-                : "No videos match your current filters."}
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-6">
-              {currentVideos.map((video) => (
-                <VideoCard
-                  key={video.Video_ID}
-                  video={video}
-                  onClick={handleVideoClick}
-                />
-              ))}
-            </div>
-
-            {/* Pagination */}
-            <div className="mt-8 flex items-center justify-between">
-              <div className="flex-1 flex justify-between sm:hidden">
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-4 py-2 border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="ml-3 relative inline-flex items-center px-4 py-2 border bg-[#FFF1F7] border-[#FACCE0] text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
-              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-[#FF2D99]">
-                    Showing{" "}
-                    <span className="font-medium">{indexOfFirstVideo + 1}</span>{" "}
-                    to{" "}
-                    <span className="font-medium">
-                      {Math.min(indexOfLastVideo, filteredVideos.length)}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-medium">{filteredVideos.length}</span>{" "}
-                    videos
-                  </p>
-                </div>
-                <div className="mt-6 flex justify-center">
-                  <nav
-                    className="inline-flex items-center rounded-md border border-[#FACCE0] bg-[#FFF1F7] shadow-sm"
-                    aria-label="Pagination"
-                  >
-                    {/* First */}
-                    <button
-                      onClick={() => setCurrentPage(1)}
-                      disabled={currentPage === 1}
-                      className="px-3 py-2 border-r border-[#FACCE0] text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-l-md"
-                    >
-                      <span className="sr-only">First</span>
-                      <svg
-                        className="h-5 w-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" />
-                      </svg>
-                    </button>
-
-                    {/* Pages */}
-                    {(() => {
-                      const pages = [];
-                      const startPage = Math.max(2, currentPage - 1);
-                      const endPage = Math.min(totalPages - 1, currentPage + 1);
-
-                      // Page 1
-                      pages.push(
-                        <button
-                          key={1}
-                          onClick={() => setCurrentPage(1)}
-                          className={`px-4 py-2 text-sm border-r border-[#FACCE0] font-medium ${
-                            currentPage === 1
-                              ? "bg-[#FF2D99] text-white"
-                              : "text-gray-500 hover:bg-gray-100"
-                          }`}
-                        >
-                          1
-                        </button>
-                      );
-
-                      // Start ellipsis
-                      if (startPage > 2) {
-                        pages.push(
-                          <span
-                            key="start-ellipsis"
-                            className="px-3 py-2 text-sm text-gray-500"
-                          >
-                            ...
-                          </span>
-                        );
-                      }
-
-                      // Middle pages
-                      for (let i = startPage; i <= endPage; i++) {
-                        pages.push(
-                          <button
-                            key={i}
-                            onClick={() => setCurrentPage(i)}
-                            className={`px-4 py-2 text-sm border-r border-[#FACCE0] font-medium ${
-                              currentPage === i
-                                ? "bg-[#FF2D99] text-white"
-                                : "text-gray-500 hover:bg-gray-100"
-                            }`}
-                          >
-                            {i}
-                          </button>
-                        );
-                      }
-
-                      // End ellipsis
-                      if (endPage < totalPages - 1) {
-                        pages.push(
-                          <span
-                            key="end-ellipsis"
-                            className="px-3 py-2 text-sm text-gray-500"
-                          >
-                            ...
-                          </span>
-                        );
-                      }
-
-                      // Last page
-                      if (totalPages > 1) {
-                        pages.push(
-                          <button
-                            key={totalPages}
-                            onClick={() => setCurrentPage(totalPages)}
-                            className={`px-4 py-2 text-sm font-medium ${
-                              currentPage === totalPages
-                                ? "bg-[#FF2D99] text-white"
-                                : "text-gray-500 hover:bg-gray-100"
-                            }`}
-                          >
-                            {totalPages}
-                          </button>
-                        );
-                      }
-
-                      return pages;
-                    })()}
-
-                    {/* Last */}
-                    <button
-                      onClick={() => setCurrentPage(totalPages)}
-                      disabled={currentPage === totalPages}
-                      className="px-3 py-2 border-l border-[#FACCE0] text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-r-md"
-                    >
-                      <span className="sr-only">Last</span>
-                      <svg
-                        className="h-5 w-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 6.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm6 0a1 1 0 010-1.414L14.586 10l-4.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" />
-                      </svg>
-                    </button>
-                  </nav>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-      {/* Video Detail Modal */}
-      <VideoDetailModal
-        video={selectedVideo}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onStatusUpdate={handleVideoUpdate}
-      />
-      <RepostModal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        onSuccess={handleUploadSuccess}
       />
     </div>
   );

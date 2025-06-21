@@ -21,7 +21,7 @@ import {
   getAllCredentials,
   updatePassword,
 } from "../../api/SuperAdmin/Credentials";
-import { WrenchScrewdriverIcon, TrashIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { WrenchScrewdriverIcon, TrashIcon,  PencilSquareIcon } from "@heroicons/react/24/outline";
 import ConfirmModal from "../helper/ConfirmModal";
 import EditPasswordModal from "../helper/EditPasswordModal";
 import toast from "react-hot-toast";

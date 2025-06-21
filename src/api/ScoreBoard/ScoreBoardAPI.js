@@ -1,12 +1,15 @@
 import axios from "axios";
 import { API_URL } from "../../../config";
 
-export async function getAllScores() {
+export async function getAllScores(User_Type = null) {
   try {
     const response = await axios.get(`${API_URL}/leaderboard.php`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      params: {
+        User_Type: User_Type,
       },
     });
     return response;

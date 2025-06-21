@@ -117,7 +117,7 @@ export default function Login() {
               href="https://docs.google.com/forms/d/e/1FAIpQLSd6UlsJEmb0E5FpopouOjm_A2BML1oUcjOiL-D2PJ0CLrv_sA/viewform"
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
-              Register Here
+             Apply to join the Wait List
             </a>
           </p>
         </div>
