@@ -12,7 +12,7 @@ export async function getAllTask() {
     console.log("Task fetch : ", response);
     return response;
   } catch (error) {
-    console.error("Failed to fetch notifications:", error);
+    console.error("Failed to fetch Task:", error);
     if (error.response.status == 401) {
       localStorage.clear();
       setTimeout(() => {

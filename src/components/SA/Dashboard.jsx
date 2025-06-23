@@ -23,7 +23,7 @@ import {
   WifiIcon,
   RectangleStackIcon,
 } from "@heroicons/react/24/outline";
-import Logo from "../../assets/img/logo.png";
+import Logo from "../../assets/img/logo4.png";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { useLocation, useNavigate } from "react-router-dom";
 import CredentialSection from "./CredentialSection";
@@ -706,12 +706,12 @@ export default function Dashboard() {
 
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 px-6 pb-4 bg-gradient-to-b from-[#E80071] via-[#EF3F8F] to-[#D53C2F]">
+          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 px-6 pb-4 bg-gradient-to-b from-[#fdcaf7] to-[#E80071] ">
             <div className="flex h-16 shrink-0 items-center mt-5">
               <img
                 alt="Your Company"
                 src={Logo || "/placeholder.svg"}
-                className="h-10 w-auto"
+                className="h-8 w-auto"
               />
             </div>
             <nav className="flex flex-1 flex-col">

@@ -1,7 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { XIcon, UploadIcon, TrashIcon, ImageIcon } from "lucide-react";
+import {
+  XIcon,
+  UploadIcon,
+  TrashIcon,
+  ImageIcon,
+  ReplaceIcon,
+} from "lucide-react";
 import { getInsightImages } from "../../api/InsightsAPI/getInsights";
 import { uploadInsightImages } from "../../api/InsightsAPI/createInsights";
+import toast from "react-hot-toast";
 
 export default function AnalyticsModal({ video, isOpen, onClose }) {
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -9,6 +16,7 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
   const fileInputRef = useRef(null);
   const maxImages = 3;
   const userRole = localStorage.getItem("Role");
+  const fileReplaceInputRefs = useRef({});
 
   useEffect(() => {
     if (isOpen && video?.Video_ID) {
@@ -86,6 +94,36 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
     setUploadedImages((prev) => prev.filter((img) => img.id !== imageId));
   };
 
+  const handleReplaceClick = (imageId) => {
+    if (fileReplaceInputRefs.current[imageId]) {
+      fileReplaceInputRefs.current[imageId].click();
+    }
+  };
+
+  const handleReplaceFile = (e, imageId) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newPreview = event.target.result;
+        setUploadedImages((prevImages) =>
+          prevImages.map((img) =>
+            img.id === imageId
+              ? {
+                  ...img,
+                  file,
+                  preview: newPreview,
+                  name: file.name,
+                  size: file.size,
+                }
+              : img
+          )
+        );
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Format file size
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
@@ -104,13 +142,16 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
     try {
       const res = await uploadInsightImages(video.Video_ID, img1, img2, img3);
       if (res.Status) {
-        alert("Images uploaded successfully!");
+        console.log("res : ", res);
+        toast.success(res.Message || "Uploaded Successfully", {
+          duration: 2000,
+        });
         onClose(); // or optionally reload images
       } else {
-        alert("Upload failed: " + res.Message);
+        toast.error("Upload failed: " + res.Message);
       }
     } catch (err) {
-      console.error("Insight POST failed:", err);
+      toast.error("Upload failed: " + err.response.data.Message);
     }
   };
 
@@ -127,11 +168,14 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
             </div>
 
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-[#E4007C]">
                 Analytics Upload
               </h2>
-              <p className="text-sm text-gray-600">
-                Upload analytics images for Video ID: {video.Video_ID}
+              <p className="text-sm text-[#F06292]">
+                Upload analytics images for Video ID:{" "}
+                <span className="font-bold text-[#E4007C]">
+                  {video.Video_ID}
+                </span>
               </p>
             </div>
           </div>
@@ -144,13 +188,13 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 bg-[#FFF1F7]">
           <div className="space-y-6">
             {/* Upload Area */}
             {userRole === "Creator" && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-[#E4007C]">
                     Upload Images
                   </h3>
                   <span className="text-sm text-gray-500">
@@ -219,7 +263,7 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
             {/* Image Previews */}
             {uploadedImages.length > 0 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-[#E4007C]">
                   Uploaded Images
                 </h3>
 
@@ -235,12 +279,23 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
                         />
                       </div>
                       {userRole === "Creator" && (
-                        <button
-                          onClick={() => removeImage(image.id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleReplaceClick(image.id)}
+                            className="p-2 text-blue-500 hover:bg-blue-50 rounded-full transition-colors"
+                          >
+                            <ReplaceIcon className="w-4 h-4" />
+                          </button>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            ref={(el) =>
+                              (fileReplaceInputRefs.current[image.id] = el)
+                            }
+                            onChange={(e) => handleReplaceFile(e, image.id)}
+                          />
+                        </>
                       )}
                       <div className="mt-2 space-y-1">
                         <p className="text-sm font-medium text-gray-900 truncate">
@@ -277,12 +332,23 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
                         </p>
                       </div>
                       {userRole === "Creator" && (
-                        <button
-                          onClick={() => removeImage(image.id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleReplaceClick(image.id)}
+                            className="p-2 text-blue-500 hover:bg-blue-50 rounded-full transition-colors"
+                          >
+                            <ReplaceIcon className="w-4 h-4" />
+                          </button>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            ref={(el) =>
+                              (fileReplaceInputRefs.current[image.id] = el)
+                            }
+                            onChange={(e) => handleReplaceFile(e, image.id)}
+                          />
+                        </>
                       )}
                     </div>
                   ))}
@@ -291,7 +357,7 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
             )}
 
             {/* Video Information */}
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+            <div className="bg-gray-50 rounded-lg p-4 space-y-2 border border-[#E4007C]">
               <h4 className="font-medium text-gray-900">Video Information</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                 <div>

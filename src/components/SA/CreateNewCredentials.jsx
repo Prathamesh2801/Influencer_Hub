@@ -288,7 +288,9 @@ export default function CreateNewCredentials() {
                       (c) => c.Username || c.username
                     );
                     setCoordinators(names);
-                    setShowCoordinator(true);
+                    if (formData.role == "Creator") {
+                      setShowCoordinator(true);
+                    }
                     setIsLoading(false);
                   }}
                   className="mt-2 w-full rounded-md border border-gray-300 p-2"

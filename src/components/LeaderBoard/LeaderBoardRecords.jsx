@@ -306,10 +306,10 @@ export default function LeaderBoardRecords() {
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
           <div className="text-center md:text-left">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+            <h1 className="text-3xl md:text-4xl font-bold text-[#E80071]">
               Creator Leaderboard
             </h1>
-            <p className="text-gray-600">
+            <p className="text-[#EF3F8F]">
               Top performing creators and their scores
             </p>
           </div>
@@ -372,7 +372,7 @@ export default function LeaderBoardRecords() {
                     <div className="flex-1 relative">
                       <div className="h-8 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-pink-400 to-purple-500 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
+                          className="h-full bg-gradient-to-r from-[#E80071] to-[#EF3F8F]  rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
                           style={{
                             width: `${(creator.score / maxScore) * 100}%`,
                             minWidth: "40px",
@@ -415,8 +415,8 @@ export default function LeaderBoardRecords() {
 
         {/* Creators Table - Only show if there are creators beyond top 10 */}
         {remainingCreators.length > 0 && (
-          <Card className="border-pink-200 shadow-lg">
-            <CardContent className="p-0">
+          <Card className="border-pink-200 shadow-lg ">
+            <CardContent className="p-0 ">
               {/* Table Header */}
               <div className="bg-pink-100 px-6 py-4 border-b border-pink-200">
                 <div className="grid grid-cols-4 gap-4 font-semibold text-pink-800">
@@ -428,11 +428,12 @@ export default function LeaderBoardRecords() {
               </div>
 
               {/* Table Body */}
-              <div className="divide-y divide-pink-100">
+              <div className="divide-y divide-pink-100 ">
                 {paginatedCreators.map((creator) => (
                   <div
                     key={creator.id}
-                    className="px-6 py-4 hover:bg-pink-50 transition-colors"
+                    className="px-6 py-4 transition-colors even:bg-[#FFF1F7] hover:bg-gray-50 hover:backdrop-blur-md hover:shadow-md"
+
                   >
                     <div className="grid grid-cols-4 gap-4 items-center">
                       {/* Rank */}

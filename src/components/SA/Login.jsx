@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AuthLogin } from "../../api/SuperAdmin/LoginApi";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import Logo from "../../assets/img/logo.png";
+import Logo from "../../assets/img/logo4.png";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
@@ -45,18 +45,27 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-gradient-to-br from-[#E80071] via-[#EF3F8F] to-[#D53C2F] px-4 py-12">
+    <div className="flex min-h-screen flex-col justify-center bg-gradient-to-br from-[#fdcaf7]  to-[#E80071] px-4 py-12">
       <div className="mx-auto w-full max-w-md">
         <div className="text-center mb-8">
-          <img src={Logo} alt="Your Company" className="mx-auto h-16 w-auto sm:h-20" />
-          <h2 className="mt-4 text-2xl font-bold text-white">Sign in to your account</h2>
+          <img
+            src={Logo}
+            alt="Your Company"
+            className="mx-auto h-8 w-auto sm:h-10"
+          />
+          <h2 className="mt-2 text-2xl font-bold text-white">
+            Sign in to your account
+          </h2>
         </div>
 
-        <div className="bg-white px-6 py-8 shadow rounded-2xl sm:px-12">
+        <div className="bg-white px-6 py-8 shadow rounded-2xl  sm:px-12 ">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-900">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-900"
+              >
                 Username
               </label>
               <input
@@ -74,7 +83,10 @@ export default function Login() {
 
             {/* Password */}
             <div className="relative">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-900">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-900"
+              >
                 Password
               </label>
               <input
@@ -95,7 +107,11 @@ export default function Login() {
                 className="absolute inset-y-0 top-6 right-3 flex items-center justify-center text-gray-500"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
               </button>
             </div>
 
@@ -112,12 +128,12 @@ export default function Login() {
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-500">
-            Not a member?{' '}
+            Not a member?{" "}
             <a
               href="https://docs.google.com/forms/d/e/1FAIpQLSd6UlsJEmb0E5FpopouOjm_A2BML1oUcjOiL-D2PJ0CLrv_sA/viewform"
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
-             Apply to join the Wait List
+              Apply to join the Wait List
             </a>
           </p>
         </div>
