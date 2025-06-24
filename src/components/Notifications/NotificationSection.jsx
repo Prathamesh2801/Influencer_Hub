@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import {
@@ -6,6 +8,8 @@ import {
   PencilIcon,
   TrashIcon,
   BellAlertIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 import {
   getAllNotifications,
@@ -43,6 +47,11 @@ export default function NotificationSection() {
   const [modalMode, setModalMode] = useState("create"); // 'create' or 'edit'
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Show 6 notifications per page
+
   const role = localStorage.getItem("Role");
   const currentUsername = localStorage.getItem("Username");
 
@@ -59,6 +68,19 @@ export default function NotificationSection() {
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  // Calculate pagination values
+  const totalPages = Math.ceil(notifications.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentNotifications = notifications.slice(startIndex, endIndex);
+
+  // Reset to first page when notifications change
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [notifications.length, totalPages, currentPage]);
 
   const fetchNotifications = async () => {
     try {
@@ -248,8 +270,48 @@ export default function NotificationSection() {
 
   const handleDelete = async () => {
     if (!selectedNotification) return;
-
     setShowDeleteModal(true);
+  };
+
+  // Pagination handlers
+  const goToPage = (page) => {
+    setCurrentPage(page);
+  };
+
+  const goToPrevious = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const goToNext = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= maxVisiblePages; i++) {
+          pages.push(i);
+        }
+      } else if (currentPage >= totalPages - 2) {
+        for (let i = totalPages - maxVisiblePages + 1; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+          pages.push(i);
+        }
+      }
+    }
+
+    return pages;
   };
 
   if (loading) {
@@ -309,54 +371,121 @@ export default function NotificationSection() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {notifications.map((notification) => {
-            console.log("Notification Struture : ", notification);
-            return (
-              <div
-                key={notification.id}
-                onClick={() => {
-                  if (
-                    notification.created_by?.toLowerCase() ===
-                    currentUsername?.toLowerCase()
-                  ) {
-                    openEditModal(notification);
-                  } else {
-                    console.log(
-                      "You are not allowed to edit this notification."
-                    );
-                  }
-                }}
-                className="bg-pink-50 hover:cursor-pointer border border-pink-700 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-pink-700">
-                    {notification.title}
-                  </h3>
-                  <span className="text-sm text-gray-500 whitespace-nowrap ml-4">
-                    {formatTimeAgo(notification.created_at)}
-                  </span>
-                </div>
+        <>
+          {/* Notifications Grid */}
+          <div className="space-y-4 mb-8">
+            {currentNotifications.map((notification) => {
+              console.log("Notification Structure : ", notification);
+              return (
+                <div
+                  key={notification.id}
+                  onClick={() => {
+                    if (
+                      notification.created_by?.toLowerCase() ===
+                      currentUsername?.toLowerCase()
+                    ) {
+                      openEditModal(notification);
+                    } else {
+                      console.log(
+                        "You are not allowed to edit this notification."
+                      );
+                    }
+                  }}
+                  className="bg-pink-50 hover:cursor-pointer border border-pink-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-pink-100"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold text-pink-700 pr-4">
+                      {notification.title}
+                    </h3>
+                    <span className="text-sm text-gray-500 whitespace-nowrap">
+                      {formatTimeAgo(notification.created_at)}
+                    </span>
+                  </div>
 
-                <p className="text-gray-700 mb-2 leading-relaxed">
-                  {notification.message}
-                </p>
+                  <p className="text-gray-700 mb-3 leading-relaxed">
+                    {notification.message}
+                  </p>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">
-                    Created by: {notification.created_by}
-                  </span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">
+                      Created by: {notification.created_by}
+                    </span>
+                    {notification.user_type && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                        {notification.user_type}
+                      </span>
+                    )}
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
+              {/* Pagination Info */}
+              <div className="text-sm text-gray-600 order-2 sm:order-1">
+                Showing {startIndex + 1}-
+                {Math.min(endIndex, notifications.length)} of{" "}
+                {notifications.length} notifications
               </div>
-            );
-          })}
-        </div>
+
+              {/* Pagination Controls */}
+              <div className="flex items-center gap-2 order-1 sm:order-2">
+                {/* Previous Button */}
+                <button
+                  onClick={goToPrevious}
+                  disabled={currentPage === 1}
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-pink-600 bg-white border border-pink-300 rounded-md hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                >
+                  <ChevronLeftIcon className="w-4 h-4 mr-1" />
+                  <span className="hidden sm:inline">Previous</span>
+                  <span className="sm:hidden">Prev</span>
+                </button>
+
+                {/* Page Numbers */}
+                <div className="hidden sm:flex items-center gap-1">
+                  {getPageNumbers().map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => goToPage(pageNum)}
+                      className={`w-10 h-10 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
+                        currentPage === pageNum
+                          ? "bg-pink-500 text-white hover:bg-pink-600"
+                          : "text-pink-600 bg-white border border-pink-300 hover:bg-pink-50"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mobile Page Indicator */}
+                <div className="sm:hidden flex items-center px-3 py-2 text-sm font-medium text-pink-600 bg-white border border-pink-300 rounded-md">
+                  {currentPage} of {totalPages}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={goToNext}
+                  disabled={currentPage === totalPages}
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-pink-600 bg-white border border-pink-300 rounded-md hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <span className="sm:hidden">Next</span>
+                  <ChevronRightIcon className="w-4 h-4 ml-1" />
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed w-full inset-0 z-50 overflow-y-auto">
-          <div className="flex  min-h-full items-center justify-center p-4 text-center sm:p-0">
+          <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <div
               className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
               onClick={closeModal}
@@ -459,7 +588,7 @@ export default function NotificationSection() {
                       </div>
                     </div>
 
-                    <div className="mt-5  grid grid-flow-row-dense grid-cols-2 gap-3">
+                    <div className="mt-5 grid grid-flow-row-dense grid-cols-2 gap-3">
                       <button
                         type="submit"
                         disabled={formLoading}
@@ -496,7 +625,7 @@ export default function NotificationSection() {
                       </button>
                       <button
                         type="button"
-                        className=" inline-flex w-full justify-center rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+                        className="inline-flex w-full justify-center rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
                         onClick={closeModal}
                         disabled={formLoading}
                       >
@@ -538,7 +667,7 @@ export default function NotificationSection() {
             isOpen={showDeleteModal}
             onClose={() => {
               setShowDeleteModal(false);
-              setPendingDelete(null);
+              setSelectedNotification(null);
             }}
             onConfirm={handleDeleteConfirmed}
             username={"Notification"}

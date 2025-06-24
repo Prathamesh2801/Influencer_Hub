@@ -658,7 +658,7 @@ export default function Dashboard() {
                 </div>
               </TransitionChild>
 
-              <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gradient-to-b from-[#E80071] via-[#EF3F8F] to-[#D53C2F] px-6 pb-4">
+              <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gradient-to-b from-[#fdcaf7] to-[#E80071] px-6 pb-4">
                 <div className="flex mt-5 h-16 shrink-0 items-center">
                   <img
                     alt={"Your Company"}
@@ -687,7 +687,7 @@ export default function Dashboard() {
                                 className={classNames(
                                   item.current
                                     ? "text-[#E4007C]"
-                                    : "text-white group-hover:text-indigo-600",
+                                    : "text-white ",
                                   "h-6 w-6 shrink-0"
                                 )}
                               />
@@ -827,7 +827,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <main className="py-10">
+          <main className="py-10 ">
             <div className="px-4 sm:px-6 lg:px-8">{renderContent()}</div>
           </main>
         </div>
