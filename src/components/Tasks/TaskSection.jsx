@@ -168,25 +168,6 @@ export default function TaskSection() {
     setIsViewModalOpen(true);
   };
 
-  const handleUploadVideo = (taskId, videoTitle) => {
-    setTasks(
-      tasks.map((task) => {
-        if (task.id === taskId) {
-          const newUploadedVideos = task.uploadedVideos + 1;
-          return {
-            ...task,
-            uploadedVideos: newUploadedVideos,
-            status:
-              newUploadedVideos >= task.totalVideos
-                ? "completed"
-                : "in-progress",
-          };
-        }
-        return task;
-      })
-    );
-  };
-
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
     setEditingTask(null);

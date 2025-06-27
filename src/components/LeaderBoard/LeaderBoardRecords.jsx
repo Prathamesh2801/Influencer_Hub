@@ -153,6 +153,8 @@ export default function LeaderBoardRecords() {
   const [error, setError] = useState(null);
   const itemsPerPage = 10;
   const userRole = localStorage.getItem("Role");
+  const username = localStorage.getItem("Username");
+  const [userRank, setUserRank] = useState(null);
 
   // Download entire leaderboard as Excel
   const handleDownloadExcel = () => {
@@ -173,7 +175,7 @@ export default function LeaderBoardRecords() {
   // Filter configuration
   const filters = [
     { label: "All List", value: null },
-    { label: "Premium 50", value: "Premium" },
+    { label: "Core 50", value: "Premium" },
     { label: "Core 250", value: "Core" },
   ];
 
@@ -220,6 +222,17 @@ export default function LeaderBoardRecords() {
     fetchLeaderboardData();
   }, []);
 
+  useEffect(() => {
+    if (creators.length > 0 && username) {
+      const found = creators.find((creator) => creator.name === username);
+      if (found) {
+        setUserRank(found.rank);
+      } else {
+        setUserRank(null); // not found
+      }
+    }
+  }, [creators, username]);
+
   // Handle filter change
   const handleFilterChange = (filter) => {
     setActiveFilter(filter.label);
@@ -252,14 +265,6 @@ export default function LeaderBoardRecords() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center space-y-2 mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-              Creator Leaderboard
-            </h1>
-            <p className="text-gray-600">
-              Top performing creators and their scores
-            </p>
-          </div>
           <LoadingSpinner />
         </div>
       </div>
@@ -313,7 +318,7 @@ export default function LeaderBoardRecords() {
               Top performing creators and their scores
             </p>
           </div>
-          {(userRole === "Admin" || userRole === "Client") && (
+          {userRole === "Admin" || userRole === "Client" ? (
             <Button
               variant="default"
               onClick={handleDownloadExcel}
@@ -321,6 +326,16 @@ export default function LeaderBoardRecords() {
             >
               <DownloadIcon className="w-5 h-5 mr-2" /> Download Excel
             </Button>
+          ) : (
+            <>
+              {userRank !== null ? (
+                <p className="text-green-600 font-bold">
+                  Your Rank: {userRank}
+                </p>
+              ) : (
+                <p className="text-gray-500">You are not ranked yet.</p>
+              )}
+            </>
           )}
         </div>
 
@@ -433,7 +448,6 @@ export default function LeaderBoardRecords() {
                   <div
                     key={creator.id}
                     className="px-6 py-4 transition-colors even:bg-[#FFF1F7] hover:bg-gray-50 hover:backdrop-blur-md hover:shadow-md"
-
                   >
                     <div className="grid grid-cols-4 gap-4 items-center">
                       {/* Rank */}

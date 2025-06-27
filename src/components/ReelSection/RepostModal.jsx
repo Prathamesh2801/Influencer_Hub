@@ -20,6 +20,37 @@ export default function RepostModal({
   const isUpload = !video; // If no video prop is passed, it's an upload
   console.log("Modal type:", isUpload ? "Upload" : "Repost", { taskId });
 
+  const validateAspectRatio = (file) => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      video.preload = "metadata";
+
+      video.onloadedmetadata = function () {
+        URL.revokeObjectURL(video.src);
+        const aspectRatio = video.videoWidth / video.videoHeight;
+        console.log(
+          "Video Dimensions:",
+          video.videoWidth,
+          video.videoHeight,
+          "Aspect Ratio:",
+          aspectRatio.toFixed(2)
+        );
+
+        // Check if aspect ratio is roughly 9:16 (0.56)
+        const isCorrectRatio = Math.abs(aspectRatio - 9 / 16) < 0.05;
+        isCorrectRatio
+          ? resolve(true)
+          : reject("Aspect ratio must be 9:16 (portrait)");
+      };
+
+      video.onerror = function () {
+        reject("Could not load the video file.");
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -28,14 +59,26 @@ export default function RepostModal({
         type: file.type,
         size: file.size,
       });
+
       if (
         file.type === "video/mp4" ||
         file.type === "video/mov" ||
         file.type === "video/avi"
       ) {
-        setSelectedFile(file);
+        if (file.size <= 20 * 1024 * 1024) {
+          validateAspectRatio(file)
+            .then(() => {
+              setSelectedFile(file);
+            })
+            .catch((error) => {
+              toast.error(error);
+              fileInputRef.current.value = "";
+            });
+        } else {
+          toast.error("File size must be less than 20MB");
+          fileInputRef.current.value = "";
+        }
       } else {
-        console.log("Invalid file type:", file.type);
         toast.error("Please select a valid video file (MP4, MOV, AVI)");
         fileInputRef.current.value = "";
       }
@@ -70,11 +113,16 @@ export default function RepostModal({
         file.type === "video/mov" ||
         file.type === "video/avi"
       ) {
-        if (file.size <= 2 * 1024 * 1024 * 1024) {
-          // 2GB limit
-          setSelectedFile(file);
+        if (file.size <= 20 * 1024 * 1024) {
+          validateAspectRatio(file)
+            .then(() => {
+              setSelectedFile(file);
+            })
+            .catch((error) => {
+              toast.error(error);
+            });
         } else {
-          toast.error("File size must be less than 2GB");
+          toast.error("File size must be less than 20MB");
         }
       } else {
         toast.error("Please select a valid video file (MP4, MOV, AVI)");
@@ -218,7 +266,7 @@ export default function RepostModal({
                   </button>
                 </div>
                 <p className="text-sm text-gray-400">
-                  Supported formats: MP4, MOV, AVI (Max 2GB)
+                  Supported formats: MP4, MOV, AVI (Max 20MB)
                 </p>
               </div>
               <input
@@ -270,9 +318,10 @@ export default function RepostModal({
               </div>
             </div>
           )}
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Social Media URL <span className="text-blue-400">( Optional )</span>
+              Social Media URL{" "}
+              <span className="text-blue-400">( Optional )</span>
             </label>
             <input
               type="url"
@@ -286,7 +335,7 @@ export default function RepostModal({
               You can paste a YouTube, Instagram, or any valid social media
               video URL.
             </p>
-          </div>
+          </div> */}
 
           <div className="flex justify-end space-x-3 mt-6">
             <button

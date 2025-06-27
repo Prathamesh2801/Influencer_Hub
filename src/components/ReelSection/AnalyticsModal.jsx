@@ -23,7 +23,12 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
       getInsightImages(video.Video_ID)
         .then((res) => {
           if (res?.Status && Array.isArray(res?.Data?.images)) {
-            const imagePreviews = res.Data.images.map((url, index) => ({
+            const validUrls = res.Data.images.filter(
+              (url) =>
+                // only keep URLs that look like “...filename.jpg/png/gif”
+                typeof url === "string" && /\.(jpe?g|png|gif)$/i.test(url)
+            );
+            const imagePreviews = validUrls.map((url, index) => ({
               id: Date.now() + index,
               preview: url,
               name: `Image ${index + 1}`,
@@ -38,7 +43,10 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
   }, [isOpen, video]);
   // Handle file selection
   const handleFileSelect = (files) => {
-    const fileArray = Array.from(files);
+    const fileArray = Array.from(files).slice(
+      0,
+      maxImages - uploadedImages.length
+    );
     const validFiles = fileArray.filter(
       (file) =>
         file.type.startsWith("image/") &&
@@ -89,11 +97,6 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
     fileInputRef.current?.click();
   };
 
-  // Remove image
-  const removeImage = (imageId) => {
-    setUploadedImages((prev) => prev.filter((img) => img.id !== imageId));
-  };
-
   const handleReplaceClick = (imageId) => {
     if (fileReplaceInputRefs.current[imageId]) {
       fileReplaceInputRefs.current[imageId].click();
@@ -136,6 +139,10 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
   // Handle submit (placeholder for API integration)
   const handleSubmit = async () => {
     if (!video?.Video_ID) return;
+
+    if (uploadedImages.length === 0) {
+      return toast.error("Please upload 1 image before submitting.");
+    }
 
     const [img1, img2, img3] = uploadedImages.map((img) => img.file);
 
@@ -219,7 +226,6 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    multiple
                     accept="image/*"
                     onChange={(e) => handleFileSelect(e.target.files)}
                     className="hidden"

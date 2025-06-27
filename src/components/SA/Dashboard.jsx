@@ -22,6 +22,8 @@ import {
   BoltIcon,
   WifiIcon,
   RectangleStackIcon,
+  ChatBubbleLeftEllipsisIcon,
+  VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import Logo from "../../assets/img/logo4.png";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
@@ -39,6 +41,8 @@ import { fetchAllReels } from "../../api/SuperAdmin/FetchAllReels";
 import TaskSection from "../Tasks/TaskSection";
 import ProfileSection from "../ProfileSection/ProfileSection";
 import ReelsSection from "../ReelSection/ReelsSection";
+import Home from "../Home/Home";
+import FaqSection from "../FAQ/FaqSection";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -546,8 +550,14 @@ export default function Dashboard() {
   const navigation = [
     {
       name: "Home",
-      href: "#/dashboard?tab=reels",
+      href: "#/dashboard?tab=home",
       icon: HomeIcon,
+      current: activeTab === "home",
+    },
+    {
+      name: "Reels",
+      href: "#/dashboard?tab=reels",
+      icon: VideoCameraIcon,
       current: activeTab === "reels",
     },
     ...(role === "Admin"
@@ -580,6 +590,12 @@ export default function Dashboard() {
       icon: BellIcon,
       current: activeTab === "notifications",
     },
+    {
+      name: "FAQ",
+      href: "#/dashboard?tab=faq",
+      icon: ChatBubbleLeftEllipsisIcon,
+      current: activeTab === "faq",
+    },
   ];
 
   const handleRedirectProfile = () => {
@@ -607,6 +623,8 @@ export default function Dashboard() {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "home":
+        return <Home />;
       case "reels":
         return <ReelsSection />;
       case "task":
@@ -619,8 +637,10 @@ export default function Dashboard() {
         return <NotificationSection />;
       case "profile":
         return <ProfileSection />;
+      case "faq":
+        return <FaqSection />;
       default:
-        return <ReelsSection />;
+        return <Home />;
     }
   };
 
@@ -827,9 +847,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <main className="py-10 ">
-            <div className="px-4 sm:px-6 lg:px-8">{renderContent()}</div>
-          </main>
+          <main className="md:py-2 md:px-4 ">{renderContent()}</main>
         </div>
       </div>
 

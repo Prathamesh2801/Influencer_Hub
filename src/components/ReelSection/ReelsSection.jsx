@@ -157,33 +157,6 @@ export default function ReelsSection() {
     getAllReels(); // Refresh the video list
   };
 
-  const handleRepostSuccess = () => {
-    setIsRepostModalOpen(false);
-    getAllReels(); // Refresh the video list
-  };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleDateRangeChange = (startOrEnd, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      dateRange: {
-        ...prev.dateRange,
-        [startOrEnd]: value,
-      },
-    }));
-  };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
   const handleVideoUpdate = (videoId, newStatus, newScore = null) => {
     setVideos((prevVideos) =>
       prevVideos.map((video) => {
