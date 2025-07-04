@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import {
   UploadIcon,
   StarIcon,
@@ -15,18 +15,13 @@ import {
   AwardIcon,
   LinkIcon,
   BarChart3Icon,
-} from "lucide-react"
+} from "lucide-react";
+import Banner from "./Banner";
 
 const Home = () => {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0)
-  const { scrollY } = useScroll()
-  const heroRef = useRef(null)
-  const statsRef = useRef(null)
-  const howItWorksRef = useRef(null)
-
-  // Parallax transforms
-  const heroY = useTransform(scrollY, [0, 500], [0, 150])
-  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0])
+  const heroRef = useRef(null);
+  const statsRef = useRef(null);
+  const howItWorksRef = useRef(null);
 
   // Animation variants
   const containerVariants = {
@@ -35,10 +30,10 @@ const Home = () => {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  }
+        delayChildren: 0.2,
+      },
+    },
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -47,10 +42,10 @@ const Home = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        ease: "easeOut"
-      }
-    }
-  }
+        ease: "easeOut",
+      },
+    },
+  };
 
   const cardHoverVariants = {
     hover: {
@@ -58,64 +53,119 @@ const Home = () => {
       scale: 1.05,
       transition: {
         duration: 0.3,
-        ease: "easeOut"
-      }
-    }
-  }
+        ease: "easeOut",
+      },
+    },
+  };
 
   // Sample data
   const stats = [
-    { label: "Total Uploads", value: "127", icon: UploadIcon, color: "text-blue-600" },
-    { label: "Your Score", value: "2,450", icon: StarIcon, color: "text-yellow-600" },
-    { label: "Current Rank", value: "#23", icon: TrophyIcon, color: "text-purple-600" },
-    { label: "Pending Reviews", value: "3", icon: ClockIcon, color: "text-orange-600" },
-  ]
+    {
+      label: "Total Uploads",
+      value: "127",
+      icon: UploadIcon,
+      color: "text-blue-600",
+    },
+    {
+      label: "Your Score",
+      value: "2,450",
+      icon: StarIcon,
+      color: "text-yellow-600",
+    },
+    {
+      label: "Current Rank",
+      value: "#23",
+      icon: TrophyIcon,
+      color: "text-purple-600",
+    },
+    {
+      label: "Pending Reviews",
+      value: "3",
+      icon: ClockIcon,
+      color: "text-orange-600",
+    },
+  ];
 
   const howItWorks = [
     {
       step: "01",
       title: "Upload Content",
-      description: "Share your product reviews and unboxing videos with high-quality media",
+      description:
+        "Share your product reviews and unboxing videos with high-quality media",
       icon: UploadIcon,
-      color: "from-blue-500 to-cyan-500"
+      color: "from-blue-500 to-cyan-500",
     },
     {
       step: "02",
       title: "Get Reviewed",
-      description: "Our team evaluates your content quality and engagement metrics",
+      description:
+        "Our team evaluates your content quality and engagement metrics",
       icon: EyeIcon,
-      color: "from-green-500 to-emerald-500"
+      color: "from-green-500 to-emerald-500",
     },
     {
       step: "03",
       title: "Add Social URLs",
-      description: "Connect your social media profiles and share analytics data",
+      description:
+        "Connect your social media profiles and share analytics data",
       icon: LinkIcon,
-      color: "from-purple-500 to-violet-500"
+      color: "from-purple-500 to-violet-500",
     },
     {
       step: "04",
       title: "Analytics Review",
-      description: "Team analyzes your social metrics and approves qualified content",
+      description:
+        "Team analyzes your social metrics and approves qualified content",
       icon: BarChart3Icon,
-      color: "from-orange-500 to-red-500"
+      color: "from-orange-500 to-red-500",
     },
     {
       step: "05",
       title: "Earn & Climb",
-      description: "Receive points based on quality and climb the leaderboard rankings",
+      description:
+        "Receive points based on quality and climb the leaderboard rankings",
       icon: TrophyIcon,
-      color: "from-yellow-500 to-amber-500"
+      color: "from-yellow-500 to-amber-500",
     },
-  ]
+  ];
 
   const topCreators = [
-    { rank: 1, name: "Sarah Johnson", score: "4,890", avatar: "/placeholder.svg?height=40&width=40", growth: "+120" },
-    { rank: 2, name: "Mike Chen", score: "4,720", avatar: "/placeholder.svg?height=40&width=40", growth: "+85" },
-    { rank: 3, name: "Emma Davis", score: "4,650", avatar: "/placeholder.svg?height=40&width=40", growth: "+67" },
-    { rank: 4, name: "Alex Rivera", score: "4,580", avatar: "/placeholder.svg?height=40&width=40", growth: "+43" },
-    { rank: 5, name: "Lisa Park", score: "4,420", avatar: "/placeholder.svg?height=40&width=40", growth: "+31" },
-  ]
+    {
+      rank: 1,
+      name: "Sarah Johnson",
+      score: "4,890",
+       avatar: `https://ui-avatars.com/api/?name=SH&background=ec4899&color=fff&size=40`,
+      growth: "+120",
+    },
+    {
+      rank: 2,
+      name: "Mike Chen",
+      score: "4,720",
+      avatar: `https://ui-avatars.com/api/?name=MH&background=ec4899&color=fff&size=40`,
+      growth: "+85",
+    },
+    {
+      rank: 3,
+      name: "Emma Davis",
+      score: "4,650",
+       avatar: `https://ui-avatars.com/api/?name=ED&background=ec4899&color=fff&size=40`,
+      growth: "+67",
+    },
+    {
+      rank: 4,
+      name: "Alex Rivera",
+      score: "4,580",
+       avatar: `https://ui-avatars.com/api/?name=AR&background=ec4899&color=fff&size=40`,
+      growth: "+43",
+    },
+    {
+      rank: 5,
+      name: "Lisa Park",
+      score: "4,420",
+       avatar: `https://ui-avatars.com/api/?name=LP&background=ec4899&color=fff&size=40`,
+      growth: "+31",
+    },
+  ];
 
   const recentActivity = [
     {
@@ -136,77 +186,75 @@ const Home = () => {
       time: "2 days ago",
       icon: TrophyIcon,
     },
-  ]
+  ];
 
   const testimonials = [
     {
-      quote: "The Creator Hub helped me improve my content quality and connect with the Nykaa community.",
+      quote:
+        "The Creator Hub helped me improve my content quality and connect with the Nykaa community.",
       author: "Priya Sharma",
       role: "Beauty Influencer",
       avatar: "/placeholder.svg?height=60&width=60",
     },
     {
-      quote: "I love the competitive aspect. The leaderboard motivates me to create better content every day.",
+      quote:
+        "I love the competitive aspect. The leaderboard motivates me to create better content every day.",
       author: "Rahul Gupta",
       role: "Lifestyle Creator",
       avatar: "/placeholder.svg?height=60&width=60",
     },
     {
-      quote: "The feedback system is incredible. I've learned so much about what makes content engaging.",
+      quote:
+        "The feedback system is incredible. I've learned so much about what makes content engaging.",
       author: "Anita Desai",
       role: "Skincare Expert",
       avatar: "/placeholder.svg?height=60&width=60",
     },
-  ]
+  ];
 
-  // Auto-rotate testimonials
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
 
   // Animated Counter Component
   const AnimatedCounter = ({ value, duration = 2 }) => {
-    const [count, setCount] = useState(0)
-    const ref = useRef(null)
-    const isInView = useInView(ref)
+    const [count, setCount] = useState(0);
+    const ref = useRef(null);
+    const isInView = useInView(ref);
 
     useEffect(() => {
       if (isInView) {
-        const target = parseInt(value.replace(/,/g, '').replace('#', ''))
-        let current = 0
-        const increment = target / (duration * 60)
-        
-        const timer = setInterval(() => {
-          current += increment
-          if (current >= target) {
-            setCount(target)
-            clearInterval(timer)
-          } else {
-            setCount(Math.floor(current))
-          }
-        }, 1000 / 60)
+        const target = parseInt(value.replace(/,/g, "").replace("#", ""));
+        let current = 0;
+        const increment = target / (duration * 60);
 
-        return () => clearInterval(timer)
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            setCount(target);
+            clearInterval(timer);
+          } else {
+            setCount(Math.floor(current));
+          }
+        }, 1000 / 60);
+
+        return () => clearInterval(timer);
       }
-    }, [isInView, value, duration])
+    }, [isInView, value, duration]);
 
     return (
       <span ref={ref}>
-        {value.includes('#') ? '#' : ''}{count.toLocaleString()}{value.includes(',') && count >= 1000 ? '' : ''}
+        {value.includes("#") ? "#" : ""}
+        {count.toLocaleString()}
+        {value.includes(",") && count >= 1000 ? "" : ""}
       </span>
-    )
-  }
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden ">
       {/* Hero Section */}
-      <motion.section 
+      {/* <Banner/> */}
+      <motion.section
         ref={heroRef}
         className="h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 text-white relative overflow-hidden"
-        style={{ y: heroY, opacity: heroOpacity }}
       >
         {/* Animated Background Particles */}
         <div className="absolute inset-0">
@@ -232,14 +280,14 @@ const Home = () => {
         </div>
 
         <div className="absolute inset-0 bg-black/30"></div>
-        
-        <motion.div 
+
+        <motion.div
           className="relative z-10 text-center max-w-4xl mx-auto px-4"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
         >
-          <motion.h1 
+          <motion.h1
             className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -247,7 +295,7 @@ const Home = () => {
           >
             Welcome to
             <br />
-            <motion.span 
+            <motion.span
               className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400"
               animate={{
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
@@ -255,14 +303,14 @@ const Home = () => {
               transition={{
                 duration: 3,
                 repeat: Infinity,
-                ease: "linear"
+                ease: "linear",
               }}
             >
               Nykaa Creator Hub
             </motion.span>
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -270,15 +318,15 @@ const Home = () => {
           >
             Upload, get reviewed, earn points—and climb the leaderboard!
           </motion.p>
-          
-          <motion.button 
+
+          <motion.button
             className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-pink-600 hover:to-purple-700 transition-all inline-flex items-center space-x-2 group"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6 }}
-            whileHover={{ 
+            whileHover={{
               scale: 1.05,
-              boxShadow: "0 20px 40px rgba(168, 85, 247, 0.4)"
+              boxShadow: "0 20px 40px rgba(168, 85, 247, 0.4)",
             }}
             whileTap={{ scale: 0.95 }}
           >
@@ -302,7 +350,7 @@ const Home = () => {
           transition={{
             duration: 6,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         />
         <motion.div
@@ -314,13 +362,13 @@ const Home = () => {
           transition={{
             duration: 4,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         />
       </motion.section>
 
       {/* At-a-Glance Stats */}
-      <motion.section 
+      <motion.section
         ref={statsRef}
         className="py-16 bg-white"
         initial="hidden"
@@ -329,30 +377,30 @@ const Home = () => {
         variants={containerVariants}
       >
         <div className="container mx-auto px-4">
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"
             variants={containerVariants}
           >
             {stats.map((stat, index) => (
-              <motion.div 
-                key={index} 
+              <motion.div
+                key={index}
                 className="bg-gray-50 rounded-xl p-6 hover:shadow-xl transition-all duration-300 border border-gray-100"
                 variants={itemVariants}
                 whileHover={cardHoverVariants.hover}
               >
                 <div className="flex items-center space-x-4">
-                  <motion.div 
+                  <motion.div
                     className={`p-3 rounded-lg bg-gradient-to-r from-gray-100 to-gray-200`}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.1,
                       rotate: 5,
-                      background: "linear-gradient(45deg, #f3f4f6, #e5e7eb)"
+                      background: "linear-gradient(45deg, #f3f4f6, #e5e7eb)",
                     }}
                   >
                     <stat.icon className={`h-6 w-6 ${stat.color}`} />
                   </motion.div>
                   <div>
-                    <motion.p 
+                    <motion.p
                       className="text-2xl font-bold text-gray-900"
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
@@ -370,7 +418,7 @@ const Home = () => {
       </motion.section>
 
       {/* How It Works */}
-      <motion.section 
+      <motion.section
         ref={howItWorksRef}
         className="py-16 bg-gradient-to-br from-gray-50 to-white"
         initial="hidden"
@@ -380,16 +428,19 @@ const Home = () => {
       >
         <div className="container mx-auto px-4">
           <motion.div className="text-center mb-12" variants={itemVariants}>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              How It Works
+            </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Get started with our comprehensive five-step process to become a top creator
+              Get started with our comprehensive five-step process to become a
+              top creator
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             {howItWorks.map((step, index) => (
-              <motion.div 
-                key={index} 
+              <motion.div
+                key={index}
                 className="text-center group relative"
                 variants={itemVariants}
                 whileHover={{ y: -10 }}
@@ -400,10 +451,10 @@ const Home = () => {
                   <motion.div
                     className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
                   />
-                  
-                  <motion.div 
+
+                  <motion.div
                     className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-4 group-hover:from-gray-900 group-hover:to-gray-700 transition-all duration-300 relative z-10"
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.1,
                       rotate: 360,
                     }}
@@ -411,9 +462,13 @@ const Home = () => {
                   >
                     <step.icon className="h-8 w-8 text-gray-600 group-hover:text-white transition-colors duration-300" />
                   </motion.div>
-                  
-                  <div className="text-sm font-bold text-gray-400 mb-2">{step.step}</div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{step.title}</h3>
+
+                  <div className="text-sm font-bold text-gray-400 mb-2">
+                    {step.step}
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    {step.title}
+                  </h3>
                   <p className="text-gray-600">{step.description}</p>
                 </div>
 
@@ -434,7 +489,7 @@ const Home = () => {
       </motion.section>
 
       {/* Featured Leaderboard */}
-      <motion.section 
+      <motion.section
         className="py-16 bg-white"
         initial="hidden"
         whileInView="visible"
@@ -443,9 +498,12 @@ const Home = () => {
       >
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <motion.div className="flex items-center justify-between mb-8" variants={itemVariants}>
+            <motion.div
+              className="flex items-center justify-between mb-8"
+              variants={itemVariants}
+            >
               <h2 className="text-3xl font-bold text-gray-900">Top Creators</h2>
-              <motion.button 
+              <motion.button
                 className="text-gray-600 hover:text-gray-900 inline-flex items-center space-x-2 group"
                 whileHover={{ x: 5 }}
               >
@@ -459,22 +517,25 @@ const Home = () => {
               </motion.button>
             </motion.div>
 
-            <motion.div className="bg-gray-50 rounded-xl p-6" variants={itemVariants}>
+            <motion.div
+              className="bg-gray-50 rounded-xl p-6"
+              variants={itemVariants}
+            >
               <div className="space-y-4">
                 {topCreators.map((creator, index) => (
-                  <motion.div 
-                    key={index} 
+                  <motion.div
+                    key={index}
                     className="flex items-center space-x-4 p-4 bg-white rounded-lg hover:shadow-md transition-all duration-300"
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.02,
-                      boxShadow: "0 8px 25px rgba(0,0,0,0.1)"
+                      boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
                     }}
                   >
-                    <motion.div 
+                    <motion.div
                       className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full text-sm font-bold text-gray-600"
                       whileHover={{ scale: 1.2, rotate: 5 }}
                     >
@@ -487,8 +548,12 @@ const Home = () => {
                       whileHover={{ scale: 1.1 }}
                     />
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900">{creator.name}</p>
-                      <p className="text-xs text-green-600">+{creator.growth} this week</p>
+                      <p className="font-semibold text-gray-900">
+                        {creator.name}
+                      </p>
+                      <p className="text-xs text-green-600">
+                        +{creator.growth} this week
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-gray-900">{creator.score}</p>
@@ -503,7 +568,7 @@ const Home = () => {
       </motion.section>
 
       {/* Recent Activity */}
-      <motion.section 
+      <motion.section
         className="py-16 bg-gray-50"
         initial="hidden"
         whileInView="visible"
@@ -512,21 +577,26 @@ const Home = () => {
       >
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <motion.div className="flex items-center justify-between mb-8" variants={itemVariants}>
-              <h2 className="text-3xl font-bold text-gray-900">Recent Activity</h2>
-              <motion.button 
+            <motion.div
+              className="flex items-center justify-between mb-8"
+              variants={itemVariants}
+            >
+              <h2 className="text-3xl font-bold text-gray-900">
+                Recent Activity
+              </h2>
+              <motion.button
                 className="text-gray-600 hover:text-gray-900 inline-flex items-center space-x-2"
                 whileHover={{ scale: 1.05 }}
               >
                 <span>View All Notifications</span>
                 <motion.div
-                  animate={{ 
+                  animate={{
                     rotate: [0, 15, -15, 0],
                   }}
-                  transition={{ 
+                  transition={{
                     duration: 2,
                     repeat: Infinity,
-                    repeatDelay: 3
+                    repeatDelay: 3,
                   }}
                 >
                   <BellIcon className="h-4 w-4" />
@@ -534,7 +604,10 @@ const Home = () => {
               </motion.button>
             </motion.div>
 
-            <motion.div className="bg-white rounded-xl p-6" variants={itemVariants}>
+            <motion.div
+              className="bg-white rounded-xl p-6"
+              variants={itemVariants}
+            >
               <div className="space-y-4">
                 {recentActivity.map((activity, index) => (
                   <motion.div
@@ -546,18 +619,20 @@ const Home = () => {
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                     whileHover={{ x: 5 }}
                   >
-                    <motion.div 
+                    <motion.div
                       className="p-2 bg-gray-100 rounded-lg"
-                      whileHover={{ 
+                      whileHover={{
                         scale: 1.1,
-                        background: "linear-gradient(45deg, #f3f4f6, #e5e7eb)"
+                        background: "linear-gradient(45deg, #f3f4f6, #e5e7eb)",
                       }}
                     >
                       <activity.icon className="h-4 w-4 text-gray-600" />
                     </motion.div>
                     <div className="flex-1">
                       <p className="text-gray-900">{activity.message}</p>
-                      <p className="text-sm text-gray-500 mt-1">{activity.time}</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {activity.time}
+                      </p>
                     </div>
                   </motion.div>
                 ))}
@@ -568,7 +643,7 @@ const Home = () => {
       </motion.section>
 
       {/* Resources */}
-      <motion.section 
+      <motion.section
         className="py-16 bg-white"
         initial="hidden"
         whileInView="visible"
@@ -577,13 +652,16 @@ const Home = () => {
       >
         <div className="container mx-auto px-4">
           <motion.div className="text-center mb-12" variants={itemVariants}>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Resources & Best Practices</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Resources & Best Practices
+            </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Everything you need to create amazing content and succeed on the platform
+              Everything you need to create amazing content and succeed on the
+              platform
             </p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
             variants={containerVariants}
           >
@@ -591,29 +669,31 @@ const Home = () => {
               {
                 icon: BookOpenIcon,
                 title: "Upload Guidelines",
-                description: "Learn about file formats, sizes, and content requirements",
-                link: "Read More →"
+                description:
+                  "Learn about file formats, sizes, and content requirements",
+                link: "Read More →",
               },
               {
                 icon: AwardIcon,
                 title: "Scoring Rubric",
-                description: "Understand how your content is evaluated and scored",
-                link: "Learn More →"
+                description:
+                  "Understand how your content is evaluated and scored",
+                link: "Learn More →",
               },
               {
                 icon: HelpCircleIcon,
                 title: "Help Center",
                 description: "Find answers to common questions and get support",
-                link: "Get Help →"
-              }
+                link: "Get Help →",
+              },
             ].map((resource, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 className="bg-gray-50 rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer group"
                 variants={itemVariants}
-                whileHover={{ 
+                whileHover={{
                   y: -10,
-                  boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
                 }}
               >
                 <motion.div
@@ -622,9 +702,11 @@ const Home = () => {
                 >
                   <resource.icon className="h-8 w-8 text-gray-600 mb-4 group-hover:text-gray-900 transition-colors" />
                 </motion.div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{resource.title}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  {resource.title}
+                </h3>
                 <p className="text-gray-600 mb-4">{resource.description}</p>
-                <motion.button 
+                <motion.button
                   className="text-gray-900 font-medium hover:underline group-hover:text-purple-600 transition-colors"
                   whileHover={{ x: 5 }}
                 >
@@ -636,76 +718,8 @@ const Home = () => {
         </div>
       </motion.section>
 
-      {/* Testimonials */}
-      <motion.section 
-        className="py-16 bg-gray-50"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-        variants={containerVariants}
-      >
-        <div className="container mx-auto px-4">
-          <motion.div className="text-center mb-12" variants={itemVariants}>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Success Stories</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Hear from creators who've climbed the leaderboard and earned amazing perks
-            </p>
-          </motion.div>
-
-          <motion.div className="max-w-4xl mx-auto" variants={itemVariants}>
-            <motion.div 
-              className="bg-white rounded-xl p-8 text-center"
-              key={currentTestimonial}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="mb-6">
-                <motion.img
-                  src={testimonials[currentTestimonial].avatar || "/placeholder.svg"}
-                  alt={testimonials[currentTestimonial].author}
-                  className="w-16 h-16 rounded-full mx-auto mb-4"
-                  whileHover={{ scale: 1.1 }}
-                />
-                <motion.blockquote 
-                  className="text-xl text-gray-900 mb-4"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                >
-                  "{testimonials[currentTestimonial].quote}"
-                </motion.blockquote>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                >
-                  <p className="font-semibold text-gray-900">{testimonials[currentTestimonial].author}</p>
-                  <p className="text-gray-600">{testimonials[currentTestimonial].role}</p>
-                </motion.div>
-              </div>
-
-              <div className="flex justify-center space-x-2">
-                {testimonials.map((_, index) => (
-                  <motion.button
-                    key={index}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      index === currentTestimonial ? "bg-gray-900" : "bg-gray-300"
-                    }`}
-                    onClick={() => setCurrentTestimonial(index)}
-                    whileHover={{ scale: 1.2 }}
-                    whileTap={{ scale: 0.9 }}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </motion.section>
-
       {/* Footer */}
-      <motion.footer 
+      <motion.footer
         className="bg-gray-900 text-white py-12"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -713,7 +727,7 @@ const Home = () => {
         transition={{ duration: 0.8 }}
       >
         <div className="container mx-auto px-4">
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-4 gap-8"
             initial="hidden"
             whileInView="visible"
@@ -722,38 +736,45 @@ const Home = () => {
           >
             <motion.div variants={itemVariants}>
               <h3 className="text-xl font-bold mb-4">Nykaa Creator Hub</h3>
-              <p className="text-gray-400">Empowering creators to showcase their talent and build their influence.</p>
+              <p className="text-gray-400">
+                Empowering creators to showcase their talent and build their
+                influence.
+              </p>
             </motion.div>
 
             <motion.div variants={itemVariants}>
               <h4 className="font-semibold mb-4">Quick Links</h4>
               <div className="space-y-2">
-                {["Dashboard", "Upload", "Leaderboard", "Profile"].map((link, index) => (
-                  <motion.a 
-                    key={index}
-                    href="#" 
-                    className="block text-gray-400 hover:text-white transition-colors"
-                    whileHover={{ x: 5 }}
-                  >
-                    {link}
-                  </motion.a>
-                ))}
+                {["Dashboard", "Upload", "Leaderboard", "Profile"].map(
+                  (link, index) => (
+                    <motion.a
+                      key={index}
+                      href="#"
+                      className="block text-gray-400 hover:text-white transition-colors"
+                      whileHover={{ x: 5 }}
+                    >
+                      {link}
+                    </motion.a>
+                  )
+                )}
               </div>
             </motion.div>
 
             <motion.div variants={itemVariants}>
               <h4 className="font-semibold mb-4">Support</h4>
               <div className="space-y-2">
-                {["Help Center", "Guidelines", "Contact Us", "Community"].map((link, index) => (
-                  <motion.a 
-                    key={index}
-                    href="#" 
-                    className="block text-gray-400 hover:text-white transition-colors"
-                    whileHover={{ x: 5 }}
-                  >
-                    {link}
-                  </motion.a>
-                ))}
+                {["Help Center", "Guidelines", "Contact Us", "Community"].map(
+                  (link, index) => (
+                    <motion.a
+                      key={index}
+                      href="#"
+                      className="block text-gray-400 hover:text-white transition-colors"
+                      whileHover={{ x: 5 }}
+                    >
+                      {link}
+                    </motion.a>
+                  )
+                )}
               </div>
             </motion.div>
 
@@ -761,9 +782,9 @@ const Home = () => {
               <h4 className="font-semibold mb-4">Follow Us</h4>
               <div className="flex space-x-4">
                 {["Instagram", "YouTube", "Twitter"].map((social, index) => (
-                  <motion.a 
+                  <motion.a
                     key={index}
-                    href="#" 
+                    href="#"
                     className="text-gray-400 hover:text-white transition-colors"
                     whileHover={{ scale: 1.1, y: -2 }}
                   >
@@ -774,19 +795,11 @@ const Home = () => {
             </motion.div>
           </motion.div>
 
-          <motion.div 
-            className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <p>&copy; 2024 Nykaa Creator Hub. All rights reserved. Version 2.1.0</p>
-          </motion.div>
+      
         </div>
       </motion.footer>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

@@ -4,14 +4,18 @@ import {
   VideoCameraIcon,
   CalendarDaysIcon,
   ArrowTopRightOnSquareIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/react/24/outline";
 import { fetchAllReels } from "../../api/SuperAdmin/FetchAllReels";
 import { Frontend_URL } from "../../../config";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export default function TaskViewModal({ isOpen, onClose, task }) {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [exportLoading, setExportLoading] = useState(false);
   const userRole = localStorage.getItem("Role");
   const videosPerPage = 5;
 
@@ -24,6 +28,7 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
           const token = localStorage.getItem("fcm_token");
           const res = await fetchAllReels(token, task.id);
           setVideos(res.data?.Data || []);
+          console.log("Task View Modal : ", res.data);
           setCurrentPage(1); // Reset to page 1 every time modal opens
         } catch (err) {
           console.error("Error fetching task videos:", err);
@@ -39,6 +44,65 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
   const indexOfFirst = indexOfLast - videosPerPage;
   const currentVideos = videos.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(videos.length / videosPerPage);
+
+  // Excel export function
+  const exportToExcel = async () => {
+    if (videos.length === 0) {
+      alert("No data to export");
+      return;
+    }
+
+    setExportLoading(true);
+    try {
+      // Prepare data for Excel
+      const excelData = videos.map(video => ({
+        Username: video.Username || "N/A",
+        User_Type: video.User_Type || "N/A",
+        SocialMedia_URL: video.SocialMedia_URL || "N/A",
+        Score: video.Score || "N/A",
+        Video_ID: video.Video_ID || "N/A"
+      }));
+
+      // Create a new workbook
+      const workbook = XLSX.utils.book_new();
+      
+      // Convert data to worksheet
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      
+      // Set column widths for better readability
+      const columnWidths = [
+        { wch: 20 }, // Username
+        { wch: 15 }, // User_Type
+        { wch: 30 }, // SocialMedia_URL
+        { wch: 10 }, // Score
+        { wch: 35 }  // Video_ID
+      ];
+      worksheet['!cols'] = columnWidths;
+      
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Video Data");
+      
+      // Generate Excel file buffer
+      const excelBuffer = XLSX.write(workbook, { 
+        bookType: 'xlsx', 
+        type: 'array' 
+      });
+      
+      // Create blob and save file
+      const blob = new Blob([excelBuffer], { 
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+      });
+      
+      const fileName = `${task.id || 'task'}_video_data.xlsx`;
+      saveAs(blob, fileName);
+      
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      alert("Error exporting data. Please try again.");
+    } finally {
+      setExportLoading(false);
+    }
+  };
 
   if (!isOpen || !task) return null;
 
@@ -127,9 +191,30 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
 
           {/* Videos */}
           <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-3">
-              🎞️ Submitted Videos
-            </h4>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+              <h4 className="text-lg font-semibold text-gray-900">
+                🎞️ Submitted Videos
+              </h4>
+              {(userRole === "Admin" || userRole === "Client") && videos.length > 0 && (
+                <button
+                  onClick={exportToExcel}
+                  disabled={exportLoading}
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {exportLoading ? (
+                    <>
+                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                      Exporting...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowDownTrayIcon className="w-4 h-4" />
+                      Export Excel
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
 
             {loading ? (
               <p className="text-gray-500">Loading...</p>

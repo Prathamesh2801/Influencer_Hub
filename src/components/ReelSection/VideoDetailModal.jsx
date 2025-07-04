@@ -263,28 +263,33 @@ export default function VideoDetailModal({
   let videoStatusBadgeColor;
   let videoStatusText;
   if (video) {
-    switch (video.Status) {
-      case 0:
-        videoStatusBadgeColor = "bg-yellow-100 text-yellow-800";
-        videoStatusText = "Pending";
-        break;
-      case 1:
-        videoStatusBadgeColor = "bg-blue-100 text-blue-800";
-        videoStatusText = "Review";
-        break;
-      case 2:
-        videoStatusBadgeColor = "bg-green-100 text-green-800";
-        videoStatusText = "Approved";
-        break;
-      case 3:
-        videoStatusBadgeColor = "bg-red-100 text-red-800";
-        videoStatusText = "Rejected";
-        break;
-      default:
-        videoStatusBadgeColor = "bg-gray-100 text-gray-800";
-        videoStatusText = "Unknown";
-    }
+  switch (video.Status) {
+    case 0:
+      videoStatusBadgeColor = "bg-yellow-100 text-yellow-800";
+      videoStatusText = "Pending";
+      break;
+    case 1:
+      videoStatusBadgeColor = "bg-blue-100 text-blue-800";
+      videoStatusText = "Review";
+      break;
+    case 2:
+      videoStatusBadgeColor = "bg-green-100 text-green-800";
+      videoStatusText = "Approved";
+      break;
+    case 3:
+      videoStatusBadgeColor = "bg-red-100 text-red-800";
+      videoStatusText = "Rejected";
+      break;
+    case 4:
+      videoStatusBadgeColor = "bg-purple-100 text-purple-800";
+      videoStatusText = "Completed";
+      break;
+    default:
+      videoStatusBadgeColor = "bg-gray-100 text-gray-800";
+      videoStatusText = "Unknown";
   }
+}
+
 
   const handleUrlUpdate = async (newUrl) => {
     try {

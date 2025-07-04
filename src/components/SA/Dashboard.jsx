@@ -100,7 +100,7 @@ export default function Dashboard() {
         !/Chrome|CriOS|FxiOS|EdgiOS/.test(userAgent);
       setIsSafari(isSafariBrowser);
 
-      console.log("Browser detection:", { isIOSDevice, isSafariBrowser });
+      // console.log("Browser detection:", { isIOSDevice, isSafariBrowser });
     };
 
     detectBrowserAndDevice();
@@ -135,12 +135,12 @@ export default function Dashboard() {
         setIsStandalone(isStandaloneMode);
       }
 
-      console.log("Standalone detection:", {
-        isStandaloneMode,
-        checks: standaloneChecks,
-        navigator_standalone: window.navigator.standalone,
-        display_mode: window.matchMedia("(display-mode: standalone)").matches,
-      });
+      // console.log("Standalone detection:", {
+      //   isStandaloneMode,
+      //   checks: standaloneChecks,
+      //   navigator_standalone: window.navigator.standalone,
+      //   display_mode: window.matchMedia("(display-mode: standalone)").matches,
+      // });
     };
 
     checkStandalone();
@@ -148,7 +148,7 @@ export default function Dashboard() {
     // Listen for display mode changes
     const mediaQuery = window.matchMedia("(display-mode: standalone)");
     const handleChange = () => {
-      console.log("Display mode changed");
+      // console.log("Display mode changed");
       checkStandalone();
     };
 
@@ -182,7 +182,7 @@ export default function Dashboard() {
     let installPromptTimeout;
 
     const handleBeforeInstallPrompt = (e) => {
-      console.log("beforeinstallprompt event fired");
+      // console.log("beforeinstallprompt event fired");
       e.preventDefault();
       setDeferredPrompt(e);
       setCanInstall(true);
@@ -244,10 +244,10 @@ export default function Dashboard() {
       localStorage.getItem("install_prompt_count") || "0"
     );
 
-    console.log("Browser support check:", {
-      isInstalled,
-      promptCount,
-    });
+    // console.log("Browser support check:", {
+    //   isInstalled,
+    //   promptCount,
+    // });
 
     // Only check if installed or max attempts reached
     if (isInstalled === "true" || promptCount >= 3) {

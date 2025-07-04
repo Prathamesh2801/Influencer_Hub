@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { DownloadIcon } from "lucide-react";
+import { XCircleIcon } from "@heroicons/react/24/outline";
 
 // Simple UI components for Vite/React
 const Button = ({
@@ -329,11 +330,15 @@ export default function LeaderBoardRecords() {
           ) : (
             <>
               {userRank !== null ? (
-                <p className="text-green-600 font-bold">
-                  Your Rank: {userRank}
-                </p>
+                <div className="flex items-center space-x-2 bg-green-100 text-green-800 px-4 py-2 rounded-full shadow-sm">
+                  <TrophyIcon className="w-5 h-5 text-green-600" />
+                  <span className="font-semibold">Your Rank: {userRank}</span>
+                </div>
               ) : (
-                <p className="text-gray-500">You are not ranked yet.</p>
+                <div className="flex items-center space-x-2 bg-gray-100 text-gray-600 px-4 py-2 rounded-full shadow-sm">
+                  <XCircleIcon className="w-5 h-5 text-gray-500" />
+                  <span className="font-medium">You are not ranked yet</span>
+                </div>
               )}
             </>
           )}
