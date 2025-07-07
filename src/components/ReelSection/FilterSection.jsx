@@ -51,6 +51,7 @@ export default function FilterSection({
               <option value="1">Review</option>
               <option value="2">Approved</option>
               <option value="3">Rejected</option>
+              <option value="4">Completed</option>
             </select>
           </div>
 
