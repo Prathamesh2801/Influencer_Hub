@@ -23,6 +23,7 @@ export default function TaskCard({
   onViewTask,
   onConfirmDelete,
 }) {
+ 
   const progress = (task.uploadedVideos / task.totalVideos) * 100;
   const isCompleted = task.status === "completed";
   const isOverdue = new Date(task.endDate) < new Date() && !isCompleted;

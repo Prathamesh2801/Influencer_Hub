@@ -50,7 +50,7 @@ export default function NotificationSection() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Show 6 notifications per page
+  const [itemsPerPage] = useState(12); // Show 6 notifications per page
 
   const role = localStorage.getItem("Role");
   const currentUsername = localStorage.getItem("Username");
@@ -337,8 +337,8 @@ export default function NotificationSection() {
   }
 
   return (
-    <>
-      <div className="sm:flex sm:items-center sm:justify-between mb-8">
+    <div className="mx-6">
+      <div className="sm:flex sm:items-center sm:justify-between mb-8 ">
         <div className="sm:flex-auto">
           <h1 className="text-3xl font-bold text-[#E4007C]">Notifications</h1>
           <p className="mt-2 text-md text-[#FF2D99]">
@@ -412,7 +412,13 @@ export default function NotificationSection() {
                     </span>
                     {notification.user_type && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
-                        {notification.user_type}
+                        {notification.user_type === "Core"
+                          ? "Core 250"
+                          : notification.user_type === "Premium"
+                          ? "Core 50"
+                          : notification.user_type === "All"
+                          ? "All"
+                          : notification.user_type}
                       </span>
                     )}
                   </div>
@@ -567,7 +573,7 @@ export default function NotificationSection() {
                             htmlFor="core"
                             className="ml-2 text-sm text-gray-900"
                           >
-                            Core
+                            Core 250
                           </label>
                         </div>
                         <div className="flex items-center">
@@ -582,7 +588,7 @@ export default function NotificationSection() {
                             htmlFor="premium"
                             className="ml-2 text-sm text-gray-900"
                           >
-                            Premium
+                            Core 50
                           </label>
                         </div>
                       </div>
@@ -674,6 +680,6 @@ export default function NotificationSection() {
           />
         </div>
       )}
-    </>
+    </div>
   );
 }

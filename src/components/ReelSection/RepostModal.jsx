@@ -18,7 +18,7 @@ export default function RepostModal({
   const fileInputRef = useRef(null);
 
   const isUpload = !video; // If no video prop is passed, it's an upload
-  console.log("Modal type:", isUpload ? "Upload" : "Repost", { taskId });
+  // console.log("Modal type:", isUpload ? "Upload" : "Repost", { taskId });
 
   const validateAspectRatio = (file) => {
     return new Promise((resolve, reject) => {

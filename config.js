@@ -1,2 +1,2 @@
-export const API_URL = "http://192.168.1.7/Nykaa";
+export const API_URL = "http://192.168.1.13/Nykaa";
 export const Frontend_URL = "http://localhost:5173/#";

@@ -287,7 +287,7 @@ export default function Dashboard() {
       isSafari ||
       isIOS
     ) {
-      console.log("Browser supports PWA, showing install prompt");
+      // console.log("Browser supports PWA, showing install prompt");
       setCanInstall(true);
 
       // Shorter delay for better user experience
@@ -325,7 +325,7 @@ export default function Dashboard() {
         return;
       }
 
-      console.log("Showing install prompt");
+      // console.log("Showing install prompt");
 
       // Show the prompt
       setShowInstallPrompt(true);
@@ -338,7 +338,7 @@ export default function Dashboard() {
         (promptCount + 1).toString()
       );
 
-      console.log("Install prompt displayed, updated localStorage");
+      // console.log("Install prompt displayed, updated localStorage");
     } catch (error) {
       console.error("Error checking install prompt status:", error);
     }

@@ -265,7 +265,7 @@ export default function TaskCreationModal({
                     }}
                     className="form-checkbox h-5 w-5 text-blue-600"
                   />
-                  <span className="ml-2 text-gray-700">Core</span>
+                  <span className="ml-2 text-gray-700">Core 250</span>
                 </label>
 
                 <label className="inline-flex items-center">
@@ -286,7 +286,7 @@ export default function TaskCreationModal({
                     }}
                     className="form-checkbox h-5 w-5 text-blue-600"
                   />
-                  <span className="ml-2 text-gray-700">Premium</span>
+                  <span className="ml-2 text-gray-700">Core 50</span>
                 </label>
               </div>
             </div>
