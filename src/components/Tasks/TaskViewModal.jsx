@@ -18,7 +18,7 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
   const [exportLoading, setExportLoading] = useState(false);
   const userRole = localStorage.getItem("Role");
   const videosPerPage = 5;
-
+  console.log("Task In View Modal ", task);
   useEffect(() => {
     if (isOpen && task?.id) {
       const loadVideos = async () => {
@@ -28,7 +28,7 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
           const token = localStorage.getItem("fcm_token");
           const res = await fetchAllReels(token, task.id);
           setVideos(res.data?.Data || []);
-          console.log("Task View Modal : ", res.data);
+          // console.log("Task View Modal : ", res.data);
           setCurrentPage(1); // Reset to page 1 every time modal opens
         } catch (err) {
           console.error("Error fetching task videos:", err);
@@ -55,47 +55,48 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
     setExportLoading(true);
     try {
       // Prepare data for Excel
-      const excelData = videos.map(video => ({
+      const excelData = videos.map((video) => ({
         Username: video.Username || "N/A",
-        User_Type: video.User_Type || "N/A",
+        User_Type:
+          video.User_Type === "Premium" ? "Core 50" : "Core 250" || "N/A",
         SocialMedia_URL: video.SocialMedia_URL || "N/A",
+        Instagram_Handle: video.insta_id || "N/A",
         Score: video.Score || "N/A",
-        Video_ID: video.Video_ID || "N/A"
+        Video_ID: video.Video_ID || "N/A",
       }));
 
       // Create a new workbook
       const workbook = XLSX.utils.book_new();
-      
+
       // Convert data to worksheet
       const worksheet = XLSX.utils.json_to_sheet(excelData);
-      
+
       // Set column widths for better readability
       const columnWidths = [
         { wch: 20 }, // Username
         { wch: 15 }, // User_Type
         { wch: 30 }, // SocialMedia_URL
         { wch: 10 }, // Score
-        { wch: 35 }  // Video_ID
+        { wch: 35 }, // Video_ID
       ];
-      worksheet['!cols'] = columnWidths;
-      
+      worksheet["!cols"] = columnWidths;
+
       // Add worksheet to workbook
       XLSX.utils.book_append_sheet(workbook, worksheet, "Video Data");
-      
+
       // Generate Excel file buffer
-      const excelBuffer = XLSX.write(workbook, { 
-        bookType: 'xlsx', 
-        type: 'array' 
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
       });
-      
+
       // Create blob and save file
-      const blob = new Blob([excelBuffer], { 
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      
-      const fileName = `${task.id || 'task'}_video_data.xlsx`;
+
+      const fileName = `${task.id || "task"}_video_data.xlsx`;
       saveAs(blob, fileName);
-      
     } catch (error) {
       console.error("Error exporting data:", error);
       alert("Error exporting data. Please try again.");
@@ -103,6 +104,28 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
       setExportLoading(false);
     }
   };
+
+  function formatDescriptionWithLinks(text) {
+    if (!text) return "";
+
+    // Escape HTML tags (to avoid injection)
+    const escaped = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    // Convert URLs into anchor tags
+    const withLinks = escaped.replace(
+      /(https?:\/\/[^\s]+|www\.[^\s]+)/g,
+      (url) => {
+        const href = url.startsWith("http") ? url : `https://${url}`;
+        return `<a href="${href}" class="text-blue-600 underline" target="_blank" rel="noopener noreferrer">${url}</a>`;
+      }
+    );
+
+    // Convert new lines into <br />
+    return withLinks.replace(/\n/g, "<br />");
+  }
 
   if (!isOpen || !task) return null;
 
@@ -129,7 +152,12 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
               {task.title}
             </h3>
-            <p className="text-gray-600 text-sm">{task.description}</p>
+            <p
+              className="text-gray-600 text-sm whitespace-pre-wrap"
+              dangerouslySetInnerHTML={{
+                __html: formatDescriptionWithLinks(task.description),
+              }}
+            ></p>
           </div>
 
           {/* Metrics */}
@@ -148,9 +176,18 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
               {(userRole === "Admin" || userRole === "Client") && (
                 <div>
                   <label className="block text-gray-700 font-medium mb-1">
-                    Creator Type
+                    Task Type
                   </label>
-                  <p className="text-gray-800">{task.userType}</p>
+                  <p className="text-gray-800">
+                    {" "}
+                    {task.userType === "Core"
+                      ? "Core 250"
+                      : task.userType === "Premium"
+                      ? "Core 50"
+                      : task.userType === "All"
+                      ? "All"
+                      : task.userType}
+                  </p>
                 </div>
               )}
               {(userRole === "Creator" || userRole === "Co-ordinator") && (
@@ -170,23 +207,21 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
               </label>
               <p className="text-gray-800 flex items-center gap-2">
                 <CalendarDaysIcon className="w-5 h-5 text-pink-400" />
-                {new Date(task.startDate).toLocaleString()}
+                {task.startDate}
               </p>
             </div>
             <div>
               <label className="block text-gray-700 font-medium mb-1">
                 End Date
               </label>
-              <p className="text-gray-800">
-                {new Date(task.endDate).toLocaleString()}
-              </p>
+              <p className="text-gray-800">{task.endDate}</p>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-gray-700 font-medium mb-1">
                 Reference Link
               </label>
               <p className="text-gray-800">{task.referenceLink}</p>
-            </div>
+            </div> */}
           </div>
 
           {/* Videos */}
@@ -195,25 +230,26 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
               <h4 className="text-lg font-semibold text-gray-900">
                 🎞️ Submitted Videos
               </h4>
-              {(userRole === "Admin" || userRole === "Client") && videos.length > 0 && (
-                <button
-                  onClick={exportToExcel}
-                  disabled={exportLoading}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {exportLoading ? (
-                    <>
-                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                      Exporting...
-                    </>
-                  ) : (
-                    <>
-                      <ArrowDownTrayIcon className="w-4 h-4" />
-                      Export Excel
-                    </>
-                  )}
-                </button>
-              )}
+              {(userRole === "Admin" || userRole === "Client") &&
+                videos.length > 0 && (
+                  <button
+                    onClick={exportToExcel}
+                    disabled={exportLoading}
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {exportLoading ? (
+                      <>
+                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                        Exporting...
+                      </>
+                    ) : (
+                      <>
+                        <ArrowDownTrayIcon className="w-4 h-4" />
+                        Export Excel
+                      </>
+                    )}
+                  </button>
+                )}
             </div>
 
             {loading ? (
@@ -238,7 +274,7 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
                     </div>
                     <div className="mt-2 sm:mt-0">
                       <a
-                        href={`${Frontend_URL}/dashboard?video_id=${video.Video_ID}`}
+                        href={`${Frontend_URL}/dashboard?tab=reels&video_id=${video.Video_ID}`}
                         // target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-pink-600 hover:text-pink-800 font-medium text-sm"

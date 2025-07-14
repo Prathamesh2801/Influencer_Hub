@@ -296,8 +296,8 @@ export default function CreateNewCredentials() {
                   className="mt-2 w-full rounded-md border border-gray-300 p-2"
                 >
                   <option value="">Select user type…</option>
-                  <option value="Core">Core</option>
-                  <option value="Premium">Premium</option>
+                  <option value="Core">Core 250</option>
+                  <option value="Premium">Core 50</option>
                 </select>
               </div>
             )}

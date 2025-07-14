@@ -46,7 +46,6 @@ export default function ProfileSection() {
         }
       } catch (error) {
         console.error("Error loading profile data:", error);
-       
       } finally {
         setLoading(false);
       }

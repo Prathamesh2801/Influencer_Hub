@@ -193,7 +193,7 @@ export default function LeaderBoardRecords() {
           ...creator,
           id: creator.rank,
           name: creator.username,
-          score: creator.total_score,
+          score: creator.combined_score,
           avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
             creator.username
           )}&background=ec4899&color=fff&size=40`,
@@ -319,26 +319,34 @@ export default function LeaderBoardRecords() {
               Top performing creators and their scores
             </p>
           </div>
-          {userRole === "Admin" || userRole === "Client" ? (
-            <Button
-              variant="default"
-              onClick={handleDownloadExcel}
-              className="rounded-full flex items-center"
-            >
-              <DownloadIcon className="w-5 h-5 mr-2" /> Download Excel
-            </Button>
-          ) : (
+          {userRole !== "Co-ordinator" && (
             <>
-              {userRank !== null ? (
-                <div className="flex items-center space-x-2 bg-green-100 text-green-800 px-4 py-2 rounded-full shadow-sm">
-                  <TrophyIcon className="w-5 h-5 text-green-600" />
-                  <span className="font-semibold">Your Rank: {userRank}</span>
-                </div>
+              {userRole === "Admin" || userRole === "Client" ? (
+                <Button
+                  variant="default"
+                  onClick={handleDownloadExcel}
+                  className="rounded-full flex items-center"
+                >
+                  <DownloadIcon className="w-5 h-5 mr-2" /> Download Excel
+                </Button>
               ) : (
-                <div className="flex items-center space-x-2 bg-gray-100 text-gray-600 px-4 py-2 rounded-full shadow-sm">
-                  <XCircleIcon className="w-5 h-5 text-gray-500" />
-                  <span className="font-medium">You are not ranked yet</span>
-                </div>
+                <>
+                  {userRank !== null ? (
+                    <div className="flex items-center space-x-2 bg-green-100 text-green-800 px-4 py-2 rounded-full shadow-sm">
+                      <TrophyIcon className="w-5 h-5 text-green-600" />
+                      <span className="font-semibold">
+                        Your Rank: {userRank}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2 bg-gray-100 text-gray-600 px-4 py-2 rounded-full shadow-sm">
+                      <XCircleIcon className="w-5 h-5 text-gray-500" />
+                      <span className="font-medium">
+                        You are not ranked yet
+                      </span>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}

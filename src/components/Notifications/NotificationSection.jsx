@@ -268,6 +268,27 @@ export default function NotificationSection() {
     }
   };
 
+  function formatDescriptionWithLinks(text) {
+    if (!text) return "";
+
+    // Escape HTML tags (to avoid injection)
+    const escaped = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    // Convert URLs into anchor tags
+    const withLinks = escaped.replace(
+      /(https?:\/\/[^\s]+|www\.[^\s]+)/g,
+      (url) => {
+        const href = url.startsWith("http") ? url : `https://${url}`;
+        return `<a href="${href}" class="text-blue-600 underline" target="_blank" rel="noopener noreferrer">${url}</a>`;
+      }
+    );
+
+    // Convert new lines into <br />
+    return withLinks.replace(/\n/g, "<br />");
+  }
   const handleDelete = async () => {
     if (!selectedNotification) return;
     setShowDeleteModal(true);
@@ -402,8 +423,10 @@ export default function NotificationSection() {
                     </span>
                   </div>
 
-                  <p className="text-gray-700 mb-3 leading-relaxed">
-                    {notification.message}
+                  <p className="text-gray-700 mb-3 leading-relaxed"  dangerouslySetInnerHTML={{
+                __html: formatDescriptionWithLinks(notification.message),
+              }}>
+                   
                   </p>
 
                   <div className="flex justify-between items-center">
@@ -683,3 +706,8 @@ export default function NotificationSection() {
     </div>
   );
 }
+
+
+
+
+

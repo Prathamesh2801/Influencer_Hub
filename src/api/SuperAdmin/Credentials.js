@@ -44,7 +44,7 @@ export async function AuthLogin(
       formData.append("Coordinator_username", co_ordinator);
     }
     if (role === "Co-ordinator" || role === "Creator") {
-      console.log('hii', User_Type);
+      console.log("hii", User_Type);
       formData.append("User_Type", User_Type);
     }
 
@@ -98,6 +98,35 @@ export async function updatePassword(username, newPassword) {
       {
         Username: username,
         NewPassword: newPassword,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Failed to update password:", error);
+    // localStorage.clear();
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
+    throw error;
+  }
+}
+export async function updateUserType(username, userType, coordinatorUsername) {
+  try {
+    const response = await axios.put(
+      `${API_URL}/Admin/user.php`,
+      {
+        Username: username,
+        User_Type: userType,
+        Coordinator_username: coordinatorUsername,
       },
       {
         headers: {

@@ -22,38 +22,50 @@ export default function TaskCreationModal({
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (editingTask && isOpen) {
-      // Pre-populate form with editing task data
+  function formatDateToInputValue(date) {
+  const pad = (n) => (n < 10 ? "0" + n : n);
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
-      const formatDateForInput = (dateString) => {
-        if (!dateString) return "";
-        // Convert "2025-06-17 15:29:00" -> "2025-06-17T15:29"
-        return dateString.replace(" ", "T").slice(0, 16);
-      };
 
-      setFormData({
-        title: editingTask.Task_Title || "",
-        description: editingTask.Task_Description || "",
-        totalVideos: editingTask.Total_Video || 1,
-        startDate: formatDateForInput(editingTask.Task_StartDate),
-        endDate: formatDateForInput(editingTask.Task_EndDate),
-        referenceLink: editingTask.Reference_Link || "",
-        creatorType: editingTask.User_Type || "",
-      });
-    } else if (!editingTask && isOpen) {
-      // Reset form for new task
-      setFormData({
-        title: "",
-        description: "",
-        totalVideos: 1,
-        startDate: "",
-        endDate: "",
-        referenceLink: "",
-        creatorType: "",
-      });
-    }
-  }, [editingTask, isOpen]);
+useEffect(() => {
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    return dateString.replace(" ", "T").slice(0, 16);
+  };
+
+  const now = new Date();
+  const start = new Date(now.getTime() + 5 * 60 * 1000); // +5 min
+  const end = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days
+
+  if (editingTask && isOpen) {
+    setFormData({
+      title: editingTask.Task_Title || "",
+      description: editingTask.Task_Description || "",
+      totalVideos: editingTask.Total_Video || 1,
+      startDate: formatDateForInput(editingTask.Task_StartDate),
+      endDate: formatDateForInput(editingTask.Task_EndDate),
+      referenceLink: editingTask.Reference_Link || "",
+      creatorType: editingTask.User_Type || "",
+    });
+  } else if (!editingTask && isOpen) {
+    setFormData({
+      title: "",
+      description: "",
+      totalVideos: 1,
+      startDate: formatDateToInputValue(start),
+      endDate: formatDateToInputValue(end),
+      referenceLink: "",
+      creatorType: "",
+    });
+  }
+}, [editingTask, isOpen]);
+
 
   const formatDateTime = (datetime) => {
     // Converts '2025-06-17T13:30' => '2025-06-17 13:30:00'
@@ -203,12 +215,12 @@ export default function TaskCreationModal({
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                rows={3}
+                rows={6}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Describe the task"
               />
             </div>
-
+{/* 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Number of Videos *
@@ -225,8 +237,8 @@ export default function TaskCreationModal({
                 }
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-            </div>
-
+            </div> */}
+{/* 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Reference Link
@@ -240,7 +252,7 @@ export default function TaskCreationModal({
                 placeholder="https://example.com"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-            </div>
+            </div> */}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -349,3 +361,4 @@ export default function TaskCreationModal({
     </div>
   );
 }
+

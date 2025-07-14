@@ -263,33 +263,32 @@ export default function VideoDetailModal({
   let videoStatusBadgeColor;
   let videoStatusText;
   if (video) {
-  switch (video.Status) {
-    case 0:
-      videoStatusBadgeColor = "bg-yellow-100 text-yellow-800";
-      videoStatusText = "Pending";
-      break;
-    case 1:
-      videoStatusBadgeColor = "bg-blue-100 text-blue-800";
-      videoStatusText = "Review";
-      break;
-    case 2:
-      videoStatusBadgeColor = "bg-green-100 text-green-800";
-      videoStatusText = "Approved";
-      break;
-    case 3:
-      videoStatusBadgeColor = "bg-red-100 text-red-800";
-      videoStatusText = "Rejected";
-      break;
-    case 4:
-      videoStatusBadgeColor = "bg-purple-100 text-purple-800";
-      videoStatusText = "Completed";
-      break;
-    default:
-      videoStatusBadgeColor = "bg-gray-100 text-gray-800";
-      videoStatusText = "Unknown";
+    switch (video.Status) {
+      case 0:
+        videoStatusBadgeColor = "bg-yellow-100 text-yellow-800";
+        videoStatusText = "Pending";
+        break;
+      case 1:
+        videoStatusBadgeColor = "bg-blue-100 text-blue-800";
+        videoStatusText = "Review";
+        break;
+      case 2:
+        videoStatusBadgeColor = "bg-green-100 text-green-800";
+        videoStatusText = "Approved";
+        break;
+      case 3:
+        videoStatusBadgeColor = "bg-red-100 text-red-800";
+        videoStatusText = "Rejected";
+        break;
+      case 4:
+        videoStatusBadgeColor = "bg-purple-100 text-purple-800";
+        videoStatusText = "Completed";
+        break;
+      default:
+        videoStatusBadgeColor = "bg-gray-100 text-gray-800";
+        videoStatusText = "Unknown";
+    }
   }
-}
-
 
   const handleUrlUpdate = async (newUrl) => {
     try {
@@ -578,8 +577,19 @@ export default function VideoDetailModal({
                         Task ID
                       </label>
                       <div className="flex items-center space-x-2">
-                        <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
+                        <code className="flex-1 font-medium px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-700">
                           {video.Task_ID}
+                        </code>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 block mb-1">
+                        Instagram handle
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
+                          {video.insta_id ||
+                            "Instagram handle not provided yet. Please update it in the profile settings."}
                         </code>
                       </div>
                     </div>
@@ -1062,6 +1072,18 @@ export default function VideoDetailModal({
                           <div className="flex items-center space-x-2">
                             <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
                               {video.Task_ID}
+                            </code>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium text-gray-700 block mb-1">
+                            Instagram handle
+                          </label>
+                          <div className="flex items-center space-x-2">
+                            <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
+                              {video.insta_id ||
+                                "Instagram handle not provided yet. Please update it in the profile settings."}
                             </code>
                           </div>
                         </div>

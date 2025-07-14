@@ -63,6 +63,7 @@ export async function updateTask(
       Reference_Link: referenceLink,
       User_Type: userType,
     };
+    console.log("Payload for updateTask:", payload);
 
     const response = await axios.put(`${API_URL}/Admin/task.php`, payload, {
       headers: {

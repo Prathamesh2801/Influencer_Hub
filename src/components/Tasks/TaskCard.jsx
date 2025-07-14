@@ -138,8 +138,8 @@ export default function TaskCard({
         </span>
       </div>
 
-      <h3 className="text-xl font-bold text-gray-900 mb-2">{task.title}</h3>
-      <p className="text-gray-600 mb-4 line-clamp-2">{task.description}</p>
+      <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{task.title}</h3>
+      <p className="text-gray-600 mb-4 line-clamp-4">{task.description}</p>
 
       <div className="space-y-3">
         {userRole == "creator" && (

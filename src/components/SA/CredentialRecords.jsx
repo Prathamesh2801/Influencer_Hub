@@ -20,10 +20,18 @@ import {
   deleteCredentials,
   getAllCredentials,
   updatePassword,
+  updateUserType,
 } from "../../api/SuperAdmin/Credentials";
-import { WrenchScrewdriverIcon, TrashIcon,  PencilSquareIcon } from "@heroicons/react/24/outline";
+import {
+  WrenchScrewdriverIcon,
+  TrashIcon,
+  PencilSquareIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
 import ConfirmModal from "../helper/ConfirmModal";
 import EditPasswordModal from "../helper/EditPasswordModal";
+import UpdateUserTypeModal from "../helper/UpdateUserTypeModal";
+
 import toast from "react-hot-toast";
 
 const columnHelper = createColumnHelper();
@@ -37,6 +45,8 @@ export default function CredentialRecords() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [pendingDelete, setPendingDelete] = useState(null);
+  const [showUpdateUserTypeModal, setShowUpdateUserTypeModal] = useState(false);
+  const [selectedUserForUpdate, setSelectedUserForUpdate] = useState(null);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -52,7 +62,7 @@ export default function CredentialRecords() {
         }
       } catch (err) {
         setError("Failed to fetch credentials");
-        toast.error(err.response.data.Message || "Failed to fetch credentials")
+        toast.error(err.response.data.Message || "Failed to fetch credentials");
         console.error("Error fetching credentials:", err);
       } finally {
         setLoading(false);
@@ -99,10 +109,83 @@ export default function CredentialRecords() {
     setPendingDelete(null);
   };
 
+  const handleUpdateUserTypeConfirmed = async (updateData) => {
+    // close modal immediately
+    setShowUpdateUserTypeModal(false);
+    const username = selectedUserForUpdate;
+
+    toast.promise(
+      updateUserType(username, updateData.userType, updateData.coordinatorName)
+        .then((res) => {
+          if (!res.data.Status) {
+            throw new Error(res.data.Message || "Failed to update user type");
+          }
+          // ← update just that row in state
+          setData((prev) =>
+            prev.map((u) =>
+              u.Username === username
+                ? { ...u, User_Type: updateData.userType }
+                : u
+            )
+          );
+          return res.data.Message || "User type updated successfully";
+        })
+        .catch((err) => {
+          const msg =
+            err?.response?.data?.Message || err.message || "Unknown error";
+          throw new Error(msg);
+        }),
+      {
+        loading: "Updating user type…",
+        success: (msg) => msg,
+        error: (err) => err.message,
+      }
+    );
+
+    setSelectedUserForUpdate(null);
+  };
+
+  // Custom global filter function that includes User_Type display labels
+  const customGlobalFilter = (row, columnId, value) => {
+    const searchValue = value.toLowerCase();
+
+    // Get the cell value
+    const cellValue = row.getValue(columnId);
+
+    // For User_Type column, also search by display labels
+    if (columnId === "User_Type") {
+      const userType = cellValue;
+      let displayLabel = "";
+
+      switch (userType) {
+        case "Premium":
+          displayLabel = "Core 50";
+          break;
+        case "Core":
+          displayLabel = "Core 250";
+          break;
+        default:
+          displayLabel = "N/A";
+          break;
+      }
+
+      // Search both the actual value and display label
+      return (
+        String(cellValue).toLowerCase().includes(searchValue) ||
+        displayLabel.toLowerCase().includes(searchValue)
+      );
+    }
+
+    // For other columns, use default string search
+    return String(cellValue).toLowerCase().includes(searchValue);
+  };
+
   // Define table columns
   const columns = useMemo(
     () => [
       columnHelper.accessor("Username", {
+        enableGlobalFilter: true,
+        accessorKey: "Username",
         header: ({ column }) => (
           <button
             className="flex items-center gap-2 font-semibold text-[#E4007C] hover:text-[#F06292] transition-colors"
@@ -129,6 +212,8 @@ export default function CredentialRecords() {
         ),
       }),
       columnHelper.accessor("role", {
+        enableGlobalFilter: true,
+        accessorKey: "role",
         header: ({ column }) => (
           <button
             className="flex items-center gap-2 font-semibold text-[#E4007C] hover:text-[#F06292] transition-colors"
@@ -164,7 +249,72 @@ export default function CredentialRecords() {
           );
         },
       }),
+      columnHelper.accessor("User_Type", {
+        enableGlobalFilter: true,
+        accessorKey: "User_Type",
+        // filterFn: customGlobalFilter, // Use custom filter function
+        header: ({ column }) => (
+          <button
+            className="flex items-center gap-2 font-semibold text-[#E4007C] hover:text-[#F06292] transition-colors"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            <Shield className="w-4 h-4" />
+            User Type
+            {column.getIsSorted() === "asc" ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : column.getIsSorted() === "desc" ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <div className="w-4 h-4" />
+            )}
+          </button>
+        ),
+        cell: ({ getValue }) => {
+          const userType = getValue();
+
+          // Decide label + styles based on the raw userType
+          let label;
+          let bgClass;
+          let borderClass;
+          let textClass;
+          switch (userType) {
+            case "Premium":
+              label = "Core 50";
+              bgClass = "bg-yellow-100";
+              borderClass = "border-yellow-200";
+              textClass = "text-yellow-800";
+              break;
+            case "Core":
+              label = "Core 250";
+              bgClass = "bg-gray-100"; // you can tweak to a more "silver" tone if you like
+              borderClass = "border-gray-300";
+              textClass = "text-gray-700";
+              break;
+            default:
+              // covers "N/A", null, undefined, or anything else
+              label = "N/A";
+              bgClass = "bg-gray-200";
+              borderClass = "border-gray-400";
+              textClass = "text-gray-500";
+              break;
+          }
+
+          return (
+            <span
+              className={`
+          inline-flex items-center
+          px-3 py-1 rounded-full text-sm font-medium
+          border ${borderClass} ${bgClass} ${textClass}
+        `}
+            >
+              {label}
+            </span>
+          );
+        },
+      }),
+
       columnHelper.accessor("action", {
+        enableGlobalFilter: false, // Actions shouldn't be searchable
         header: () => (
           <div className="flex items-center gap-2 font-semibold text-[#E4007C]">
             <WrenchScrewdriverIcon className="w-4 h-4" />
@@ -176,27 +326,39 @@ export default function CredentialRecords() {
 
           return (
             <div className="flex items-center  gap-10">
+              <button
+                onClick={() => {
+                  setSelectedUser(username);
+                  setShowEditModal(true);
+                }}
+                className="text-blue-600 hover:text-blue-800 transition-colors"
+                title="Change Password"
+              >
+                <PencilSquareIcon className="w-5 h-5" />
+              </button>
 
-            <button
-              onClick={() => {
-                setSelectedUser(username);
-                setShowEditModal(true);
-              }}
-              className="text-blue-600 hover:text-blue-800 transition-colors"
-              title="Change Password"
-            >
-              <PencilSquareIcon className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => {
-                setPendingDelete(username);
-                setShowDeleteModal(true);
-              }}
-              className="text-red-600 hover:text-red-800 transition-colors"
-              title="Delete User"
-            >
-              <TrashIcon className="w-5 h-5" />
-            </button>
+              <button
+                onClick={() => {
+                  setPendingDelete(username);
+                  setShowDeleteModal(true);
+                }}
+                className="text-red-600 hover:text-red-800 transition-colors"
+                title="Delete User"
+              >
+                <TrashIcon className="w-5 h-5" />
+              </button>
+              {row.original.role === "Creator" && (
+                <button
+                  onClick={() => {
+                    setSelectedUserForUpdate(username);
+                    setShowUpdateUserTypeModal(true);
+                  }}
+                  className="text-green-600 hover:text-green-800 transition-colors"
+                  title="Update User Type"
+                >
+                  <UserGroupIcon className="w-5 h-5" />
+                </button>
+              )}
             </div>
           );
         },
@@ -213,7 +375,17 @@ export default function CredentialRecords() {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    globalFilterFn: "includesString",
+    globalFilterFn: (row, columnId, value) => {
+      // Use custom filter for User_Type, default for others
+      const column = columns.find((col) => col.accessorKey === columnId);
+      if (column && column.filterFn) {
+        return column.filterFn(row, columnId, value);
+      }
+
+      // Default global filter behavior
+      const cellValue = row.getValue(columnId);
+      return String(cellValue).toLowerCase().includes(value.toLowerCase());
+    },
     state: {
       globalFilter,
     },
@@ -279,7 +451,7 @@ export default function CredentialRecords() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder="Search users or roles"
             value={globalFilter ?? ""}
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 border  border-[#E4007C] rounded-lg focus:ring-1 outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -326,7 +498,7 @@ export default function CredentialRecords() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {table.getRowModel().rows.length === 0 ? (
-              <tr  >
+              <tr>
                 <td colSpan={columns.length} className="px-6 py-12 text-center">
                   <div className="flex flex-col items-center">
                     <Users className="w-12 h-12 text-gray-400 mb-4" />
@@ -341,7 +513,10 @@ export default function CredentialRecords() {
               </tr>
             ) : (
               table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50 transition-colors even:bg-[#FFF1F7]">
+                <tr
+                  key={row.id}
+                  className="hover:bg-gray-50 transition-colors even:bg-[#FFF1F7]"
+                >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
                       {flexRender(
@@ -370,22 +545,38 @@ export default function CredentialRecords() {
         onClose={() => {
           setShowEditModal(false);
           setSelectedUser(null);
-        }}        onConfirm={async (newPassword) => {
+        }}
+        onConfirm={async (newPassword) => {
           try {
             const response = await updatePassword(selectedUser, newPassword);
             if (response.data.Status) {
-              toast.success(response.data.Message || "Password updated successfully");
+              toast.success(
+                response.data.Message || "Password updated successfully"
+              );
               setShowEditModal(false);
               setSelectedUser(null);
             } else {
-              throw new Error(response.data.Message || "Failed to update password");
+              throw new Error(
+                response.data.Message || "Failed to update password"
+              );
             }
           } catch (err) {
-            toast.error(err.response?.data?.Message || "Failed to update password");
+            toast.error(
+              err.response?.data?.Message || "Failed to update password"
+            );
             console.error("Password update error:", err);
           }
         }}
         username={selectedUser}
+      />
+      <UpdateUserTypeModal
+        isOpen={showUpdateUserTypeModal}
+        onClose={() => {
+          setShowUpdateUserTypeModal(false);
+          setSelectedUserForUpdate(null);
+        }}
+        onConfirm={handleUpdateUserTypeConfirmed}
+        username={selectedUserForUpdate}
       />
 
       {/* Pagination */}

@@ -25,7 +25,7 @@ import {
   ChatBubbleLeftEllipsisIcon,
   VideoCameraIcon,
 } from "@heroicons/react/24/outline";
-import Logo from "../../assets/img/logo4.png";
+import Logo from "../../assets/img/NCLogo.gif";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { useLocation, useNavigate } from "react-router-dom";
 import CredentialSection from "./CredentialSection";
@@ -51,8 +51,9 @@ function classNames(...classes) {
 export default function Dashboard() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const activeTab = queryParams.get("tab") || "reels";
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const activeTab = queryParams.get("tab") || "home";
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile sidebar
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false); // Desktop sidebar
   const role = localStorage.getItem("Role");
   const username = localStorage.getItem("Username");
   const navigate = useNavigate();
@@ -82,6 +83,22 @@ export default function Dashboard() {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
+  // Load desktop sidebar state from localStorage
+  useEffect(() => {
+    const savedSidebarState = localStorage.getItem("desktopSidebarOpen");
+    if (savedSidebarState !== null) {
+      setDesktopSidebarOpen(JSON.parse(savedSidebarState));
+    }
+  }, []);
+
+  // Save desktop sidebar state to localStorage
+  useEffect(() => {
+    localStorage.setItem(
+      "desktopSidebarOpen",
+      JSON.stringify(desktopSidebarOpen)
+    );
+  }, [desktopSidebarOpen]);
+
   // Enhanced browser and device detection
   useEffect(() => {
     const detectBrowserAndDevice = () => {
@@ -99,8 +116,6 @@ export default function Dashboard() {
         /Apple Computer/.test(vendor) &&
         !/Chrome|CriOS|FxiOS|EdgiOS/.test(userAgent);
       setIsSafari(isSafariBrowser);
-
-      // console.log("Browser detection:", { isIOSDevice, isSafariBrowser });
     };
 
     detectBrowserAndDevice();
@@ -134,13 +149,6 @@ export default function Dashboard() {
       } else {
         setIsStandalone(isStandaloneMode);
       }
-
-      // console.log("Standalone detection:", {
-      //   isStandaloneMode,
-      //   checks: standaloneChecks,
-      //   navigator_standalone: window.navigator.standalone,
-      //   display_mode: window.matchMedia("(display-mode: standalone)").matches,
-      // });
     };
 
     checkStandalone();
@@ -148,7 +156,6 @@ export default function Dashboard() {
     // Listen for display mode changes
     const mediaQuery = window.matchMedia("(display-mode: standalone)");
     const handleChange = () => {
-      // console.log("Display mode changed");
       checkStandalone();
     };
 
@@ -182,7 +189,6 @@ export default function Dashboard() {
     let installPromptTimeout;
 
     const handleBeforeInstallPrompt = (e) => {
-      // console.log("beforeinstallprompt event fired");
       e.preventDefault();
       setDeferredPrompt(e);
       setCanInstall(true);
@@ -244,11 +250,6 @@ export default function Dashboard() {
       localStorage.getItem("install_prompt_count") || "0"
     );
 
-    // console.log("Browser support check:", {
-    //   isInstalled,
-    //   promptCount,
-    // });
-
     // Only check if installed or max attempts reached
     if (isInstalled === "true" || promptCount >= 3) {
       console.log("Skipping prompt - installed or too many attempts");
@@ -287,7 +288,6 @@ export default function Dashboard() {
       isSafari ||
       isIOS
     ) {
-      // console.log("Browser supports PWA, showing install prompt");
       setCanInstall(true);
 
       // Shorter delay for better user experience
@@ -325,8 +325,6 @@ export default function Dashboard() {
         return;
       }
 
-      // console.log("Showing install prompt");
-
       // Show the prompt
       setShowInstallPrompt(true);
       setInstallPromptAnimation(true);
@@ -337,8 +335,6 @@ export default function Dashboard() {
         "install_prompt_count",
         (promptCount + 1).toString()
       );
-
-      // console.log("Install prompt displayed, updated localStorage");
     } catch (error) {
       console.error("Error checking install prompt status:", error);
     }
@@ -497,23 +493,11 @@ export default function Dashboard() {
         vapidKey:
           "BG1OVKCIK8kznhlzxPYPKJmhY3t1jQeMnryB99bo_8xEZNlol0jb86ZzUCV-rg-jPqx6Ge4Pkz4MxBAJpDUwH4A",
       });
-      // console.log("FCM Token:", token);
       await fetchAllReels(token);
       setFcmToken(token);
       localStorage.setItem("fcmToken", token);
-
-      // addToast(
-      //   "info",
-      //   "FCM Token Generated",
-      //   "Push notifications are now active"
-      // );
     } catch (error) {
       console.error("FCM token error:", error);
-      // addToast(
-      //     "error",
-      //     error.response?.data?.Message,
-      //     "Failed to Fetch Data"
-      //   );
     }
   };
 
@@ -647,6 +631,7 @@ export default function Dashboard() {
   return (
     <>
       <div>
+        {/* Mobile sidebar */}
         <Dialog
           open={sidebarOpen}
           onClose={setSidebarOpen}
@@ -679,11 +664,11 @@ export default function Dashboard() {
               </TransitionChild>
 
               <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gradient-to-b from-[#fdcaf7] to-[#E80071] px-6 pb-4">
-                <div className="flex mt-5 h-16 shrink-0 items-center">
+                <div className="flex mt-5 h-16 md:shrink-0 items-center">
                   <img
                     alt={"Your Company"}
                     src={Logo || "/placeholder.svg"}
-                    className="h-10 w-auto"
+                    className="h-full w-auto"
                   />
                 </div>
                 <nav className="flex flex-1 flex-col">
@@ -724,15 +709,31 @@ export default function Dashboard() {
           </div>
         </Dialog>
 
-        {/* Static sidebar for desktop */}
-        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 px-6 pb-4 bg-gradient-to-b from-[#fdcaf7] to-[#E80071] ">
-            <div className="flex h-16 shrink-0 items-center mt-5">
+        {/* Desktop sidebar - now collapsible */}
+        <div
+          className={`hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${
+            desktopSidebarOpen ? "lg:w-72" : "lg:w-0"
+          }`}
+        >
+          <div
+            className={`flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 px-6 pb-4 bg-gradient-to-b from-[#fdcaf7] to-[#E80071] transition-all duration-300 ease-in-out ${
+              desktopSidebarOpen ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <div className="flex h-16 shrink-0 items-center mt-5 justify-between">
               <img
                 alt="Your Company"
                 src={Logo || "/placeholder.svg"}
-                className="h-8 w-auto"
+                className="h-full w-auto"
               />
+              <button
+                type="button"
+                onClick={() => setDesktopSidebarOpen(false)}
+                className="p-1.5 rounded-md text-white bg-white/60 hover:bg-white/20 transition-colors"
+              >
+                <span className="sr-only">Close sidebar</span>
+                <XMarkIcon className="h-5 w-5 text-pink-700" />
+              </button>
             </div>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -767,8 +768,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="lg:pl-72">
+        {/* Main content area - adjusts based on desktop sidebar state */}
+        <div
+          className={`transition-all duration-300 ease-in-out ${
+            desktopSidebarOpen ? "lg:pl-72" : "lg:pl-0"
+          }`}
+        >
           <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+            {/* Mobile hamburger menu */}
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
@@ -777,6 +784,18 @@ export default function Dashboard() {
               <span className="sr-only">Open sidebar</span>
               <Bars3Icon aria-hidden="true" className="h-6 w-6" />
             </button>
+
+            {/* Desktop sidebar toggle - only show when sidebar is closed */}
+            {!desktopSidebarOpen && (
+              <button
+                type="button"
+                onClick={() => setDesktopSidebarOpen(true)}
+                className="hidden lg:block  p-2.5 text-gray-700 hover:text-[#E4007C] transition-colors"
+              >
+                <span className="sr-only">Open sidebar</span>
+                <Bars3Icon aria-hidden="true" className="h-6 w-6" />
+              </button>
+            )}
 
             <div
               aria-hidden="true"
@@ -847,7 +866,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <main className="md:py-2 md:px-4 ">{renderContent()}</main>
+          <main className="md:py-2 md:px-4">{renderContent()}</main>
         </div>
       </div>
 
