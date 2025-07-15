@@ -187,16 +187,10 @@ export default function CreateNewCredentials() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="space-y-12">
-        <div className="border-b border-gray-900/10 pb-12">
-          <h2 className="text-base/7 font-bold text-[#E4007C]">Profile</h2>
-          <p className="mt-1 text-6 text-[#F06292]">
-            This information will be displayed publicly so be careful what you
-            share.
-          </p>
-
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+    <form onSubmit={handleSubmit} className="p-10">
+      <div className="space-y-12 ">
+        <div className="border-b border-gray-900/10 ">
+          <div className=" grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="sm:col-span-4">
               <label
                 htmlFor="username"
@@ -370,13 +364,13 @@ export default function CreateNewCredentials() {
         <button
           type="button"
           onClick={handleCancel}
-          className="text-sm/6 font-semibold text-[#E4007C]"
+          className="text-sm/6 md:text-lg font-semibold text-[#E4007C]"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="rounded-md bg-[#E4007C] px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#F06292] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="rounded-md bg-[#E4007C] px-3 py-2 text-sm md:text-lg font-semibold text-white shadow-xs hover:bg-[#F06292] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           Save
         </button>

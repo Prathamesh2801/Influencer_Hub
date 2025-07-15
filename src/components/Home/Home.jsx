@@ -205,7 +205,7 @@ export default function Home() {
       {/* Header */}
       <header className="text-center py-8 pb-6 px-4">
         <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
-          Welcome to the <span className="text-pink-500">Nykaa Microsite</span>
+          Welcome to the <span className="text-pink-500">Nykaa Core Microsite</span>
         </h1>
         <p className="text-gray-600 text-lg md:text-xl">
           Where beauty meets creativity! Discover trending products and connect
@@ -230,7 +230,7 @@ export default function Home() {
       {/* Hero Carousel Section */}
       <div
         ref={carouselRef}
-        className="carousel-container overflow-hidden m-5 relative group"
+        className="carousel-container overflow-hidden  relative group"
       >
         <div className="flex gap-5 w-max" ref={trackRef}>
           {[...heroBannners, ...heroBannners].map((banner, index) => (
@@ -246,7 +246,7 @@ export default function Home() {
       </div>
 
       {/* Creator Spotlight */}
-      <section className="px-4 md:px-8 mb-16 bg-white p-10">
+      {/* <section className="px-4 md:px-8 mb-16 bg-white p-10">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
             Creator <span className="text-pink-500">Spotlight</span>
@@ -297,12 +297,12 @@ export default function Home() {
                       <p className="text-sm text-gray-600 mb-3">
                         {creator.title}
                       </p>
-                      {/* <Button
+                      <Button
                           size="sm"
                           className="bg-pink-500 hover:bg-pink-600 text-white"
                         >
                           Watch Now
-                        </Button> */}
+                        </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -310,17 +310,17 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
       {/* <section>
         <HighlightOnScroll />
       </section> */}
 
-      {/* <CreatorSpotlightCarousel/> */}
+      <CreatorSpotlightCarousel/>
 
       {/* Hot Right Now */}
       <section className="px-4 md:px-8 pb-10 ">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-center my-8">
             Hot <span className="text-pink-500">Right Now</span>
           </h2>
 

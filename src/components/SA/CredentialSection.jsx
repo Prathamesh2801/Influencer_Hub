@@ -16,7 +16,7 @@ export default function CredentialSection() {
   return (
     <div>
       {/* Button to toggle between views */}
-      <div className="border-b  border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between mb-6">
+      <div className="border-b  border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between mb-6 p-10">
         <h3 className="text-xl font-bold text-[#E4007C]">
           {currentView === "create"
             ? "Create New Credential"

@@ -358,7 +358,7 @@ export default function NotificationSection() {
   }
 
   return (
-    <div className="mx-6">
+    <div className="mx-6 mt-10">
       <div className="sm:flex sm:items-center sm:justify-between mb-8 ">
         <div className="sm:flex-auto">
           <h1 className="text-3xl font-bold text-[#E4007C]">Notifications</h1>

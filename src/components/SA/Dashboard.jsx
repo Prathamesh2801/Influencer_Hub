@@ -43,6 +43,13 @@ import ProfileSection from "../ProfileSection/ProfileSection";
 import ReelsSection from "../ReelSection/ReelsSection";
 import Home from "../Home/Home";
 import FaqSection from "../FAQ/FaqSection";
+import sidebarBanner from "../../assets/img/mobLoginBanner.jpg";
+
+import Chatbot from "react-chatbot-kit";
+import "react-chatbot-kit/build/main.css";
+import config from "../../chatbot/config";
+import MessageParser from "../../chatbot/MessageParser";
+import ActionProvider from "../../chatbot/ActionProvider";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -50,6 +57,7 @@ function classNames(...classes) {
 
 export default function Dashboard() {
   const location = useLocation();
+  const [showChat, setShowChat] = useState(false);
   const queryParams = new URLSearchParams(location.search);
   const activeTab = queryParams.get("tab") || "home";
   const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile sidebar
@@ -631,6 +639,25 @@ export default function Dashboard() {
   return (
     <>
       <div>
+        {/* <div className="fixed z-50 inset-0 flex bottom-0 justify-end items-end p-4">
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4"
+          onClick={() => setShowChat(!showChat)}
+        >
+          {showChat ? "Hide Chatbot" : "Open Chatbot"}
+        </button>
+
+        {showChat && (
+          <div className="max-w-xs">
+            <Chatbot
+              config={config}
+              messageParser={MessageParser}
+              actionProvider={ActionProvider}
+            />
+          </div>
+        )}
+
+        </div> */}
         {/* Mobile sidebar */}
         <Dialog
           open={sidebarOpen}
@@ -674,7 +701,7 @@ export default function Dashboard() {
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
                     <li>
-                      <ul role="list" className="-mx-2 space-y-1">
+                      <ul role="list" className="mt-12 space-y-5">
                         {navigation.map((item) => (
                           <li key={item.name}>
                             <a
@@ -684,7 +711,7 @@ export default function Dashboard() {
                                 item.current
                                   ? "bg-gray-50 text-[#E4007C]"
                                   : "text-white hover:bg-gray-50 hover:text-white",
-                                "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                                "group flex gap-x-4 rounded-md p-3 text-lg leading-6 font-semibold"
                               )}
                             >
                               <item.icon
@@ -738,7 +765,7 @@ export default function Dashboard() {
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
-                  <ul role="list" className="-mx-2 space-y-2">
+                  <ul role="list" className=" mt-8 space-y-6">
                     {navigation.map((item) => (
                       <li key={item.name}>
                         <a
