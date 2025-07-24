@@ -10,7 +10,6 @@ import yuvaLogo from "../../assets/img/yuva.png";
 import mobLoginBanner from "../../assets/img/mobLoginBanner.jpg";
 import { useMediaQuery } from "react-responsive";
 
-
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -19,7 +18,6 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  
   const isMobile = useMediaQuery({ maxWidth: 767 });
   const backgroundImage = isMobile ? mobLoginBanner : LoginBanner;
 
@@ -56,22 +54,21 @@ export default function Login() {
 
   return (
     <div
-      className="flex min-h-screen flex-col justify-center  px-4 py-12"
+      className="flex min-h-screen flex-col justify-center  px-4 py-12 overflow-auto"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        height: "100vh", // Optional - ensure it's visible
-        
+
+        minHeight: "100vh", // Optional - ensure it's visible
       }}
     >
-      <div className="mx-auto w-full max-w-md">
+      <div className="mx-auto w-full max-w-md space-y-6">
         <div className="text-center mb-8">
           <img
             src={Logo}
             alt="Your Company"
-            className="mx-auto h-24 w-auto sm:h-28"
+            className="mx-auto h-20 w-auto sm:h-24 lg:h-28"
           />
           <h2 className="mt-2 text-2xl font-bold text-white">
             Sign in to your account
@@ -158,11 +155,11 @@ export default function Login() {
           </p>
         </div>
       </div>
-         <img
-            src={yuvaLogo}
-            alt="Your Company"
-            className="mx-auto mt-5 sm:mt-10 h-16 w-auto sm:h-20"
-          />
+      <img
+        src={yuvaLogo}
+        alt="Your Company"
+        className="mx-auto mt-6 h-12 w-auto sm:h-16 md:h-20"
+      />
     </div>
   );
 }

@@ -68,7 +68,7 @@ export default function HeroCarousel({ banners }) {
         </button>
       )}
       <h2 className="text-4xl pt-5 bg-[#fea3e8] md:text-5xl font-bold bebas-neue-regular tracking-wide  text-center ">
-        Campaign <span className="text-[#553194] ml-3">Highlights</span>
+        Highlights
       </h2>
       {/* Carousel Container */}
       <div
