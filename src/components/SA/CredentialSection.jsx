@@ -1,6 +1,8 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import CreateNewCredentials from "./CreateNewCredentials";
 import CredentialRecords from "./CredentialRecords";
+import testBG from "../../assets/img/reelsBanner3.png";
+import credentialHeader from "../../assets/img/utils/Auth Records.png"
 
 export default function CredentialSection() {
   const navigate = useNavigate();
@@ -14,16 +16,25 @@ export default function CredentialSection() {
   };
 
   return (
-    <div>
+    <div
+      className="relative min-h-screen"
+      style={{ background: `url(${testBG}) center/contain ` }}
+    >
       {/* Button to toggle between views */}
-      <div className="border-b  border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between mb-6 p-10">
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gray-600 bg-opacity-20 z-0" />
+      <div className="relative border-b   border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between mb-6 p-10">
         <h3 className="text-xl font-bold text-[#E4007C]">
-          {currentView === "create"
+          {/* {currentView === "create"
             ? "Create New Credential"
             : currentView === "viewCredential"
             ? "View Event Details"
-            : "All Records"}
+            : "All Records"} */}
+          <div className="flex items-center justify-center md:justify-start p-4">
+            <img src={credentialHeader} alt="" className="h-20" />
+          </div>
         </h3>
+        <img src="" alt="" />
         <div className="mt-3 sm:mt-0 sm:ml-4">
           <button
             type="button"

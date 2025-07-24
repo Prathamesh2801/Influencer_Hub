@@ -7,7 +7,7 @@ import {
   ArrowDownTrayIcon,
 } from "@heroicons/react/24/outline";
 import { fetchAllReels } from "../../api/SuperAdmin/FetchAllReels";
-import { Frontend_URL } from "../../../config";
+import { API_URL, Frontend_URL } from "../../../config";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
@@ -60,7 +60,8 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
         User_Type:
           video.User_Type === "Premium" ? "Core 50" : "Core 250" || "N/A",
         SocialMedia_URL: video.SocialMedia_URL || "N/A",
-        Instagram_Handle: video.insta_id || "N/A",
+        Instagram_URL: video.insta_id || "N/A",
+        UTM_URL: API_URL + "/UTM/" + video.UTM_URL || "N/A",
         Score: video.Score || "N/A",
         Video_ID: video.Video_ID || "N/A",
       }));

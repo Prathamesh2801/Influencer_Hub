@@ -11,10 +11,13 @@ import { UpdateVideoStatus } from "../../api/Reel Section/VideoStaus";
 import { ArrowUpTrayIcon, PencilIcon } from "@heroicons/react/24/outline";
 
 import EditUrlModal from "../ReelSection/EditUrlModal";
+import UploadUtmImageModal from "../ReelSection/UploadUtmImageModal";
 import { updateSocialMediaUrl } from "../../api/Reel Section/SocialVideoURL";
 import RepostModal from "./RepostModal";
 import AnalyticsModal from "./AnalyticsModal";
 import { getInsightImages } from "../../api/InsightsAPI/getInsights";
+import { updateUTM } from "../../api/Reel Section/updateUTM";
+import { API_URL } from "../../../config";
 
 export default function VideoDetailModal({
   video,
@@ -34,6 +37,7 @@ export default function VideoDetailModal({
   const [mobileView, setMobileView] = useState("comments"); // "comments" or "details"
 
   const [isEditUrlModalOpen, setIsEditUrlModalOpen] = useState(false);
+  const [isUploadUtmImageModal, setIsUploadUtmImageModal] = useState(false);
   const [ratings, setRatings] = useState({
     punctuality: 0,
     creativity: 0,
@@ -296,7 +300,9 @@ export default function VideoDetailModal({
       if (response.data?.Status) {
         // Update the video object with new URL
         video.SocialMedia_URL = newUrl;
-        toast.success("Social media URL updated successfully");
+        toast.success(
+          response?.data?.Message || "Social media URL updated successfully"
+        );
 
         // Update parent component if callback exists
         if (typeof onStatusUpdate === "function") {
@@ -310,6 +316,34 @@ export default function VideoDetailModal({
     } catch (error) {
       console.error("Error updating URL:", error);
       toast.error(error.response?.data?.Message || "Failed to update URL");
+    }
+  };
+
+  const handleUTMUpdate = async (utmFile) => {
+    try {
+      const response = await updateUTM(video.Video_ID, utmFile);
+      console.log("Response UTM ", response);
+      if (response.data?.Status) {
+        // Update the video object with new URL
+        video.UTM_URL = response.data?.Data?.image;
+        toast.success(
+          response?.data?.Message || "UTM Story updated successfully"
+        );
+
+        // Update parent component if callback exists
+        if (typeof onStatusUpdate === "function") {
+          onStatusUpdate(video.Video_ID, video.Status);
+        }
+      } else {
+        toast.error(
+          response?.response?.data?.Message || "Failed to update UTM Story"
+        );
+      }
+    } catch (error) {
+      console.error("Error updating UTM Story :", error);
+      toast.error(
+        error.response?.data?.Message || "Failed to update UTM Story"
+      );
     }
   };
 
@@ -584,7 +618,7 @@ export default function VideoDetailModal({
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-700 block mb-1">
-                        Instagram handle
+                        Instagram URL
                       </label>
                       <div className="flex items-center space-x-2">
                         <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
@@ -652,6 +686,64 @@ export default function VideoDetailModal({
                           )}
                       </div>
                     </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 block mb-1">
+                        UTM Story
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        {video.UTM_URL ? (
+                          <>
+                            <a
+                              href={`${API_URL}/UTM/${video.UTM_URL}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 flex-1"
+                            >
+                              <span className="break-words">
+                                {API_URL}/UTM/{video.UTM_URL}
+                              </span>
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                />
+                              </svg>
+                            </a>
+                            {userRole === "Creator" &&
+                              videoStatusText === "Approved" && (
+                                <button
+                                  onClick={() => setIsUploadUtmImageModal(true)}
+                                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                >
+                                  <PencilIcon className="h-5 w-5" />
+                                </button>
+                              )}
+                          </>
+                        ) : (
+                          <p className="text-gray-500 italic flex-1">
+                            UTM Story missing. You can only upload it for
+                            approved videos.
+                          </p>
+                        )}
+                        {userRole === "Creator" &&
+                          !video.UTM_URL &&
+                          videoStatusText === "Approved" && (
+                            <button
+                              onClick={() => setIsUploadUtmImageModal(true)}
+                              className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-600"
+                            >
+                              Upload UTM
+                            </button>
+                          )}
+                      </div>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -687,118 +779,112 @@ export default function VideoDetailModal({
                             : "No score assigned yet"}
                         </div>
                       </div>
-                      {insightChecked &&
-                        (video?.SocialMedia_URL ? (
-                          insightsAvailable ? (
-                            <div className="space-y-6">
-                              {/* 🟢 Score Inputs */}
-                              <div className="grid gap-6">
-                                <RatingComponent
-                                  category="punctuality"
-                                  label="Consistency"
-                                  value={ratings.punctuality}
-                                  onChange={handleRatingChange}
-                                />
-                                <RatingComponent
-                                  category="creativity"
-                                  label="Creativity"
-                                  value={ratings.creativity}
-                                  onChange={handleRatingChange}
-                                />
-                                <RatingComponent
-                                  category="content"
-                                  label="Content Quality"
-                                  value={ratings.content}
-                                  onChange={handleRatingChange}
-                                />
-                              </div>
 
-                              {/* 🟢 Preview */}
-                              {(ratings.punctuality > 0 ||
-                                ratings.creativity > 0 ||
-                                ratings.content > 0) && (
-                                <div className="bg-gray-50 rounded-lg p-4 border">
-                                  <div className="space-y-1">
-                                    <h4 className="text-sm font-medium text-gray-700">
-                                      Score Preview
-                                    </h4>
-                                    <div className="flex items-center space-x-4 text-xs text-gray-600">
-                                      <span>
-                                        Punctuality: {ratings.punctuality}/5
-                                      </span>
-                                      <span>
-                                        Creativity: {ratings.creativity}/5
-                                      </span>
-                                      <span>
-                                        Content Quality: {ratings.content}/5
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* 🟢 Submit */}
-                              <div className="flex justify-end">
-                                <button
-                                  onClick={handleScoreSubmit}
-                                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
-                                  disabled={submittingScore}
-                                >
-                                  {submittingScore ? (
-                                    <>
-                                      <svg
-                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <circle
-                                          className="opacity-25"
-                                          cx="12"
-                                          cy="12"
-                                          r="10"
-                                          stroke="currentColor"
-                                          strokeWidth="4"
-                                        />
-                                        <path
-                                          className="opacity-75"
-                                          fill="currentColor"
-                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        />
-                                      </svg>
-                                      <span>Submitting...</span>
-                                    </>
-                                  ) : (
-                                    <span>Submit Score</span>
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="p-4 bg-yellow-50 text-yellow-800 rounded-md border border-yellow-300">
-                              The creator has not uploaded the insight images
-                              yet.
-                            </div>
-                          )
-                        ) : (
-                          <div className="p-4 bg-red-50 text-red-800 rounded-md border border-red-300">
-                            No social media video URL provided. Please ensure
-                            the creator has uploaded the Instagram Reel URL.
+                      {video?.SocialMedia_URL ? (
+                        <div className="space-y-6">
+                          {/* 🟢 Score Inputs */}
+                          <div className="grid gap-6">
+                            <RatingComponent
+                              category="punctuality"
+                              label="Consistency"
+                              value={ratings.punctuality}
+                              onChange={handleRatingChange}
+                            />
+                            <RatingComponent
+                              category="creativity"
+                              label="Creativity"
+                              value={ratings.creativity}
+                              onChange={handleRatingChange}
+                            />
+                            <RatingComponent
+                              category="content"
+                              label="Content Quality"
+                              value={ratings.content}
+                              onChange={handleRatingChange}
+                            />
                           </div>
-                        ))}
+
+                          {/* 🟢 Preview */}
+                          {(ratings.punctuality > 0 ||
+                            ratings.creativity > 0 ||
+                            ratings.content > 0) && (
+                            <div className="bg-gray-50 rounded-lg p-4 border">
+                              <div className="space-y-1">
+                                <h4 className="text-sm font-medium text-gray-700">
+                                  Score Preview
+                                </h4>
+                                <div className="flex items-center space-x-4 text-xs text-gray-600">
+                                  <span>
+                                    Punctuality: {ratings.punctuality}/5
+                                  </span>
+                                  <span>
+                                    Creativity: {ratings.creativity}/5
+                                  </span>
+                                  <span>
+                                    Content Quality: {ratings.content}/5
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 🟢 Submit */}
+                          <div className="flex justify-end">
+                            <button
+                              onClick={handleScoreSubmit}
+                              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+                              disabled={submittingScore}
+                            >
+                              {submittingScore ? (
+                                <>
+                                  <svg
+                                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    />
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    />
+                                  </svg>
+                                  <span>Submitting...</span>
+                                </>
+                              ) : (
+                                <span>Submit Score</span>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-red-50 text-red-800 rounded-md border border-red-300">
+                          No social media video URL provided. Please ensure the
+                          creator has uploaded the Instagram Reel URL.
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
+
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
                   {userRole === "Admin" && (
                     <>
                       <button
-                        className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors flex items-center justify-center space-x-2"
-                        onClick={() => handleStatusUpdate(1)}
+                        className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                        onClick={() => handleStatusUpdate(2)}
                         disabled={loading}
                       >
                         <EyeIcon className="h-5 w-5" />
-                        <span>Review</span>
+                        <span>Approve</span>
                       </button>
                       <button
                         className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
@@ -841,7 +927,7 @@ export default function VideoDetailModal({
                       <span>Repost the video</span>
                     </button>
                   )}
-                  {video.Status === 2 && (
+                  {video.Status !== 3 && video.Status !== 0 && (
                     <button
                       className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2"
                       disabled={loading}
@@ -1078,7 +1164,7 @@ export default function VideoDetailModal({
 
                         <div>
                           <label className="text-sm font-medium text-gray-700 block mb-1">
-                            Instagram handle
+                            Instagram URL
                           </label>
                           <div className="flex items-center space-x-2">
                             <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
@@ -1149,6 +1235,68 @@ export default function VideoDetailModal({
                           </div>
                         </div>
 
+                        <div className="w-full">
+                          <label className="text-sm font-medium text-gray-700 block mb-1">
+                            UTM Story
+                          </label>
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0 w-full">
+                            {video.UTM_URL ? (
+                              <>
+                                <a
+                                  href={`${API_URL}/UTM/${video.UTM_URL}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 flex-1 break-all"
+                                >
+                                  <span className="break-words">
+                                    {API_URL}/UTM/{video.UTM_URL}
+                                  </span>
+                                  <svg
+                                    className="w-4 h-4 ml-1"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                    />
+                                  </svg>
+                                </a>
+                                {userRole === "Creator" &&
+                                  videoStatusText === "Approved" && (
+                                    <button
+                                      onClick={() =>
+                                        setIsUploadUtmImageModal(true)
+                                      }
+                                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                    >
+                                      <PencilIcon className="h-5 w-5" />
+                                    </button>
+                                  )}
+                              </>
+                            ) : (
+                              <p className="text-gray-500 italic flex-1">
+                                UTM Story missing. You can only upload it for
+                                approved videos.
+                              </p>
+                            )}
+
+                            {userRole === "Creator" &&
+                              !video.UTM_URL &&
+                              videoStatusText === "Approved" && (
+                                <button
+                                  onClick={() => setIsUploadUtmImageModal(true)}
+                                  className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-600"
+                                >
+                                  Upload UTM
+                                </button>
+                              )}
+                          </div>
+                        </div>
+
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="text-sm font-medium text-gray-700 block mb-1">
@@ -1186,105 +1334,96 @@ export default function VideoDetailModal({
                           </div>
 
                           {/* Rating Inputs */}
-                          {insightChecked &&
-                            (video?.SocialMedia_URL ? (
-                              insightsAvailable ? (
-                                <div className="space-y-6">
-                                  {/* 🟢 Score Inputs */}
-                                  <div className="grid gap-6">
-                                    <RatingComponent
-                                      category="punctuality"
-                                      label="Consistency"
-                                      value={ratings.punctuality}
-                                      onChange={handleRatingChange}
-                                    />
-                                    <RatingComponent
-                                      category="creativity"
-                                      label="Creativity"
-                                      value={ratings.creativity}
-                                      onChange={handleRatingChange}
-                                    />
-                                    <RatingComponent
-                                      category="content"
-                                      label="Content Quality"
-                                      value={ratings.content}
-                                      onChange={handleRatingChange}
-                                    />
-                                  </div>
-
-                                  {/* 🟢 Preview */}
-                                  {(ratings.punctuality > 0 ||
-                                    ratings.creativity > 0 ||
-                                    ratings.content > 0) && (
-                                    <div className="bg-gray-50 rounded-lg p-4 border">
-                                      <div className="space-y-1">
-                                        <h4 className="text-sm font-medium text-gray-700">
-                                          Score Preview
-                                        </h4>
-                                        <div className="flex items-center space-x-4 text-xs text-gray-600">
-                                          <span>
-                                            Punctuality: {ratings.punctuality}/5
-                                          </span>
-                                          <span>
-                                            Creativity: {ratings.creativity}/5
-                                          </span>
-                                          <span>
-                                            Content Quality: {ratings.content}/5
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* 🟢 Submit */}
-                                  <div className="flex justify-end">
-                                    <button
-                                      onClick={handleScoreSubmit}
-                                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
-                                      disabled={submittingScore}
-                                    >
-                                      {submittingScore ? (
-                                        <>
-                                          <svg
-                                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                          >
-                                            <circle
-                                              className="opacity-25"
-                                              cx="12"
-                                              cy="12"
-                                              r="10"
-                                              stroke="currentColor"
-                                              strokeWidth="4"
-                                            />
-                                            <path
-                                              className="opacity-75"
-                                              fill="currentColor"
-                                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                            />
-                                          </svg>
-                                          <span>Submitting...</span>
-                                        </>
-                                      ) : (
-                                        <span>Submit Score</span>
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="p-4 bg-yellow-50 text-yellow-800 rounded-md border border-yellow-300">
-                                  The creator has not uploaded the insight
-                                  images yet.
-                                </div>
-                              )
-                            ) : (
-                              <div className="p-4 bg-red-50 text-red-800 rounded-md border border-red-300">
-                                No social media video URL provided. Please
-                                ensure the creator has uploaded the Instagram
-                                Reel URL.
+                          {video?.SocialMedia_URL ? (
+                            <div className="space-y-6">
+                              {/* 🟢 Score Inputs */}
+                              <div className="grid gap-6">
+                                <RatingComponent
+                                  category="punctuality"
+                                  label="Consistency"
+                                  value={ratings.punctuality}
+                                  onChange={handleRatingChange}
+                                />
+                                <RatingComponent
+                                  category="creativity"
+                                  label="Creativity"
+                                  value={ratings.creativity}
+                                  onChange={handleRatingChange}
+                                />
+                                <RatingComponent
+                                  category="content"
+                                  label="Content Quality"
+                                  value={ratings.content}
+                                  onChange={handleRatingChange}
+                                />
                               </div>
-                            ))}
+
+                              {/* 🟢 Preview */}
+                              {(ratings.punctuality > 0 ||
+                                ratings.creativity > 0 ||
+                                ratings.content > 0) && (
+                                <div className="bg-gray-50 rounded-lg p-4 border">
+                                  <div className="space-y-1">
+                                    <h4 className="text-sm font-medium text-gray-700">
+                                      Score Preview
+                                    </h4>
+                                    <div className="flex items-center space-x-4 text-xs text-gray-600">
+                                      <span>
+                                        Punctuality: {ratings.punctuality}/5
+                                      </span>
+                                      <span>
+                                        Creativity: {ratings.creativity}/5
+                                      </span>
+                                      <span>
+                                        Content Quality: {ratings.content}/5
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* 🟢 Submit */}
+                              <div className="flex justify-end">
+                                <button
+                                  onClick={handleScoreSubmit}
+                                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"
+                                  disabled={submittingScore}
+                                >
+                                  {submittingScore ? (
+                                    <>
+                                      <svg
+                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <circle
+                                          className="opacity-25"
+                                          cx="12"
+                                          cy="12"
+                                          r="10"
+                                          stroke="currentColor"
+                                          strokeWidth="4"
+                                        />
+                                        <path
+                                          className="opacity-75"
+                                          fill="currentColor"
+                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        />
+                                      </svg>
+                                      <span>Submitting...</span>
+                                    </>
+                                  ) : (
+                                    <span>Submit Score</span>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-4 bg-red-50 text-red-800 rounded-md border border-red-300">
+                              No social media video URL provided. Please ensure
+                              the creator has uploaded the Instagram Reel URL.
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1294,12 +1433,12 @@ export default function VideoDetailModal({
                       {userRole === "Admin" && (
                         <>
                           <button
-                            className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors flex items-center justify-center space-x-2"
-                            onClick={() => handleStatusUpdate(1)}
+                            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                            onClick={() => handleStatusUpdate(2)}
                             disabled={loading}
                           >
                             <EyeIcon className="h-5 w-5" />
-                            <span>Review</span>
+                            <span>Approve</span>
                           </button>
                           <button
                             className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
@@ -1344,7 +1483,7 @@ export default function VideoDetailModal({
                       )}
                     </div>
                     {/* Analytics button visible to all roles */}
-                    {video.Status === 2 && (
+                    {video.Status !== 3 && video.Status !== 0 && (
                       <button
                         className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2"
                         disabled={loading}
@@ -1377,6 +1516,12 @@ export default function VideoDetailModal({
         onClose={() => setIsEditUrlModalOpen(false)}
         onSubmit={handleUrlUpdate}
         initialUrl={video.SocialMedia_URL}
+      />
+      <UploadUtmImageModal
+        isOpen={isUploadUtmImageModal}
+        onClose={() => setIsUploadUtmImageModal(false)}
+        onSubmit={handleUTMUpdate}
+        initialUrl={video.UTM_URL}
       />
     </div>
   );

@@ -433,17 +433,17 @@ export default function CredentialRecords() {
   }
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+    <div className="relative p-6 bg-transparent rounded-xl shadow-lg border border-gray-200">
       {/* Header */}
-      <div className="mb-6">
+      {/* <div className=" mb-6">
         <div className="flex items-center gap-3 mb-2">
           <Users className="w-8 h-8 text-[#F06292]" />
           <h1 className="text-2xl font-bold text-[#E4007C]">
             Credential Records
           </h1>
         </div>
-        <p className="text-[#F06292]">Manage and view all user credentials</p>
-      </div>
+        <p className="text-[#F06292] text-lg font-semibold">Manage and view all user credentials</p>
+      </div> */}
 
       {/* Search and Controls */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">

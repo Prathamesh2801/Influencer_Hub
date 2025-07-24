@@ -2,7 +2,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-
 export default function FilterSection({
   filters,
   setFilters,
@@ -13,7 +12,7 @@ export default function FilterSection({
   onUploadClick,
 }) {
   return (
-    <div className="bg-[#FFF1F7] border border-[#FF2D99]  rounded-lg shadow-sm p-4 mb-6">
+    <div className="bg-[#CCAFFD] border border-[#6f61ab]  rounded-lg shadow-sm p-4 mb-6">
       <div className="flex justify-between items-center mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 flex-1">
           {/* Search Input */}
@@ -24,7 +23,7 @@ export default function FilterSection({
               </label>
               <input
                 type="text"
-                className="w-full rounded-md border border-[#FF2D99] outline-none p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-md border border-[#6f61ab] outline-none p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Search by username..."
                 value={filters.searchQuery}
                 onChange={(e) =>
@@ -40,7 +39,7 @@ export default function FilterSection({
               Status
             </label>
             <select
-              className="w-full rounded-md border border-[#FF2D99] p-2 outline-none text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-[#6f61ab] p-2 outline-none text-sm focus:ring-blue-500 focus:border-blue-500"
               value={filters.status}
               onChange={(e) =>
                 setFilters({ ...filters, status: e.target.value })
@@ -62,7 +61,7 @@ export default function FilterSection({
             </label>
             <input
               type="text"
-              className="w-full rounded-md border border-[#FF2D99] outline-none p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-[#6f61ab] outline-none p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter task ID..."
               value={filters.taskId}
               onChange={(e) =>
@@ -78,7 +77,7 @@ export default function FilterSection({
                 Coordinator
               </label>
               <select
-                className="w-full rounded-md border border-[#FF2D99] p-2 outline-none text-sm focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-md border border-[#6f61ab] p-2 outline-none text-sm focus:ring-blue-500 focus:border-blue-500"
                 value={filters.coordinator}
                 onChange={(e) =>
                   setFilters({ ...filters, coordinator: e.target.value })
@@ -89,6 +88,26 @@ export default function FilterSection({
                     {coord === "all" ? "All Coordinators" : coord}
                   </option>
                 ))}
+              </select>
+            </div>
+          )}
+
+          {/* User Type Filter (Admin only) */}
+          {role === "Admin" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                User Type
+              </label>
+              <select
+                className="w-full rounded-md border border-[#6f61ab] p-2 outline-none text-sm focus:ring-blue-500 focus:border-blue-500"
+                value={filters.userType}
+                onChange={(e) =>
+                  setFilters({ ...filters, userType: e.target.value })
+                }
+              >
+                <option value="all">All Users</option>
+                <option value="Core">Core 250</option>
+                <option value="Premium">Core 50</option>
               </select>
             </div>
           )}
@@ -107,47 +126,12 @@ export default function FilterSection({
               </button>
             </div>
           )}
-
-          {/* Date Range Filters */}
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Date
-            </label>
-            <input
-              type="date"
-              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm outline-none focus:ring-blue-500 focus:border-blue-500"
-              value={filters.dateRange.start}
-              onChange={(e) =>
-                setFilters({
-                  ...filters,
-                  dateRange: { ...filters.dateRange, start: e.target.value },
-                })
-              }
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              End Date
-            </label>
-            <input
-              type="date"
-              className="w-full rounded-md border border-[#FF2D99] p-2 text-sm outline-none focus:ring-blue-500 focus:border-blue-500"
-              value={filters.dateRange.end}
-              onChange={(e) =>
-                setFilters({
-                  ...filters,
-                  dateRange: { ...filters.dateRange, end: e.target.value },
-                })
-              }
-            />
-          </div> */}
         </div>
       </div>
 
       {/* Results Summary */}
       <div className="mt-4 pt-3 border-t border-gray-200 flex ">
-        <div className="text-sm text-[#FF2D99] font-semibold">
+        <div className="text-sm  text-black font-semibold">
           Showing {filteredCount} out of {totalVideos} videos
           {filters.searchQuery && ` matching "${filters.searchQuery}"`}
         </div>

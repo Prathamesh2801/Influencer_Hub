@@ -30,13 +30,19 @@ export const faqs = [
       "The leaderboard ranks creators based on their total score. Your score is calculated from the ratings you receive on your videos (consistency, creativity, and content quality). Consistently posting high-quality content that follows our guidelines will help you climb the rankings and potentially earn rewards.",
   },
   {
-    question: "Can I edit my video after uploading?",
+    question: "Can I edit my video after Submission?",
     answer:
-      "You cannot edit a video directly after uploading. If you need to make changes, you'll need to wait for feedback from our team. If your video is rejected, you can make the necessary changes and repost it. If it's still in the review process, you can add a comment explaining any issues or requesting it to be rejected so you can repost.",
+      "You cannot edit a video directly after submission. If you need to make changes, you'll need to wait for feedback from our team. If your video is rejected, you can make the necessary changes and repost it. If it's still in the review process, you can add a comment explaining any issues or requesting it to be rejected so you can repost.",
   },
   {
     question: "How long does the review process take?",
     answer:
       "The review process typically takes 1-3 business days. You can check the status of your video in the Video Management section. Videos will show as 'Pending' when first uploaded, then move to 'Review' when our team is evaluating them, and finally to either 'Approved' or 'Rejected'.",
+  },
+  {
+    question:
+      "Please read and understand the content guidelines carefully before submission.",
+    answer:
+      'You can view the detailed content guidelines at <a href="https://zeal.eventsongo.com/API/Guidelines.pdf" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">Guidelines</a>.',
   },
 ];

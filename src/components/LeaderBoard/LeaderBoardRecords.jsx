@@ -7,7 +7,9 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { DownloadIcon } from "lucide-react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
-
+import { Podium3D } from "./Podium3D";
+import bgBanner from "../../assets/img/reelsBanner3.png";
+import leaderboardVibes from "../../assets/img/utils/leaderboard.png";
 // Simple UI components for Vite/React
 const Button = ({
   children,
@@ -243,7 +245,8 @@ export default function LeaderBoardRecords() {
   };
 
   // Get top 10 creators for bar chart
-  const top10Creators = creators.slice(0, 10);
+  const topThree = creators.slice(0, 3);
+  const top10Creators = creators.slice(3, 10);
   const maxScore = Math.max(...top10Creators.map((c) => c.score), 1);
 
   // Filter and paginate remaining creators (after top 10)
@@ -280,7 +283,7 @@ export default function LeaderBoardRecords() {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
               Creator Leaderboard
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 font-bold text-xl">
               Top performing creators and their scores
             </p>
           </div>
@@ -307,17 +310,25 @@ export default function LeaderBoardRecords() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div
+      className="relative min-h-screen  p-4 md:p-6 "
+      style={{ background: `url(${bgBanner}) center/contain` }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gray-600 bg-opacity-20 z-0" />
+      <div className="relative max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
-          <div className="text-center md:text-left">
+          {/* <div className="text-center md:text-left space-y-2">
             <h1 className="text-3xl md:text-4xl font-bold text-[#E80071]">
               Creator Leaderboard
             </h1>
-            <p className="text-[#EF3F8F]">
+            <p className="text-[#EF3F8F] font-semibold text-lg">
               Top performing creators and their scores
             </p>
+          </div> */}
+          <div className="flex items-center justify-center md:justify-start p-4">
+            <img src={leaderboardVibes} alt="" className="h-28 " />
           </div>
           {userRole !== "Co-ordinator" && (
             <>
@@ -332,8 +343,8 @@ export default function LeaderBoardRecords() {
               ) : (
                 <>
                   {userRank !== null ? (
-                    <div className="flex items-center space-x-2 bg-green-100 text-green-800 px-4 py-2 rounded-full shadow-sm">
-                      <TrophyIcon className="w-5 h-5 text-green-600" />
+                    <div className="flex items-center space-x-2 bg-pink-100 text-pink-700 px-4 py-2 rounded-full shadow-sm">
+                      <TrophyIcon className="w-5 h-5 text-pink-600" />
                       <span className="font-semibold">
                         Your Rank: {userRank}
                       </span>
@@ -370,12 +381,10 @@ export default function LeaderBoardRecords() {
         )}
 
         {/* Top 10 Bar Chart */}
-        {top10Creators.length > 0 && (
+        {topThree.length > 0 && (
           <Card className="border-pink-200 shadow-lg">
             <CardContent>
-              <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">
-                Top {Math.min(10, creators.length)} Creators
-              </h2>
+              <Podium3D topThree={topThree} />
               <div className="space-y-3">
                 {top10Creators.map((creator) => (
                   <div key={creator.id} className="flex items-center gap-3">
@@ -400,10 +409,12 @@ export default function LeaderBoardRecords() {
                     <div className="flex-1 relative">
                       <div className="h-8 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-[#E80071] to-[#EF3F8F]  rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
+                          className="h-full rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
                           style={{
                             width: `${(creator.score / maxScore) * 100}%`,
                             minWidth: "40px",
+                            background:
+                              "linear-gradient(90deg, #bd9efc 15%, #d272eb 85%)",
                           }}
                         >
                           <span className="text-white text-xs font-semibold">

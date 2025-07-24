@@ -19,6 +19,8 @@ import {
   deleteNotification,
 } from "../../api/NotificationSection/NotificationAPI";
 import ConfirmModal from "../helper/ConfirmModal";
+import bgBanner from "../../assets/img/reelsBanner3.png";
+import notifyLogo from "../../assets/img/utils/What’s New 2.png";
 
 // Helper function to format timestamp to relative time
 const formatTimeAgo = (timestamp) => {
@@ -358,159 +360,172 @@ export default function NotificationSection() {
   }
 
   return (
-    <div className="mx-6 mt-10">
-      <div className="sm:flex sm:items-center sm:justify-between mb-8 ">
-        <div className="sm:flex-auto">
-          <h1 className="text-3xl font-bold text-[#E4007C]">Notifications</h1>
+    <div
+      className="relative   min-h-screen"
+      style={{ background: `url(${bgBanner}) center/contain` }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gray-600 bg-opacity-20 z-0" />
+      <div className=" relative  mx-5">
+        <div className=" sm:flex sm:items-center sm:justify-between mb-8 ">
+          {/* <div className="sm:flex-auto">
+          <h1 className="text-3xl mt-10 font-bold text-[#E4007C]">Notifications</h1>
           <p className="mt-2 text-md text-[#FF2D99]">
             Stay updated with your latest activities, feedback, and program
             updates.
           </p>
-        </div>
-        {(role === "Admin" || role === "Client") && (
-          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <button
-              type="button"
-              onClick={openCreateModal}
-              className="inline-flex items-center gap-x-1.5 rounded-md bg-[#FF2D99] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600"
-            >
-              <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-              Create Notification
-            </button>
-          </div>
-        )}
-      </div>
-
-      {notifications.length === 0 ? (
-        <div className="text-center py-12">
-          <BellAlertIcon className="w-24 h-24 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">
-            No Notification yet
-          </h3>
-          <p className="text-gray-500">
-            No Notifications available at the moment.
-          </p>
-        </div>
-      ) : (
-        <>
-          {/* Notifications Grid */}
-          <div className="space-y-4 mb-8">
-            {currentNotifications.map((notification) => {
-              console.log("Notification Structure : ", notification);
-              return (
-                <div
-                  key={notification.id}
-                  onClick={() => {
-                    if (
-                      notification.created_by?.toLowerCase() ===
-                      currentUsername?.toLowerCase()
-                    ) {
-                      openEditModal(notification);
-                    } else {
-                      console.log(
-                        "You are not allowed to edit this notification."
-                      );
-                    }
-                  }}
-                  className="bg-pink-50 hover:cursor-pointer border border-pink-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-pink-100"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-semibold text-pink-700 pr-4">
-                      {notification.title}
-                    </h3>
-                    <span className="text-sm text-gray-500 whitespace-nowrap">
-                      {formatTimeAgo(notification.created_at)}
-                    </span>
-                  </div>
-
-                  <p className="text-gray-700 mb-3 leading-relaxed"  dangerouslySetInnerHTML={{
-                __html: formatDescriptionWithLinks(notification.message),
-              }}>
-                   
-                  </p>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">
-                      Created by: {notification.created_by}
-                    </span>
-                    {notification.user_type && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
-                        {notification.user_type === "Core"
-                          ? "Core 250"
-                          : notification.user_type === "Premium"
-                          ? "Core 50"
-                          : notification.user_type === "All"
-                          ? "All"
-                          : notification.user_type}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+        </div> */}
+          <div className="flex items-center justify-center md:justify-start p-4">
+            <img src={notifyLogo} alt="" className="w-56 " />
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
-              {/* Pagination Info */}
-              <div className="text-sm text-gray-600 order-2 sm:order-1">
-                Showing {startIndex + 1}-
-                {Math.min(endIndex, notifications.length)} of{" "}
-                {notifications.length} notifications
-              </div>
-
-              {/* Pagination Controls */}
-              <div className="flex items-center gap-2 order-1 sm:order-2">
-                {/* Previous Button */}
-                <button
-                  onClick={goToPrevious}
-                  disabled={currentPage === 1}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-pink-600 bg-white border border-pink-300 rounded-md hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
-                >
-                  <ChevronLeftIcon className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">Previous</span>
-                  <span className="sm:hidden">Prev</span>
-                </button>
-
-                {/* Page Numbers */}
-                <div className="hidden sm:flex items-center gap-1">
-                  {getPageNumbers().map((pageNum) => (
-                    <button
-                      key={pageNum}
-                      onClick={() => goToPage(pageNum)}
-                      className={`w-10 h-10 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
-                        currentPage === pageNum
-                          ? "bg-pink-500 text-white hover:bg-pink-600"
-                          : "text-pink-600 bg-white border border-pink-300 hover:bg-pink-50"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Mobile Page Indicator */}
-                <div className="sm:hidden flex items-center px-3 py-2 text-sm font-medium text-pink-600 bg-white border border-pink-300 rounded-md">
-                  {currentPage} of {totalPages}
-                </div>
-
-                {/* Next Button */}
-                <button
-                  onClick={goToNext}
-                  disabled={currentPage === totalPages}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-pink-600 bg-white border border-pink-300 rounded-md hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
-                >
-                  <span className="hidden sm:inline">Next</span>
-                  <span className="sm:hidden">Next</span>
-                  <ChevronRightIcon className="w-4 h-4 ml-1" />
-                </button>
-              </div>
+          {(role === "Admin" || role === "Client") && (
+            <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+              <button
+                type="button"
+                onClick={openCreateModal}
+                className="inline-flex items-center gap-x-1.5 rounded-md bg-[#FF2D99] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600"
+              >
+                <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+                Create Notification
+              </button>
             </div>
           )}
-        </>
-      )}
+        </div>
 
+        {notifications.length === 0 ? (
+          <div className="text-center py-12">
+            <BellAlertIcon className="w-24 h-24 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              No Notification yet
+            </h3>
+            <p className="text-gray-500">
+              No Notifications available at the moment.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Notifications Grid */}
+            <div className="space-y-4 mb-8">
+              {currentNotifications.map((notification) => {
+                console.log("Notification Structure : ", notification);
+                return (
+                  <div
+                    key={notification.id}
+                    onClick={() => {
+                      if (
+                        notification.created_by?.toLowerCase() ===
+                        currentUsername?.toLowerCase()
+                      ) {
+                        openEditModal(notification);
+                      } else {
+                        console.log(
+                          "You are not allowed to edit this notification."
+                        );
+                      }
+                    }}
+                    className="bg-pink-50 hover:cursor-pointer border border-pink-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-pink-100"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-lg font-semibold text-pink-700 pr-4">
+                        {notification.title}
+                      </h3>
+                      <span className="text-sm text-gray-500 whitespace-nowrap">
+                        {formatTimeAgo(notification.created_at)}
+                      </span>
+                    </div>
+
+                    <p
+                      className="text-gray-700 mb-3 leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: formatDescriptionWithLinks(
+                          notification.message
+                        ),
+                      }}
+                    ></p>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">
+                        Created by: {notification.created_by}
+                      </span>
+                      {notification.user_type && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                          {notification.user_type === "Core"
+                            ? "Core 250"
+                            : notification.user_type === "Premium"
+                            ? "Core 50"
+                            : notification.user_type === "All"
+                            ? "All"
+                            : notification.user_type}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
+                {/* Pagination Info */}
+                <div className="text-sm text-gray-600 order-2 sm:order-1">
+                  Showing {startIndex + 1}-
+                  {Math.min(endIndex, notifications.length)} of{" "}
+                  {notifications.length} notifications
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="flex items-center gap-2 order-1 sm:order-2">
+                  {/* Previous Button */}
+                  <button
+                    onClick={goToPrevious}
+                    disabled={currentPage === 1}
+                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-pink-600 bg-white border border-pink-300 rounded-md hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                  >
+                    <ChevronLeftIcon className="w-4 h-4 mr-1" />
+                    <span className="hidden sm:inline">Previous</span>
+                    <span className="sm:hidden">Prev</span>
+                  </button>
+
+                  {/* Page Numbers */}
+                  <div className="hidden sm:flex items-center gap-1">
+                    {getPageNumbers().map((pageNum) => (
+                      <button
+                        key={pageNum}
+                        onClick={() => goToPage(pageNum)}
+                        className={`w-10 h-10 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
+                          currentPage === pageNum
+                            ? "bg-pink-500 text-white hover:bg-pink-600"
+                            : "text-pink-600 bg-white border border-pink-300 hover:bg-pink-50"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Mobile Page Indicator */}
+                  <div className="sm:hidden flex items-center px-3 py-2 text-sm font-medium text-pink-600 bg-white border border-pink-300 rounded-md">
+                    {currentPage} of {totalPages}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={goToNext}
+                    disabled={currentPage === totalPages}
+                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-pink-600 bg-white border border-pink-300 rounded-md hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="sm:hidden">Next</span>
+                    <ChevronRightIcon className="w-4 h-4 ml-1" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed w-full inset-0 z-50 overflow-y-auto">
@@ -706,8 +721,3 @@ export default function NotificationSection() {
     </div>
   );
 }
-
-
-
-
-

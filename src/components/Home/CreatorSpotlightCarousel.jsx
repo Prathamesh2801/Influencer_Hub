@@ -2,36 +2,12 @@
 import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
-import spotlight1 from "../../assets/vid/home/spotlight1.mp4";
-import spotlight2 from "../../assets/vid/home/spotlight2.mov";
-import spotlight3 from "../../assets/vid/home/spotlight3.mp4";
-
-const creators = [
-  {
-    id: 1,
-    username: "@beautyQueen23",
-    src: spotlight1,
-    title: "Glowing Skin Routine",
-  },
-  {
-    id: 2,
-    username: "@GlowUpGuru",
-    src: spotlight2,
-    title: "Perfect Makeup Tutorial",
-  },
-  {
-    id: 3,
-    username: "@TrendSetter",
-    src: spotlight3,
-    title: "Bold Look Creation",
-  },
-];
 
 function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
-export default function CreatorSpotlightCarousel() {
+export default function CreatorSpotlightCarousel({ creators }) {
   const [current, setCurrent] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -55,6 +31,18 @@ export default function CreatorSpotlightCarousel() {
 
   // Infinite carousel logic: for desktop show 3 videos, for mobile show 1
   const getSlides = () => {
+    // 1 creator: just show that one
+    if (creators.length === 1) {
+      return [creators[0]];
+    }
+    // 2 creators: show current + next (desktop), or just current (mobile)
+    if (creators.length === 2) {
+      if (isMobile) {
+        return [creators[mod(current, 2)]];
+      }
+      return [creators[mod(current, 2)], creators[mod(current + 1, 2)]];
+    }
+    // 3+ creators: your original infinite‑loop logic
     if (isMobile) {
       return [creators[mod(current, creators.length)]];
     }
@@ -79,7 +67,7 @@ export default function CreatorSpotlightCarousel() {
     });
 
     // Scale and opacity animation for desktop only
-    if (!isMobile && slides.length === 3) {
+    if (!isMobile && creators.length > 2) {
       slideRefs.current.forEach((slide, idx) => {
         if (!slide) return;
         const isCenter = idx === 1;
@@ -111,7 +99,7 @@ export default function CreatorSpotlightCarousel() {
     });
 
     // For mobile, the active video is at index 0; for desktop, it's at index 1
-    const activeVideoIndex = isMobile ? 0 : 1;
+    const activeVideoIndex = isMobile ? 0 : Math.floor(slides.length / 2);
     const activeVideo = videoRefs.current[activeVideoIndex];
 
     if (activeVideo && isPlaying) {
@@ -155,14 +143,20 @@ export default function CreatorSpotlightCarousel() {
   const togglePlay = () => setIsPlaying((p) => !p);
 
   return (
-    <div className="min-h-[90vh] flex flex-col py-14 my-10 items-center justify-center bg-gradient-to-br from-pink-50 via-white to-purple-50  ">
-      <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-        Creator <span className="text-pink-500">Spotlight</span>
+    <div className="min-h-[90vh] flex flex-col  items-center justify-center bg-[#c2e4e6] py-5  ">
+      <h2 className="text-4xl md:text-5xl font-bold bebas-neue-regular tracking-wide  text-center mb-10">
+        Creator <span className="text-pink-500 ml-3">Spotlights</span>
       </h2>
       <div className="w-full max-w-6xl px-4">
         <div className="relative overflow-hidden md:overflow-visible">
           {/* Unified Carousel Track for Mobile and Desktop */}
-          <div ref={trackRef} className="flex w-full">
+          <div
+            ref={trackRef}
+            className={`
+    flex w-full
+    ${!isMobile && slides.length < 3 ? "justify-center" : ""}
+  `}
+          >
             {slides.map((creator, idx) => {
               const isCenter = isMobile ? idx === 0 : idx === 1;
               return (
@@ -170,8 +164,14 @@ export default function CreatorSpotlightCarousel() {
                   key={`${creator.id}-${current}`}
                   ref={(el) => (slideRefs.current[idx] = el)}
                   className={`${
-                    isMobile ? "w-full" : "w-1/3"
-                  } flex-shrink-0 px-2 flex flex-col items-center transition-all duration-500`}
+                    isMobile
+                      ? "w-full"
+                      : slides.length === 1
+                      ? "w-1/3"
+                      : slides.length === 2
+                      ? "w-1/3"
+                      : "w-1/3"
+                  }  flex-shrink-0 px-2 flex flex-col items-center transition-all duration-500`}
                   style={{
                     pointerEvents: isCenter ? "auto" : "none",
                   }}
@@ -201,14 +201,15 @@ export default function CreatorSpotlightCarousel() {
                           pointerEvents: isCenter ? "auto" : "none",
                         }}
                       />
+
                       {/* Play/Pause Overlay */}
                       {isCenter && (
                         <button
                           onClick={togglePlay}
-                          className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-20 transition"
+                          className="group absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-20 transition"
                           tabIndex={-1}
                         >
-                          <span className="bg-white bg-opacity-90 rounded-full p-3 shadow-lg">
+                          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white bg-opacity-90 rounded-full p-3 shadow-lg">
                             {isPlaying ? (
                               <Pause className="w-7 h-7 text-pink-500" />
                             ) : (
@@ -217,6 +218,7 @@ export default function CreatorSpotlightCarousel() {
                           </span>
                         </button>
                       )}
+
                       {/* Progress bar */}
                       {isCenter && (
                         <div className="absolute bottom-0 left-0 w-full h-1 bg-black bg-opacity-30">
@@ -233,18 +235,32 @@ export default function CreatorSpotlightCarousel() {
                         </span>
                       </div>
                     </div>
-                    {/* <div className="p-4 text-center bg-white">
-                      <h3 className="font-bold text-base text-gray-800 mb-2">
-                        {creator.title}
-                      </h3>
-                      <p className="text-xs text-gray-600 mb-4">
-                        {creator.username}
-                      </p>
-                      <button className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-semibold px-4 py-2 rounded-full transition-all duration-300 text-xs">
-                        Watch Full Video
-                      </button>
-                    </div> */}
                   </div>
+
+                  {/* Watch Now Button */}
+
+                  <a
+                    href={creator.link}
+                    target="__blank"
+                    // rel="noopener noreferrer"
+                    className="mt-3 flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                      />
+                    </svg>
+                    Watch Now
+                  </a>
                 </div>
               );
             })}
@@ -268,7 +284,7 @@ export default function CreatorSpotlightCarousel() {
         </div>
 
         {/* Dots */}
-        <div className="flex justify-center mt-10 space-x-2">
+        <div className="flex justify-center mt-5 md:mt-10 space-x-2">
           {creators.map((_, idx) => (
             <button
               key={idx}

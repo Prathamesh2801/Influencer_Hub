@@ -18,7 +18,8 @@ import TaskViewModal from "./TaskViewModal";
 import TaskCard from "./TaskCard";
 import TaskCreationModal from "./TaskCreationModal";
 import RepostModal from "../ReelSection/RepostModal";
-
+import testBG from "../../assets/img/reelsBanner3.png";
+import TaskLogo from "../../assets/img/utils/Your Task Hub.png";
 // Main TaskSection Component
 
 export default function TaskSection() {
@@ -190,26 +191,32 @@ export default function TaskSection() {
   const totalTasks = tasks.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50 p-4 sm:p-6">
+    <div
+      className="relative min-h-screen  p-4 sm:p-6"
+      style={{ background: `url(${testBG}) center/contain ` }}
+    >
       <Toaster position="top-right" />
 
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gray-600 bg-opacity-20 z-0" />
       {/* Header */}
-      <div className="max-w-7xl mx-auto mb-6 sm:mb-8">
+      <div className="relative max-w-7xl mx-auto mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <div>
+          {/* <div>
             <h1 className="text-2xl sm:text-4xl font-bold text-[#E80071] mb-2">
               Task Dashboard
             </h1>
-            <p className="text-sm sm:text-base text-gray-600">
+            <p className="text-sm sm:text-lg text-gray-600">
               Welcome back! You're logged in as{" "}
               <span className="font-semibold capitalize text-[#EF3F8F]">
                 {userRole}
               </span>
             </p>
-          </div>
+          </div> */}
+          <img src={TaskLogo} alt="" className="h-full p-2 md:h-24" />
 
           {/* Search and Create Button Container */}
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             {/* Search Input */}
             <div className="relative flex-1 sm:flex-none sm:w-64">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -236,7 +243,7 @@ export default function TaskSection() {
             {userRole === "admin" && (
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="bg-[#E80071] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:bg-[#EF3F8F] transition-colors flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base whitespace-nowrap"
+                className="bg-[#2d827b] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:bg-[#316964] transition-colors flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base whitespace-nowrap"
               >
                 <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 Create Task
@@ -266,7 +273,7 @@ export default function TaskSection() {
                 <VideoCameraIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-gray-600">Total Tasks</p>
+                <p className="text-md sm:text-lg text-gray-600">Total Tasks</p>
                 <p className="text-xl sm:text-2xl font-bold text-gray-900">
                   {totalTasks}
                 </p>
@@ -280,7 +287,7 @@ export default function TaskSection() {
                 <CheckCircleIcon className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-gray-600">Completed</p>
+                <p className="text-md sm:text-lg text-gray-600">Completed</p>
                 <p className="text-xl sm:text-2xl font-bold text-gray-900">
                   {completedTasks}
                 </p>
@@ -294,7 +301,7 @@ export default function TaskSection() {
                 <TrophyIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-gray-600">Success Rate</p>
+                <p className="text-md sm:text-lg text-gray-600">Success Rate</p>
                 <p className="text-xl sm:text-2xl font-bold text-gray-900">
                   {totalTasks > 0
                     ? Math.round((completedTasks / totalTasks) * 100)

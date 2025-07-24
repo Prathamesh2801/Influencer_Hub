@@ -1,6 +1,55 @@
+@font-face {
+  font-family: "Inter Light";
+  src: url("./assets/fonts/Inter-Light.ttf") format("truetype");
+  font-weight: 500; /* Light weight */
+  font-style: normal;
+}
+@font-face {
+  font-family: "OPTIWashington";
+  src: url("/src/assets/fonts/OPTIWashington.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Gabriella_Heavy";
+  src: url("/src/assets/fonts/fonnts.com-Gabriella_Heavy.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.bebas-neue-regular {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.bungee-regular {
+  font-family: "Bungee", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.source-code-pro-600 {
+  font-family: "Source Code Pro", monospace;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+body {
+  /* font-family: "Inter Light", sans-serif; */
+}
 
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {

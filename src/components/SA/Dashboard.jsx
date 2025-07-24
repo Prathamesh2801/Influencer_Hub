@@ -24,6 +24,7 @@ import {
   RectangleStackIcon,
   ChatBubbleLeftEllipsisIcon,
   VideoCameraIcon,
+  PaintBrushIcon,
 } from "@heroicons/react/24/outline";
 import Logo from "../../assets/img/NCLogo.gif";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
@@ -50,6 +51,7 @@ import "react-chatbot-kit/build/main.css";
 import config from "../../chatbot/config";
 import MessageParser from "../../chatbot/MessageParser";
 import ActionProvider from "../../chatbot/ActionProvider";
+import CreativesSection from "../Creatives/CreativesSection";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -61,7 +63,7 @@ export default function Dashboard() {
   const queryParams = new URLSearchParams(location.search);
   const activeTab = queryParams.get("tab") || "home";
   const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile sidebar
-  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false); // Desktop sidebar
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true); // Desktop sidebar
   const role = localStorage.getItem("Role");
   const username = localStorage.getItem("Username");
   const navigate = useNavigate();
@@ -582,6 +584,16 @@ export default function Dashboard() {
       icon: BellIcon,
       current: activeTab === "notifications",
     },
+    ...(role === "Admin"
+      ? [
+          {
+            name: "Creatives",
+            href: "#/dashboard?tab=creatives",
+            icon: PaintBrushIcon,
+            current: activeTab === "creatives",
+          },
+        ]
+      : []),
     {
       name: "FAQ",
       href: "#/dashboard?tab=faq",
@@ -629,6 +641,8 @@ export default function Dashboard() {
         return <NotificationSection />;
       case "profile":
         return <ProfileSection />;
+      case "creatives":
+        return <CreativesSection />;
       case "faq":
         return <FaqSection />;
       default:
@@ -639,25 +653,6 @@ export default function Dashboard() {
   return (
     <>
       <div>
-        {/* <div className="fixed z-50 inset-0 flex bottom-0 justify-end items-end p-4">
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4"
-          onClick={() => setShowChat(!showChat)}
-        >
-          {showChat ? "Hide Chatbot" : "Open Chatbot"}
-        </button>
-
-        {showChat && (
-          <div className="max-w-xs">
-            <Chatbot
-              config={config}
-              messageParser={MessageParser}
-              actionProvider={ActionProvider}
-            />
-          </div>
-        )}
-
-        </div> */}
         {/* Mobile sidebar */}
         <Dialog
           open={sidebarOpen}
@@ -690,13 +685,22 @@ export default function Dashboard() {
                 </div>
               </TransitionChild>
 
-              <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gradient-to-b from-[#fdcaf7] to-[#E80071] px-6 pb-4">
-                <div className="flex mt-5 h-16 md:shrink-0 items-center">
-                  <img
-                    alt={"Your Company"}
-                    src={Logo || "/placeholder.svg"}
-                    className="h-full w-auto"
-                  />
+              <div
+                className="flex grow flex-col gap-y-5 overflow-y-auto  px-6 pb-4  "
+                style={{
+                  backgroundImage: `url(${sidebarBanner})`,
+                  backgroundSize: "cover",
+                }}
+              >
+                <div className="flex bg-white h-16 shrink-0 bg-opacity-90 -mx-6 items-center  justify-between">
+                  {/* Logo wrapper */}
+                  <div className="  rounded-md shadow-sm">
+                    <img
+                      alt="Your Company"
+                      src={Logo || "/placeholder.svg"}
+                      className="h-14 w-auto"
+                    />
+                  </div>
                 </div>
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -710,8 +714,8 @@ export default function Dashboard() {
                               className={classNames(
                                 item.current
                                   ? "bg-gray-50 text-[#E4007C]"
-                                  : "text-white hover:bg-gray-50 hover:text-white",
-                                "group flex gap-x-4 rounded-md p-3 text-lg leading-6 font-semibold"
+                                  : "text-white  hover:bg-gray-50 hover:text-white",
+                                "group flex gap-x-4  rounded-md p-3 text-lg leading-6 font-semibold"
                               )}
                             >
                               <item.icon
@@ -743,20 +747,27 @@ export default function Dashboard() {
           }`}
         >
           <div
-            className={`flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 px-6 pb-4 bg-gradient-to-b from-[#fdcaf7] to-[#E80071] transition-all duration-300 ease-in-out ${
+            className={`flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 px-6 pb-4 transition-all duration-300 ease-in-out ${
               desktopSidebarOpen ? "opacity-100" : "opacity-0"
             }`}
+            style={{
+              backgroundImage: `url(${sidebarBanner})`,
+              backgroundSize: "cover",
+            }}
           >
-            <div className="flex h-16 shrink-0 items-center mt-5 justify-between">
-              <img
-                alt="Your Company"
-                src={Logo || "/placeholder.svg"}
-                className="h-full w-auto"
-              />
+            <div className="flex bg-white h-16 shrink-0 bg-opacity-90 -mx-6 items-center  justify-between">
+              {/* Logo wrapper */}
+              <div className="  rounded-md shadow-sm">
+                <img
+                  alt="Your Company"
+                  src={Logo || "/placeholder.svg"}
+                  className="h-14 w-auto"
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => setDesktopSidebarOpen(false)}
-                className="p-1.5 rounded-md text-white bg-white/60 hover:bg-white/20 transition-colors"
+                className="p-2 me-5 rounded-md text-white bg-white/60 hover:bg-white/20 transition-colors"
               >
                 <span className="sr-only">Close sidebar</span>
                 <XMarkIcon className="h-5 w-5 text-pink-700" />
@@ -765,7 +776,7 @@ export default function Dashboard() {
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
-                  <ul role="list" className=" mt-8 space-y-6">
+                  <ul role="list" className="mt-4  space-y-6">
                     {navigation.map((item) => (
                       <li key={item.name}>
                         <a
@@ -806,7 +817,7 @@ export default function Dashboard() {
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+              className="-m-2.5  text-gray-700 lg:hidden"
             >
               <span className="sr-only">Open sidebar</span>
               <Bars3Icon aria-hidden="true" className="h-6 w-6" />
@@ -817,20 +828,28 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setDesktopSidebarOpen(true)}
-                className="hidden lg:block  p-2.5 text-gray-700 hover:text-[#E4007C] transition-colors"
+                className="hidden lg:block  p-2.5  text-gray-700 hover:text-[#E4007C] transition-colors"
               >
                 <span className="sr-only">Open sidebar</span>
                 <Bars3Icon aria-hidden="true" className="h-6 w-6" />
               </button>
             )}
+            {/* Logo Outside Sidebar  */}
 
+            {!desktopSidebarOpen && (
+              <img
+                alt="Your Company"
+                src={Logo || "/placeholder.svg"}
+                className="h-10 md:h-14 w-auto"
+              />
+            )}
             <div
               aria-hidden="true"
               className="h-6 w-px bg-gray-200 lg:hidden"
             />
 
-            <div className="flex flex-1 justify-end gap-x-4 self-stretch lg:gap-x-6">
-              <div className="flex items-center gap-x-4 lg:gap-x-6">
+            <div className="flex flex-1 justify-end gap-x-4 self-stretch lg:gap-x-6 ">
+              <div className="flex items-center gap-x-4 lg:gap-x-6 ">
                 <button
                   type="button"
                   className="-m-2.5 p-2.5 text-[#E4007C] hover:text-gray-500"
@@ -893,7 +912,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <main className="md:py-2 md:px-4">{renderContent()}</main>
+          {renderContent()}
         </div>
       </div>
 

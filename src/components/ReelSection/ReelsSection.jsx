@@ -7,6 +7,8 @@ import { useSearchParams } from "react-router-dom";
 import VideoCard from "./VideoCard";
 import VideoDetailModal from "./VideoDetailModal";
 import FilterSection from "./FilterSection";
+import reelsHeader from "../../assets/img/utils/Influencer Reel Hub.png";
+import testBG from "../../assets/img/reelsBanner3.png";
 
 // Main ReelsSection Component
 export default function ReelsSection() {
@@ -31,6 +33,7 @@ export default function ReelsSection() {
       start: "",
       end: "",
     },
+    userType: "all",
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -86,6 +89,11 @@ export default function ReelsSection() {
         )
       )
         return false;
+
+      if (filters.userType !== "all" && video.User_Type !== filters.userType) {
+        return false;
+      }
+
       if (
         filters.dateRange.start &&
         new Date(video.Created_AT) < new Date(filters.dateRange.start)
@@ -209,30 +217,34 @@ export default function ReelsSection() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="relative min-h-screen "
+      style={{ background: `url(${testBG}) center/contain ` }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gray-600 bg-opacity-20 z-0" />
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className=" relative bg-transparent shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-[#E4007C]">
-                Video Management
-              </h1>
-              <p className="text-[#F06292] mt-1">
-                Manage and review submitted videos
-              </p>
-            </div>
-            {/* <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">
-                {filteredVideos.length} video
-                {filteredVideos.length !== 1 ? "s" : ""} found
-              </span>
-            </div> */}
+          <div className="flex items-center justify-center md:justify-start p-4">
+            <img src={reelsHeader} alt="" className="h-20" />
           </div>
         </div>
       </div>
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Glass Content */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* <div
+          className="
+    backdrop-blur-md
+    rounded-xl
+    shadow-xl
+    border border-white/40
+    px-6
+    py-8
+  "
+          style={{ background: "rgba(237, 229, 251, 0.01)" }} // 0.2 = 20% opacity
+        > */}
         {/* Filters */}
         <FilterSection
           filters={filters}
@@ -307,7 +319,7 @@ export default function ReelsSection() {
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-[#FF2D99]">
+                  <p className="text-sm font-semibold text-[#281f52]">
                     Showing{" "}
                     <span className="font-medium">{indexOfFirstVideo + 1}</span>{" "}
                     to{" "}
@@ -321,7 +333,7 @@ export default function ReelsSection() {
                 </div>
                 <div className="mt-6 flex justify-center">
                   <nav
-                    className="inline-flex items-center rounded-md border border-[#FACCE0] bg-[#FFF1F7] shadow-sm"
+                    className="inline-flex items-center rounded-md border border-[#ccaffd] bg-[#dfdde8] shadow-sm"
                     aria-label="Pagination"
                   >
                     {/* First */}
@@ -353,7 +365,7 @@ export default function ReelsSection() {
                           onClick={() => setCurrentPage(1)}
                           className={`px-4 py-2 text-sm border-r border-[#FACCE0] font-medium ${
                             currentPage === 1
-                              ? "bg-[#FF2D99] text-white"
+                              ? "bg-[#6f61ab] text-white"
                               : "text-gray-500 hover:bg-gray-100"
                           }`}
                         >
@@ -443,6 +455,7 @@ export default function ReelsSection() {
             </div>
           </>
         )}
+        {/* </div> */}
       </div>
       {/* Video Detail Modal */}
       <VideoDetailModal

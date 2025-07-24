@@ -187,7 +187,19 @@ export default function CreateNewCredentials() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-10">
+     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div
+        className="
+          bg-white/40 
+          backdrop-blur-md 
+          rounded-xl 
+          shadow-xl 
+          border border-white/40 
+          px-6 
+          py-8
+        "
+      >
+    <form onSubmit={handleSubmit} className="relative m-5 rounded-md  ">
       <div className="space-y-12 ">
         <div className="border-b border-gray-900/10 ">
           <div className=" grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -253,7 +265,7 @@ export default function CreateNewCredentials() {
                   className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base outline outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-[#E4007C] sm:text-sm/6"
                 >
                   <option value="Admin">Admin</option>
-                  <option value="Client">Client</option>
+                  {/* <option value="Client">Client</option> */}
                   <option value="Co-ordinator">Co-ordinator</option>
                   <option value="Creator">Creator</option>
                 </select>
@@ -376,5 +388,7 @@ export default function CreateNewCredentials() {
         </button>
       </div>
     </form>
+    </div>
+    </div>
   );
 }

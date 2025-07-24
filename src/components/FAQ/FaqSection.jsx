@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { useRef } from "react";
 import { faqs } from "../../../public/faqConfig";
+import bgbanner from "../../assets/img/reelsBanner3.png";
+import faqHeader from "../../assets/img/utils/HelpDesk.png";
 
 export default function FaqSection() {
   const howItWorksRef = useRef(null);
@@ -48,57 +50,79 @@ export default function FaqSection() {
     {
       step: "01",
       title: "Upload Content",
-      description:
-        "Share your product reviews and unboxing videos with high-quality media",
+      description: "Submit your video for quality check",
       icon: UploadIcon,
     },
     {
       step: "02",
-      title: "Get Approved",
+      title: "Content Evaluation",
       description:
-        "Our team evaluates your content quality and engagement metrics",
+        "Incorporate feedback shared and publish the video on your Instagram handle once it’s approved.",
       icon: EyeIcon,
     },
     {
       step: "03",
-      title: "Add Social URLs",
+      title: "Share Content link",
       description:
-        "Connect your social media profiles and share analytics data",
+        "After your video is approved and uploaded on your Instagram handle, add the video link and a story screenshot to mark your task complete. Please make sure that you publish the story with the UTM link shared with you.",
       icon: LinkIcon,
     },
     {
       step: "04",
-      title: "Analytics Review",
+      title: "Share insights",
       description:
-        "Team analyzes your social metrics and approves qualified content",
+        "Upload screenshot of the analytics of your reel - this should cover impressions, reach, views, likes, shares, saves, comments.",
       icon: BarChart3Icon,
     },
     {
       step: "05",
       title: "Earn & Climb",
-      description:
-        "Receive points based on quality and climb the leaderboard rankings",
+      description: "Receive points post task completion and get a rank!",
       icon: TrophyIcon,
     },
   ];
 
   return (
-    <div className="bg-gradient-to-br from-[#FFF1F7] to-[#FCE4EC]">
+    <div
+      style={{
+        background: `url(${bgbanner}) center/contain`,
+        position: "relative",
+      }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gray-600 bg-opacity-20 z-0" />
       {/* How It Works Section */}
       <motion.section
         ref={howItWorksRef}
-        className="py-16 lg:py-24"
+        className="py-5 lg:py-10"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
         variants={containerVariants}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+
+          <div className="flex flex-col md:flex-row items-center   md:justify-between  px-4 py-5 space-y-4">
+            <img src={faqHeader} alt="" className="h-24" />
+            <button
+              onClick={() => {
+                window.open(
+                  "https://zeal.eventsongo.com/API/Guidelines.pdf",
+                  "_blank"
+                );
+              }}
+              className="bg-gradient-to-r from-pink-700 via-pink-600 to-pink-500 font-semibold px-4 py-3 text-white rounded-md shadow-md hover:bg-gradient-to-r hover:from-pink-500 hover:via-pink-600 hover:to-pink-700 transition-all duration-300"
+            >
+              Content Guidelines
+            </button>
+          </div>
+
           <motion.div className="text-center mb-16" variants={itemVariants}>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#E4007C] mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl bungee-regular font-bold tracking-tight text-[#E4007C] mb-4">
               How It Works
             </h2>
-            <p className="text-lg text-[#F06292] max-w-3xl mx-auto">
+            <p className="text-xl font-semibold text-[#F06292] max-w-3xl mx-auto">
               Get started with our comprehensive five-step process to become a
               top creator
             </p>
@@ -137,7 +161,7 @@ export default function FaqSection() {
                     <h3 className="text-xl font-bold text-gray-900 mb-4">
                       {step.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-gray-700 leading-relaxed">
                       {step.description}
                     </p>
                   </div>
@@ -212,7 +236,7 @@ export default function FaqSection() {
       </motion.section>
 
       {/* FAQ Section */}
-      <section className="py-16 lg:py-24">
+      <section className="relative py-16 lg:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <motion.div
             className="text-center mb-16"
@@ -282,9 +306,10 @@ export default function FaqSection() {
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.3 }}
                         >
-                          <p className="text-base text-gray-600 leading-relaxed pb-4">
-                            {faq.answer}
-                          </p>
+                          <p
+                            className="text-base text-gray-600 leading-relaxed pb-4"
+                            dangerouslySetInnerHTML={{ __html: faq.answer }}
+                          />
                         </DisclosurePanel>
                       </>
                     )}
