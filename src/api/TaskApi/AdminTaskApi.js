@@ -63,7 +63,7 @@ export async function updateTask(
       Reference_Link: referenceLink,
       User_Type: userType,
     };
-    console.log("Payload for updateTask:", payload);
+    // console.log("Payload for updateTask:", payload);
 
     const response = await axios.put(`${API_URL}/Admin/task.php`, payload, {
       headers: {
@@ -71,7 +71,7 @@ export async function updateTask(
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    console.log("Edit : ", response.data);
+    // console.log("Edit : ", response.data);
     return response.data; // Return the response JSON
   } catch (error) {
     console.error("Failed to update task:", error);

@@ -43,7 +43,7 @@ export default function TaskSection() {
   // Update handleTaskClick function
   const handleTaskClick = (taskData) => {
     setRepostVideo(taskData.id);
-    console.log("test", taskData.id);
+    // console.log("test", taskData.id);
     setIsRepostModalOpen(true);
   };
 
@@ -77,6 +77,9 @@ export default function TaskSection() {
     setCurrentPage(1); // Reset to first page when filtering
   }, [tasks, searchQuery]);
 
+
+
+
   // Fetch tasks from API
   async function fetchTasks() {
     try {
@@ -98,7 +101,7 @@ export default function TaskSection() {
         userType: task.User_Type,
       }));
 
-      console.log("Formatted Task : ", formattedTasks);
+      // console.log("Formatted Task : ", formattedTasks);
       setTasks(formattedTasks);
     } catch (err) {
       toast.error("Failed to fetch tasks");
@@ -149,11 +152,11 @@ export default function TaskSection() {
 
   const handleEditTask = async (task) => {
     try {
-      console.log("Editing ...");
-      console.log("Task ID : ", task.id);
+      // console.log("Editing ...");
+      // console.log("Task ID : ", task.id);
       const response = await getSpecificTask(task.id);
       const taskData = response?.data?.Data?.tasks[0] || task;
-      console.log("Edit res : ", taskData);
+      // console.log("Edit res : ", taskData);
 
       setEditingTask(taskData);
       setIsCreateModalOpen(true);
@@ -190,6 +193,17 @@ export default function TaskSection() {
   ).length;
   const totalTasks = tasks.length;
 
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages || 1);
+    }
+    if (currentPage < 1) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
+
   return (
     <div
       className="relative min-h-screen  p-4 sm:p-6"
@@ -198,7 +212,7 @@ export default function TaskSection() {
       <Toaster position="top-right" />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-gray-600 bg-opacity-20 z-0" />
+      <div className="absolute inset-0 bg-gray-600 bg-opacity-20 z-0 pointer-events-none" />
       {/* Header */}
       <div className="relative max-w-7xl mx-auto mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
@@ -257,9 +271,8 @@ export default function TaskSection() {
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               {filteredTasks.length > 0
-                ? `Found ${filteredTasks.length} task${
-                    filteredTasks.length !== 1 ? "s" : ""
-                  } matching "${searchQuery}"`
+                ? `Found ${filteredTasks.length} task${filteredTasks.length !== 1 ? "s" : ""
+                } matching "${searchQuery}"`
                 : `No tasks found matching "${searchQuery}"`}
             </p>
           </div>
@@ -345,8 +358,8 @@ export default function TaskSection() {
               {searchQuery
                 ? `No tasks match your search "${searchQuery}". Try adjusting your search terms.`
                 : userRole === "admin"
-                ? "Create your first task to get started!"
-                : "No tasks available at the moment."}
+                  ? "Create your first task to get started!"
+                  : "No tasks available at the moment."}
             </p>
             {searchQuery && (
               <button
@@ -361,87 +374,118 @@ export default function TaskSection() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-600 order-2 sm:order-1">
-              Showing {startIndex + 1} to{" "}
-              {Math.min(endIndex, filteredTasks.length)} of{" "}
-              {filteredTasks.length} tasks
-            </div>
-
-            <div className="flex items-center gap-2 order-1 sm:order-2">
-              {/* Previous Button */}
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  currentPage === 1
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                }`}
-              >
-                <ChevronLeftIcon className="w-4 h-4" />
-              </button>
-
-              {/* Page Numbers */}
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => {
-                    // Show first page, last page, current page, and pages around current page
-                    const showPage =
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1);
-
-                    if (!showPage) {
-                      // Show ellipsis
-                      if (
-                        page === currentPage - 2 ||
-                        page === currentPage + 2
-                      ) {
-                        return (
-                          <span
-                            key={page}
-                            className="px-2 py-2 text-gray-500 text-sm"
-                          >
-                            ...
-                          </span>
-                        );
-                      }
-                      return null;
-                    }
-
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          currentPage === page
-                            ? "bg-blue-600 text-white"
-                            : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  }
-                )}
+          <div className="mt-8 w-full">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Info */}
+              <div className="text-md bg-white p-2 border border-blue-600 rounded-md font-semibold text-gray-800 order-2 sm:order-1">
+                Showing {startIndex + 1} to {Math.min(endIndex, filteredTasks.length)} of {filteredTasks.length} tasks
               </div>
 
-              {/* Next Button */}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  currentPage === totalPages
+              {/* Controls */}
+              <div className="flex items-center gap-2 order-1 sm:order-2">
+                {/* Prev (common) */}
+                <button
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  aria-label="Previous page"
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === 1
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                     : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                }`}
-              >
-                <ChevronRightIcon className="w-4 h-4" />
-              </button>
+                    }`}
+                >
+                  <ChevronLeftIcon className="w-4 h-4" />
+                </button>
+
+                {/* Desktop / Tablet: full numeric control (hidden on mobile) */}
+                <div className="hidden sm:flex items-center gap-1">
+                  {/* First */}
+                  <button
+                    onClick={() => handlePageChange(1)}
+                    className="px-3 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    First
+                  </button>
+
+                  {/* Sliding window of page numbers (max 7 visible) */}
+                  {(() => {
+                    const pageCount = totalPages;
+                    const windowSize = Math.min(7, pageCount);
+                    const currentIndex = currentPage - 1;
+                    let start = Math.max(0, Math.min(currentIndex - Math.floor(windowSize / 2), pageCount - windowSize));
+                    return Array.from({ length: windowSize }, (_, i) => {
+                      const pageIndex = start + i;
+                      const pageNum = pageIndex + 1;
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                            }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    });
+                  })()}
+
+                  {/* Ellipsis + last if many pages */}
+                  {totalPages > 7 && (
+                    <>
+                      <span className="px-2 text-sm text-gray-500">…</span>
+                      <button
+                        onClick={() => handlePageChange(totalPages)}
+                        className="px-3 py-2 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+
+                  {/* Last */}
+                  <button
+                    onClick={() => handlePageChange(totalPages)}
+                    className="px-3 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Last
+                  </button>
+                </div>
+
+                {/* Mobile compact control (visible on xs only) */}
+                <div className="flex sm:hidden items-center gap-3">
+                  <div className="flex flex-col items-center">
+                    <span className="text-sm font-medium">Page {currentPage} of {totalPages}</span>
+                    <select
+                      value={currentPage}
+                      onChange={(e) => handlePageChange(Number(e.target.value))}
+                      className="mt-1 p-2 text-sm border border-gray-300 rounded-md"
+                      aria-label="Jump to page"
+                    >
+                      {Array.from({ length: totalPages }).map((_, idx) => (
+                        <option key={idx} value={idx + 1}>
+                          {idx + 1}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Next (common) */}
+                <button
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  aria-label="Next page"
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === totalPages
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                    }`}
+                >
+                  <ChevronRightIcon className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         )}
+
       </div>
 
       {/* Modals */}

@@ -29,7 +29,7 @@ export default function CreateNewCredentials() {
         const response = await getAllCredentials("Co-ordinator");
 
         if (response && response.data) {
-          console.log("Coordinators loaded:", response.data);
+          // console.log("Coordinators loaded:", response.data);
           // Extract coordinator usernames from the response
           const coordinatorUsernames = response.data.Data.map(
             (coordinator) => coordinator.Username || coordinator.username

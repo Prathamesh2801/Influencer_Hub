@@ -190,7 +190,7 @@ export default function Dashboard() {
   useEffect(() => {
     // Don't show install prompts if already in standalone mode
     if (isStandalone) {
-      console.log("App is in standalone mode, not showing install prompts");
+      // console.log("App is in standalone mode, not showing install prompts");
       setShowInstallPrompt(false);
       setCanInstall(false);
       return;
@@ -210,7 +210,7 @@ export default function Dashboard() {
     };
 
     const handleAppInstalled = () => {
-      console.log("PWA was installed");
+      // console.log("PWA was installed");
       setDeferredPrompt(null);
       setShowInstallPrompt(false);
       setCanInstall(false);
@@ -251,7 +251,7 @@ export default function Dashboard() {
   const checkBrowserSupport = async () => {
     // Don't show if already in standalone mode
     if (isStandalone) {
-      console.log("App is standalone, skipping browser support check");
+      // console.log("App is standalone, skipping browser support check");
       return;
     }
 
@@ -262,7 +262,7 @@ export default function Dashboard() {
 
     // Only check if installed or max attempts reached
     if (isInstalled === "true" || promptCount >= 3) {
-      console.log("Skipping prompt - installed or too many attempts");
+      // console.log("Skipping prompt - installed or too many attempts");
       return;
     }
 
@@ -277,16 +277,16 @@ export default function Dashboard() {
     const isOpera = /OPR/.test(userAgent);
     const isSamsungBrowser = /SamsungBrowser/.test(userAgent);
 
-    console.log("Browser detection:", {
-      isChrome,
-      isEdge,
-      isFirefox,
-      isOpera,
-      isSamsungBrowser,
-      isSafari,
-      isIOS,
-      userAgent: userAgent.substring(0, 100) + "...",
-    });
+    // console.log("Browser detection:", {
+    //   isChrome,
+    //   isEdge,
+    //   isFirefox,
+    //   isOpera,
+    //   isSamsungBrowser,
+    //   isSafari,
+    //   isIOS,
+    //   userAgent: userAgent.substring(0, 100) + "...",
+    // });
 
     // Show prompt for PWA-capable browsers
     if (
@@ -305,16 +305,16 @@ export default function Dashboard() {
         checkAndShowInstallPrompt("fallback");
       }, 1000);
     } else {
-      console.log("Browser may not support PWA installation");
+      // console.log("Browser may not support PWA installation");
     }
   };
 
   const checkAndShowInstallPrompt = async (source = "unknown") => {
-    console.log(`checkAndShowInstallPrompt called from: ${source}`);
+    // console.log(`checkAndShowInstallPrompt called from: ${source}`);
 
     // Double-check standalone status before showing prompt
     if (isStandalone) {
-      console.log("App is standalone, not showing install prompt");
+      // console.log("App is standalone, not showing install prompt");
       return;
     }
 
@@ -323,15 +323,15 @@ export default function Dashboard() {
         localStorage.getItem("install_prompt_count") || "0"
       );
 
-      console.log("Prompt check conditions:", {
-        promptCount,
-        maxAttempts: 5,
-        source,
-      });
+      // console.log("Prompt check conditions:", {
+      //   promptCount,
+      //   maxAttempts: 5,
+      //   source,
+      // });
 
       // Only check max attempts
       if (promptCount >= 5) {
-        console.log("Max prompt attempts reached");
+        // console.log("Max prompt attempts reached");
         return;
       }
 
@@ -351,25 +351,25 @@ export default function Dashboard() {
   };
 
   const handleInstallApp = async () => {
-    console.log("handleInstallApp called", {
-      deferredPrompt: !!deferredPrompt,
-      isSafari,
-      isIOS,
-    });
+    // console.log("handleInstallApp called", {
+    //   deferredPrompt: !!deferredPrompt,
+    //   isSafari,
+    //   isIOS,
+    // });
 
     try {
       if (deferredPrompt && !isSafari && !isIOS) {
         // Native browser install prompt (Chrome, Edge, etc.)
-        console.log("Using native install prompt");
+        // console.log("Using native install prompt");
 
         const promptResult = deferredPrompt.prompt();
-        console.log("Prompt triggered");
+        // console.log("Prompt triggered");
 
         const choiceResult = await deferredPrompt.userChoice;
-        console.log("User choice:", choiceResult.outcome);
+        // console.log("User choice:", choiceResult.outcome);
 
         if (choiceResult.outcome === "accepted") {
-          console.log("User accepted the install prompt");
+          // console.log("User accepted the install prompt");
           localStorage.setItem("pwa_installed", "true");
           localStorage.removeItem("install_prompt_count"); // Reset counter on successful install
           addToast(
@@ -378,7 +378,7 @@ export default function Dashboard() {
             "App is being added to your home screen..."
           );
         } else {
-          console.log("User dismissed the install prompt");
+          // console.log("User dismissed the install prompt");
           addToast(
             "info",
             "Install Cancelled",
@@ -389,7 +389,7 @@ export default function Dashboard() {
         setDeferredPrompt(null);
       } else if (isSafari || isIOS) {
         // Safari/iOS specific instructions
-        console.log("Showing Safari install instructions");
+        // console.log("Showing Safari install instructions");
         addToast(
           "info",
           "Install Instructions",
@@ -399,7 +399,7 @@ export default function Dashboard() {
         );
       } else {
         // Fallback for other browsers that might support PWA
-        console.log("Showing generic install instructions");
+        // console.log("Showing generic install instructions");
         addToast(
           "info",
           "Install Instructions",
@@ -420,7 +420,7 @@ export default function Dashboard() {
   };
 
   const handleDismissPrompt = async () => {
-    console.log("Dismissing install prompt");
+    // console.log("Dismissing install prompt");
 
     try {
       const dismissCount = Number.parseInt(
@@ -436,7 +436,7 @@ export default function Dashboard() {
         setShowInstallPrompt(false);
       }, 300);
 
-      console.log("Install prompt dismissed");
+      // console.log("Install prompt dismissed");
     } catch (error) {
       console.error("Error handling dismiss:", error);
     }
@@ -533,7 +533,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (notificationPermission === "granted") {
       const unsubscribe = onMessage(messaging, (payload) => {
-        console.log("Foreground Notification: ", payload);
+        // console.log("Foreground Notification: ", payload);
         showNotificationToast(payload.notification);
       });
 

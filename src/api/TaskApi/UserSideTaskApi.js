@@ -9,7 +9,7 @@ export async function getAllTask() {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    console.log("Task fetch : ", response);
+    // console.log("Task fetch : ", response);
     return response;
   } catch (error) {
     console.error("Failed to fetch Task:", error);

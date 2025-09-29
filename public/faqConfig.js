@@ -43,6 +43,6 @@ export const faqs = [
     question:
       "Please read and understand the content guidelines carefully before submission.",
     answer:
-      'You can view the detailed content guidelines at <a href="https://zeal.eventsongo.com/API/Guidelines.pdf" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">Guidelines</a>.',
+      'You can view the detailed content guidelines at <a href="https://www.nykaacore.com/API/Guidelines.pdf" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">Guidelines</a>.',
   },
 ];

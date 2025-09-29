@@ -25,7 +25,7 @@ const CreativesSection = () => {
       const response = await getAllHomeCreatives();
       if (response?.Status) {
         setCreativeData(response.Data);
-        console.log("Homepage Data:", response.Data);
+        // console.log("Homepage Data:", response.Data);
       } else {
         console.error("Failed to fetch home data", response?.Message);
       }
@@ -96,7 +96,7 @@ const CreativesSection = () => {
 
   // Hero Banners Management
   const addHeroBanner = async () => {
-    console.log("Adding Hero Banner with form data:", newItemForm);
+    // console.log("Adding Hero Banner with form data:", newItemForm);
     if (newItemForm.image) {
       const formData = new FormData();
       formData.append("section", "Banner");

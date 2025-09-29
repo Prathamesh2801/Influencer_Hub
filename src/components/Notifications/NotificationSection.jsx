@@ -52,7 +52,7 @@ export default function NotificationSection() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12); // Show 6 notifications per page
+  const [itemsPerPage] = useState(8); // Show 6 notifications per page
 
   const role = localStorage.getItem("Role");
   const currentUsername = localStorage.getItem("Username");
@@ -408,7 +408,7 @@ export default function NotificationSection() {
             {/* Notifications Grid */}
             <div className="space-y-4 mb-8">
               {currentNotifications.map((notification) => {
-                console.log("Notification Structure : ", notification);
+                // console.log("Notification Structure : ", notification);
                 return (
                   <div
                     key={notification.id}
@@ -419,9 +419,9 @@ export default function NotificationSection() {
                       ) {
                         openEditModal(notification);
                       } else {
-                        console.log(
-                          "You are not allowed to edit this notification."
-                        );
+                        // console.log(
+                        //   "You are not allowed to edit this notification."
+                        // );
                       }
                     }}
                     className="bg-pink-50 hover:cursor-pointer border border-pink-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-pink-100"
@@ -469,7 +469,7 @@ export default function NotificationSection() {
             {totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
                 {/* Pagination Info */}
-                <div className="text-sm text-gray-600 order-2 sm:order-1">
+                <div className="text-md bg-white border-2  border-pink-300 p-3 font-semibold text-pink-700 rounded-md order-2 sm:order-1">
                   Showing {startIndex + 1}-
                   {Math.min(endIndex, notifications.length)} of{" "}
                   {notifications.length} notifications

@@ -7,12 +7,12 @@ export async function repostVideo(
   socialURL = null,
   taskID = null
 ) {
-  console.log("RepostVideoAPI called with:", {
-    videoId,
-    fileName: videoFile?.name,
-    fileSize: videoFile?.size,
-    fileType: videoFile?.type,
-  });
+  // console.log("RepostVideoAPI called with:", {
+  //   videoId,
+  //   fileName: videoFile?.name,
+  //   fileSize: videoFile?.size,
+  //   fileType: videoFile?.type,
+  // });
 
   try {
     const formData = new FormData();

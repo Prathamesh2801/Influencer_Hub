@@ -79,7 +79,7 @@ export default function CredentialRecords() {
     toast.promise(
       deleteCredentials(username)
         .then((res) => {
-          console.log("Delete response:", res);
+          // console.log("Delete response:", res);
 
           if (res.data.Status) {
             setData((prev) =>
@@ -240,9 +240,8 @@ export default function CredentialRecords() {
 
           return (
             <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
-                roleStyles[role] || "bg-gray-100 text-gray-800 border-gray-200"
-              }`}
+              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${roleStyles[role] || "bg-gray-100 text-gray-800 border-gray-200"
+                }`}
             >
               {role}
             </span>
@@ -488,9 +487,9 @@ export default function CredentialRecords() {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </th>
                 ))}
               </tr>
@@ -579,85 +578,127 @@ export default function CredentialRecords() {
         username={selectedUserForUpdate}
       />
 
+
       {/* Pagination */}
-      <div className="flex flex-col sm:flex-row space-y-5 items-center justify-between mt-6 pt-4 border-t border-gray-200">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 space-y-4 sm:space-y-0">
+        {/* Info */}
+        <div className="flex items-center bg-white p-2 font-medium border-2 border-blue-300 rounded-md items-center gap-2 text-sm text-gray-900">
           <span>
             Showing{" "}
-            {table.getState().pagination.pageIndex *
-              table.getState().pagination.pageSize +
-              1}{" "}
+            {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}{" "}
             to{" "}
             {Math.min(
-              (table.getState().pagination.pageIndex + 1) *
-                table.getState().pagination.pageSize,
+              (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
               table.getFilteredRowModel().rows.length
             )}{" "}
             of {table.getFilteredRowModel().rows.length} results
           </span>
         </div>
 
+        {/* Controls */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            First
-          </button>
-          <button
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Previous
-          </button>
+          {/* Desktop / Tablet: Full control (hidden on xs) */}
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              First
+            </button>
 
-          <div className="flex items-center gap-1">
-            {Array.from(
-              { length: Math.min(5, table.getPageCount()) },
-              (_, i) => {
-                const pageIndex =
-                  Math.max(
-                    0,
-                    Math.min(
-                      table.getPageCount() - 5,
-                      table.getState().pagination.pageIndex - 2
-                    )
-                  ) + i;
+            <button
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Previous
+            </button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(7, table.getPageCount()) }, (_, i) => {
+                // create a sliding window centered on current page
+                const pageCount = table.getPageCount();
+                const current = table.getState().pagination.pageIndex;
+                const windowSize = Math.min(7, pageCount);
+                let start = Math.max(0, Math.min(current - Math.floor(windowSize / 2), pageCount - windowSize));
+                const pageIndex = start + i;
                 return (
                   <button
                     key={pageIndex}
                     onClick={() => table.setPageIndex(pageIndex)}
-                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                      pageIndex === table.getState().pagination.pageIndex
+                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${pageIndex === table.getState().pagination.pageIndex
                         ? "bg-blue-600 text-white"
                         : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {pageIndex + 1}
                   </button>
                 );
-              }
-            )}
+              })}
+              {/* optional ellipsis if many pages */}
+              {table.getPageCount() > 7 && (
+                <span className="px-2 text-sm text-gray-500">…</span>
+              )}
+            </div>
+
+            <button
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+            </button>
+            <button
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Last
+            </button>
           </div>
 
-          <button
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Next
-          </button>
-          <button
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Last
-          </button>
+          {/* Mobile: compact control (visible only on xs) */}
+          <div className="flex sm:hidden items-center gap-2">
+            <button
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="px-3 py-2 text-sm font-medium rounded-md bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Previous page"
+            >
+              Prev
+            </button>
+
+            <div className="flex flex-col items-center">
+              <span className="text-sm font-medium">
+                Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+              </span>
+              {/* simple page jump select for direct navigation on mobile */}
+              <select
+                value={table.getState().pagination.pageIndex}
+                onChange={(e) => table.setPageIndex(Number(e.target.value))}
+                className="mt-1 p-2 text-sm border border-gray-300 rounded-md"
+              >
+                {Array.from({ length: table.getPageCount() }).map((_, idx) => (
+                  <option key={idx} value={idx}>
+                    {idx + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="px-3 py-2 text-sm font-medium rounded-md bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Next page"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
+
     </div>
   );
 }

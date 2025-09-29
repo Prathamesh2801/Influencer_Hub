@@ -34,7 +34,6 @@ export default function CredentialSection() {
             <img src={credentialHeader} alt="" className="h-20" />
           </div>
         </h3>
-        <img src="" alt="" />
         <div className="mt-3 sm:mt-0 sm:ml-4">
           <button
             type="button"

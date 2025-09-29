@@ -28,13 +28,13 @@ export default function RepostModal({
       video.onloadedmetadata = function () {
         URL.revokeObjectURL(video.src);
         const aspectRatio = video.videoWidth / video.videoHeight;
-        console.log(
-          "Video Dimensions:",
-          video.videoWidth,
-          video.videoHeight,
-          "Aspect Ratio:",
-          aspectRatio.toFixed(2)
-        );
+        // console.log(
+        //   "Video Dimensions:",
+        //   video.videoWidth,
+        //   video.videoHeight,
+        //   "Aspect Ratio:",
+        //   aspectRatio.toFixed(2)
+        // );
 
         // Check if aspect ratio is roughly 9:16 (0.56)
         const isCorrectRatio = Math.abs(aspectRatio - 9 / 16) < 0.05;
@@ -54,11 +54,11 @@ export default function RepostModal({
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      console.log("Selected file:", {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-      });
+      // console.log("Selected file:", {
+      //   name: file.name,
+      //   type: file.type,
+      //   size: file.size,
+      // });
 
       if (
         file.type === "video/mp4" ||
@@ -102,11 +102,11 @@ export default function RepostModal({
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
-      console.log("Dropped file:", {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-      });
+      // console.log("Dropped file:", {
+      //   name: file.name,
+      //   type: file.type,
+      //   size: file.size,
+      // });
 
       if (
         file.type === "video/mp4" ||
@@ -137,32 +137,32 @@ export default function RepostModal({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedFile) {
-      console.log("No file selected");
+      // console.log("No file selected");
       toast.error("Please select a video file");
       return;
     }
 
-    console.log("Starting upload process:", {
-      isUpload,
-      videoId: video?.Video_ID,
-      fileName: selectedFile.name,
-    });
+    // console.log("Starting upload process:", {
+    //   isUpload,
+    //   videoId: video?.Video_ID,
+    //   fileName: selectedFile.name,
+    // });
 
     try {
       setUploading(true);
       // If video prop exists, it's a repost. Otherwise, it's a new upload
-      console.log("Calling repostVideo API with:", {
-        videoId: video?.Video_ID,
-        fileName: selectedFile.name,
-        fileSize: selectedFile.size,
-      });
+      // console.log("Calling repostVideo API with:", {
+      //   videoId: video?.Video_ID,
+      //   fileName: selectedFile.name,
+      //   fileSize: selectedFile.size,
+      // });
       const response = await repostVideo(
         video?.Video_ID,
         selectedFile,
         socialUrl,
         taskId
       );
-      console.log("API Response:", response);
+      // console.log("API Response:", response);
 
       if (response?.data?.Status) {
         // console.log('Upload successful:', response.data);
@@ -191,7 +191,7 @@ export default function RepostModal({
       );
       toast.error(`Failed to ${isUpload ? "upload" : "repost"} video`);
     } finally {
-      console.log("Upload process completed");
+      // console.log("Upload process completed");
       setUploading(false);
     }
   };

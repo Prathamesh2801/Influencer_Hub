@@ -108,7 +108,7 @@ export default function FaqSection() {
             <button
               onClick={() => {
                 window.open(
-                  "https://zeal.eventsongo.com/API/Guidelines.pdf",
+                  "https://www.nykaacore.com/API/Guidelines.pdf",
                   "_blank"
                 );
               }}

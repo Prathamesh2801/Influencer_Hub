@@ -11,6 +11,7 @@ export async function getComments(videoID) {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
+    console.log("Comments fetched successfully:", response.data);
     return response;
   } catch (error) {
     console.error("Error fetching comments:", error);
@@ -38,6 +39,35 @@ export async function addComment(videoID, comment) {
     return response;
   } catch (error) {
     console.error("Error adding comment:", error);
+    if (error.response.status == 401) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 5000);
+    }
+    return error;
+  }
+}
+
+export async function deleteComment(sr_no) {
+  try {
+    console.log("Deleting comment with SR_NO:", sr_no);
+    const response = await axios.delete(
+      `https://www.nykaacore.com/API/comment.php`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        params: {
+          SR_NO: sr_no,
+        },
+        // validateStatus: (status) => true,
+      }
+    );
+    console.log("Comments fetched successfully:", response.data);
+    return response;
+  } catch (error) {
+    console.error("Error delete comment:", error);
     if (error.response.status == 401) {
       localStorage.clear();
       setTimeout(() => {

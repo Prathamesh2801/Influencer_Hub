@@ -113,12 +113,12 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
           prevImages.map((img) =>
             img.id === imageId
               ? {
-                  ...img,
-                  file,
-                  preview: newPreview,
-                  name: file.name,
-                  size: file.size,
-                }
+                ...img,
+                file,
+                preview: newPreview,
+                name: file.name,
+                size: file.size,
+              }
               : img
           )
         );
@@ -211,13 +211,12 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
 
                 {/* Drag and Drop Area */}
                 <div
-                  className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    dragActive
-                      ? "border-blue-500 bg-blue-50"
-                      : uploadedImages.length >= maxImages
+                  className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
+                    ? "border-blue-500 bg-blue-50"
+                    : uploadedImages.length >= maxImages
                       ? "border-gray-200 bg-gray-50"
                       : "border-gray-300 hover:border-gray-400"
-                  }`}
+                    }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
@@ -277,7 +276,7 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
                 <div className="hidden md:grid md:grid-cols-3 gap-4">
                   {uploadedImages.map((image) => (
                     <div key={image.id} className="relative group">
-                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                      <div className=" bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
                         <img
                           src={image.preview || "/placeholder.svg"}
                           alt={image.name}
@@ -307,9 +306,9 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {image.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        {/* {image.size && <p className="text-xs text-gray-500">
                           {formatFileSize(image.size)}
-                        </p>
+                        </p>} */}
                       </div>
                     </div>
                   ))}
@@ -327,15 +326,16 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
                           src={image.preview || "/placeholder.svg"}
                           alt={image.name}
                           className="w-full h-full object-cover"
+
                         />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {image.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        {/* {image.size && <p className="text-xs text-gray-500">
                           {formatFileSize(image.size)}
-                        </p>
+                        </p>} */}
                       </div>
                       {userRole === "Creator" && (
                         <>
@@ -388,10 +388,10 @@ export default function AnalyticsModal({ video, isOpen, onClose }) {
                     {video.Status === 0
                       ? "Pending"
                       : video.Status === 1
-                      ? "Review"
-                      : video.Status === 2
-                      ? "Approved"
-                      : "Rejected"}
+                        ? "Review"
+                        : video.Status === 2
+                          ? "Approved"
+                          : "Rejected"}
                   </span>
                 </div>
               </div>

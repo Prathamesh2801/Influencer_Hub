@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getComments, addComment } from "../../api/Reel Section/CommentAPI";
+import { getComments, addComment, deleteComment } from "../../api/Reel Section/CommentAPI";
 import { updateVideoScore } from "../../api/Reel Section/ScoreAPI";
 import { ArrowTopRightOnSquareIcon, EyeIcon } from "@heroicons/react/24/solid";
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckIcon, XIcon, Trash } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UpdateVideoStatus } from "../../api/Reel Section/VideoStaus";
 import { ArrowUpTrayIcon, PencilIcon } from "@heroicons/react/24/outline";
-
 import EditUrlModal from "../ReelSection/EditUrlModal";
 import UploadUtmImageModal from "../ReelSection/UploadUtmImageModal";
 import { updateSocialMediaUrl } from "../../api/Reel Section/SocialVideoURL";
@@ -17,7 +16,7 @@ import RepostModal from "./RepostModal";
 import AnalyticsModal from "./AnalyticsModal";
 import { getInsightImages } from "../../api/InsightsAPI/getInsights";
 import { updateUTM } from "../../api/Reel Section/updateUTM";
-import { API_URL } from "../../../config";
+import ConfirmModal from "../helper/ConfirmModal";
 
 export default function VideoDetailModal({
   video,
@@ -46,6 +45,11 @@ export default function VideoDetailModal({
   const [insightsAvailable, setInsightsAvailable] = useState(false);
   const [insightChecked, setInsightChecked] = useState(false);
 
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [pendingDeleteUsername, setPendingDeleteUsername] = useState("");
+
   // Fetch comments when modal opens
   useEffect(() => {
     if (video && isOpen) {
@@ -65,7 +69,7 @@ export default function VideoDetailModal({
 
       try {
         const response = await getInsightImages(video.Video_ID); // Call your API here
-        console.log("From VideoDetailModal : ", response);
+        // console.log("From VideoDetailModal : ", response);
         if (response?.Data?.images.length > 0) {
           setInsightsAvailable(true);
         } else {
@@ -97,8 +101,8 @@ export default function VideoDetailModal({
               comment.Created_BY === video.Username
                 ? "Creator"
                 : comment.Created_BY === video.Coordinator_username
-                ? "Coordinator"
-                : "Admin",
+                  ? "Coordinator"
+                  : "Admin",
             timestamp: comment.Created_AT,
           }))
         );
@@ -143,6 +147,52 @@ export default function VideoDetailModal({
       toast.error(error.response?.data?.Message || "Failed to Add Comment");
     }
   };
+
+
+
+  // opens the confirm modal and stores which comment is pending deletion
+  const openDeleteModal = (commentId) => {
+    setPendingDeleteId(commentId);
+    setPendingDeleteUsername("comment Id : " + commentId || "");
+    setIsConfirmOpen(true);
+  };
+
+
+  const performDeleteComment = async () => {
+    const commentId = pendingDeleteId;
+    // close modal immediately for better UX
+    setIsConfirmOpen(false);
+    setPendingDeleteId(null);
+    setPendingDeleteUsername("");
+
+    // optimistic UI update
+    const prev = comments;
+    const updated = comments.filter((c) => c.id !== commentId);
+    setComments(updated);
+
+    try {
+      if (typeof deleteComment === "function") {
+        const response = await deleteComment(commentId);
+        if (!response?.data?.Status) {
+          // rollback on failure
+          setComments(prev);
+          toast.error(response?.response?.data?.Message || "Failed to delete comment");
+        } else {
+          toast.success("Comment deleted");
+        }
+      } else {
+        // No API — local-only delete
+        toast.success("Comment removed locally (no API connected)");
+      }
+    } catch (error) {
+      // rollback and show error
+      setComments(prev);
+      console.error("Error deleting comment:", error);
+      toast.error(error?.response?.data?.Message || "Failed to delete comment");
+    }
+  };
+
+
 
   const handleStatusUpdate = async (newStatus) => {
     if (loading) return;
@@ -322,7 +372,7 @@ export default function VideoDetailModal({
   const handleUTMUpdate = async (utmFile) => {
     try {
       const response = await updateUTM(video.Video_ID, utmFile);
-      console.log("Response UTM ", response);
+      // console.log("Response UTM ", response);
       if (response.data?.Status) {
         // Update the video object with new URL
         video.UTM_URL = response.data?.Data?.image;
@@ -365,11 +415,10 @@ export default function VideoDetailModal({
               key={rating}
               type="button"
               onClick={() => onChange(category, rating)}
-              className={`w-8 h-8 rounded-full border-2 font-semibold text-sm transition-all duration-200 ${
-                value >= rating
-                  ? "bg-blue-600 text-white border-blue-600 shadow-md"
-                  : "bg-white text-gray-400 border-gray-300 hover:border-blue-400 hover:text-blue-600"
-              }`}
+              className={`w-8 h-8 rounded-full border-2 font-semibold text-sm transition-all duration-200 ${value >= rating
+                ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                : "bg-white text-gray-400 border-gray-300 hover:border-blue-400 hover:text-blue-600"
+                }`}
             >
               {rating}
             </button>
@@ -507,6 +556,15 @@ export default function VideoDetailModal({
                               <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
                                 {formatDate(comment.timestamp)}
                               </span>
+                              <button
+                                onClick={() => openDeleteModal(comment.id)}
+                                className="p-2 rounded-full hover:bg-red-50 active:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-200"
+                                aria-label="Delete comment"
+                                title="Delete"
+                              >
+                                <Trash className="h-5 w-5 text-red-600" />
+                              </button>
+
                             </div>
                           </div>
                         </div>
@@ -621,7 +679,10 @@ export default function VideoDetailModal({
                         Instagram URL
                       </label>
                       <div className="flex items-center space-x-2">
-                        <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
+                        <code
+                          className={`flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono ${!video.insta_id && " text-red-600"
+                            }`}
+                        >
                           {video.insta_id ||
                             "Instagram handle not provided yet. Please update it in the profile settings."}
                         </code>
@@ -694,13 +755,13 @@ export default function VideoDetailModal({
                         {video.UTM_URL ? (
                           <>
                             <a
-                              href={`${API_URL}/UTM/${video.UTM_URL}`}
+                              href={`${video.UTM_URL}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 flex-1"
                             >
                               <span className="break-words">
-                                {API_URL}/UTM/{video.UTM_URL}
+                                {video.UTM_URL}
                               </span>
                               <svg
                                 className="w-4 h-4"
@@ -808,25 +869,25 @@ export default function VideoDetailModal({
                           {(ratings.punctuality > 0 ||
                             ratings.creativity > 0 ||
                             ratings.content > 0) && (
-                            <div className="bg-gray-50 rounded-lg p-4 border">
-                              <div className="space-y-1">
-                                <h4 className="text-sm font-medium text-gray-700">
-                                  Score Preview
-                                </h4>
-                                <div className="flex items-center space-x-4 text-xs text-gray-600">
-                                  <span>
-                                    Punctuality: {ratings.punctuality}/5
-                                  </span>
-                                  <span>
-                                    Creativity: {ratings.creativity}/5
-                                  </span>
-                                  <span>
-                                    Content Quality: {ratings.content}/5
-                                  </span>
+                              <div className="bg-gray-50 rounded-lg p-4 border">
+                                <div className="space-y-1">
+                                  <h4 className="text-sm font-medium text-gray-700">
+                                    Score Preview
+                                  </h4>
+                                  <div className="flex items-center space-x-4 text-xs text-gray-600">
+                                    <span>
+                                      Punctuality: {ratings.punctuality}/5
+                                    </span>
+                                    <span>
+                                      Creativity: {ratings.creativity}/5
+                                    </span>
+                                    <span>
+                                      Content Quality: {ratings.content}/5
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
                           {/* 🟢 Submit */}
                           <div className="flex justify-end">
@@ -917,14 +978,14 @@ export default function VideoDetailModal({
                       </button>
                     </>
                   )}
-                  {userRole === "Creator" && (
+                  {userRole === "Creator" && video.Status !== 4 && (
                     <button
                       className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
                       disabled={loading}
                       onClick={() => setIsRepostModalOpen(true)}
                     >
                       <ArrowUpTrayIcon className="h-5 w-5" />
-                      <span>Repost the video</span>
+                      <span>Repost the video </span>
                     </button>
                   )}
                   {video.Status !== 3 && video.Status !== 0 && (
@@ -962,21 +1023,19 @@ export default function VideoDetailModal({
               <div className="flex px-4 gap-2 border-b pb-2 border-[#E4007C]">
                 <button
                   onClick={() => setMobileView("comments")}
-                  className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                    mobileView === "comments"
-                      ? "bg-[#E4007C] text-white"
-                      : "bg-white text-[#E4007C] border border-[#E4007C]"
-                  }`}
+                  className={`flex-1 py-2 px-4 rounded-lg transition-colors ${mobileView === "comments"
+                    ? "bg-[#E4007C] text-white"
+                    : "bg-white text-[#E4007C] border border-[#E4007C]"
+                    }`}
                 >
                   Comments
                 </button>
                 <button
                   onClick={() => setMobileView("details")}
-                  className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                    mobileView === "details"
-                      ? "bg-[#E4007C] text-white"
-                      : "bg-white text-[#E4007C] border border-[#E4007C]"
-                  }`}
+                  className={`flex-1 py-2 px-4 rounded-lg transition-colors ${mobileView === "details"
+                    ? "bg-[#E4007C] text-white"
+                    : "bg-white text-[#E4007C] border border-[#E4007C]"
+                    }`}
                 >
                   Video Details
                 </button>
@@ -1049,6 +1108,15 @@ export default function VideoDetailModal({
                                   <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
                                     {formatDate(comment.timestamp)}
                                   </span>
+                                  <button
+                                    onClick={() => openDeleteModal(comment.id)}
+                                    className="p-2 rounded-full hover:bg-red-50 active:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-200"
+                                    aria-label="Delete comment"
+                                    title="Delete"
+                                  >
+                                    <Trash className="h-5 w-5 text-red-600" />
+                                  </button>
+
                                 </div>
                               </div>
                             </div>
@@ -1167,7 +1235,10 @@ export default function VideoDetailModal({
                             Instagram URL
                           </label>
                           <div className="flex items-center space-x-2">
-                            <code className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono text-gray-800">
+                            <code
+                              className={`flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm font-mono ${!video.insta_id && " text-red-600"
+                                }`}
+                            >
                               {video.insta_id ||
                                 "Instagram handle not provided yet. Please update it in the profile settings."}
                             </code>
@@ -1243,13 +1314,13 @@ export default function VideoDetailModal({
                             {video.UTM_URL ? (
                               <>
                                 <a
-                                  href={`${API_URL}/UTM/${video.UTM_URL}`}
+                                  href={`${video.UTM_URL}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 flex-1 break-all"
                                 >
                                   <span className="break-words">
-                                    {API_URL}/UTM/{video.UTM_URL}
+                                    {video.UTM_URL}
                                   </span>
                                   <svg
                                     className="w-4 h-4 ml-1"
@@ -1362,25 +1433,25 @@ export default function VideoDetailModal({
                               {(ratings.punctuality > 0 ||
                                 ratings.creativity > 0 ||
                                 ratings.content > 0) && (
-                                <div className="bg-gray-50 rounded-lg p-4 border">
-                                  <div className="space-y-1">
-                                    <h4 className="text-sm font-medium text-gray-700">
-                                      Score Preview
-                                    </h4>
-                                    <div className="flex items-center space-x-4 text-xs text-gray-600">
-                                      <span>
-                                        Punctuality: {ratings.punctuality}/5
-                                      </span>
-                                      <span>
-                                        Creativity: {ratings.creativity}/5
-                                      </span>
-                                      <span>
-                                        Content Quality: {ratings.content}/5
-                                      </span>
+                                  <div className="bg-gray-50 rounded-lg p-4 border">
+                                    <div className="space-y-1">
+                                      <h4 className="text-sm font-medium text-gray-700">
+                                        Score Preview
+                                      </h4>
+                                      <div className="flex items-center space-x-4 text-xs text-gray-600">
+                                        <span>
+                                          Punctuality: {ratings.punctuality}/5
+                                        </span>
+                                        <span>
+                                          Creativity: {ratings.creativity}/5
+                                        </span>
+                                        <span>
+                                          Content Quality: {ratings.content}/5
+                                        </span>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
 
                               {/* 🟢 Submit */}
                               <div className="flex justify-end">
@@ -1500,6 +1571,7 @@ export default function VideoDetailModal({
           </div>
         </div>
       </div>
+
       <RepostModal
         video={video}
         isOpen={isRepostModalOpen}
@@ -1523,6 +1595,13 @@ export default function VideoDetailModal({
         onSubmit={handleUTMUpdate}
         initialUrl={video.UTM_URL}
       />
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={performDeleteComment}
+        username={pendingDeleteUsername}
+      />
+
     </div>
   );
 }

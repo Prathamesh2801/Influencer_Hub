@@ -44,7 +44,7 @@ export async function AuthLogin(
       formData.append("Coordinator_username", co_ordinator);
     }
     if (role === "Co-ordinator" || role === "Creator") {
-      console.log("hii", User_Type);
+      // console.log("hii", User_Type);
       formData.append("User_Type", User_Type);
     }
 

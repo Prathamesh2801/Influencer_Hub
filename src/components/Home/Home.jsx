@@ -140,10 +140,10 @@ export default function Home() {
   async function getHomeData() {
     try {
       const response = await getAllHomeCreatives();
-      console.log("Home Creatives : ", response);
+      // console.log("Home Creatives : ", response);
       if (response?.Status) {
         setHomeData(response.Data);
-        console.log("Homepage Data:", response.Data);
+        // console.log("Homepage Data:", response.Data);
       } else {
         console.error("Failed to fetch home data", response?.Message);
       }

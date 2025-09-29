@@ -18,17 +18,17 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
   const [exportLoading, setExportLoading] = useState(false);
   const userRole = localStorage.getItem("Role");
   const videosPerPage = 5;
-  console.log("Task In View Modal ", task);
+  // console.log("Task In View Modal ", task);
   useEffect(() => {
     if (isOpen && task?.id) {
       const loadVideos = async () => {
-        console.log("TTEST", task);
+        // console.log("TTEST", task);
         try {
           setLoading(true);
           const token = localStorage.getItem("fcm_token");
           const res = await fetchAllReels(token, task.id);
           setVideos(res.data?.Data || []);
-          // console.log("Task View Modal : ", res.data);
+          console.log("Task View Modal : ", res.data);
           setCurrentPage(1); // Reset to page 1 every time modal opens
         } catch (err) {
           console.error("Error fetching task videos:", err);
@@ -61,9 +61,13 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
           video.User_Type === "Premium" ? "Core 50" : "Core 250" || "N/A",
         SocialMedia_URL: video.SocialMedia_URL || "N/A",
         Instagram_URL: video.insta_id || "N/A",
-        UTM_URL: API_URL + "/UTM/" + video.UTM_URL || "N/A",
+        UTM_URL: video.UTM_URL || "N/A",
         Score: video.Score || "N/A",
         Video_ID: video.Video_ID || "N/A",
+        Insight_Image1: video.Image1 || 'N/A',
+        Insight_Image2: video.Image2 || 'N/A',
+        Insight_Image3: video.Image3 || 'N/A',
+
       }));
 
       // Create a new workbook
@@ -184,10 +188,10 @@ export default function TaskViewModal({ isOpen, onClose, task }) {
                     {task.userType === "Core"
                       ? "Core 250"
                       : task.userType === "Premium"
-                      ? "Core 50"
-                      : task.userType === "All"
-                      ? "All"
-                      : task.userType}
+                        ? "Core 50"
+                        : task.userType === "All"
+                          ? "All"
+                          : task.userType}
                   </p>
                 </div>
               )}
